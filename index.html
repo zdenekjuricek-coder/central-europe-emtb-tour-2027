@@ -7,6 +7,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs (Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5TZAwRTKDxaveK1Fk85wK0MnLlj--07Y",
+            authDomain: "central-europe-emtb.firebaseapp.com",
+            projectId: "central-europe-emtb",
+            storageBucket: "central-europe-emtb.firebasestorage.app",
+            messagingSenderId: "249064062530",
+            appId: "1:249064062530:web:6484b61bebbb836e5837db"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
+
+        window.db = db;
+        window.appId = appId;
+        window.firebaseModules = { doc, setDoc, onSnapshot, collection };
+
+        // Initialize Firestore synchronization directly without requiring Auth
+        console.log("Firebase initialized successfully.");
+        initFirebaseSync();
+    </script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
         .polka-dot {
@@ -1020,17 +1048,58 @@
         // Results storage per race: { raceId: { riderId: { finish: X, sprint: Y, kom: Z } } }
         let raceResults = {};
 
-        // Load state from localStorage or defaults
-        let teams = JSON.parse(localStorage.getItem('ce_emtbt_teams')) || defaultTeams;
-        let riders = JSON.parse(localStorage.getItem('ce_emtbt_riders')) || defaultRiders;
-        let calendar = JSON.parse(localStorage.getItem('ce_emtbt_calendar')) || defaultCalendar;
-        raceResults = JSON.parse(localStorage.getItem('ce_emtbt_results')) || {};
+        let teams = defaultTeams;
+        let riders = defaultRiders;
+        let calendar = defaultCalendar;
+
+        function initFirebaseSync() {
+            if (!window.db) {
+                window.loadDefaultData();
+                return;
+            }
+            const { doc, onSnapshot } = window.firebaseModules;
+            const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'tourData');
+
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.teams) teams = data.teams;
+                    if (data.riders) riders = data.riders;
+                    if (data.calendar) calendar = data.calendar;
+                    if (data.raceResults) raceResults = data.raceResults;
+                } else {
+                    // Initialize document if not exists
+                    saveData();
+                }
+                populateAdminSelects();
+                renderPublicLeaderboards();
+                populatePublicRaceResultsSelect();
+            }, (error) => {
+                console.error("Firebase snapshot error:", error);
+                window.loadDefaultData();
+            });
+        }
+
+        window.loadDefaultData = function() {
+            teams = defaultTeams;
+            riders = defaultRiders;
+            calendar = defaultCalendar;
+            raceResults = {};
+            populateAdminSelects();
+            renderPublicLeaderboards();
+            populatePublicRaceResultsSelect();
+        };
 
         function saveData() {
-            localStorage.setItem('ce_emtbt_teams', JSON.stringify(teams));
-            localStorage.setItem('ce_emtbt_riders', JSON.stringify(riders));
-            localStorage.setItem('ce_emtbt_calendar', JSON.stringify(calendar));
-            localStorage.setItem('ce_emtbt_results', JSON.stringify(raceResults));
+            if (window.db) {
+                const { doc, setDoc } = window.firebaseModules;
+                const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'tourData');
+                setDoc(docRef, { teams, riders, calendar, raceResults }, { merge: true }).then(() => {
+                    console.log("Data successfully saved to Firebase Firestore.");
+                }).catch(err => {
+                    console.error("Error saving data to Firestore:", err);
+                });
+            }
         }
 
         // Navigation Switching
@@ -1804,9 +1873,11 @@
 
         // Initialize App on Load
         window.onload = function() {
-            populateAdminSelects();
-            renderPublicLeaderboards();
-            populatePublicRaceResultsSelect();
+            setTimeout(() => {
+                populateAdminSelects();
+                renderPublicLeaderboards();
+                populatePublicRaceResultsSelect();
+            }, 500);
         };
     </script>
 </body>
