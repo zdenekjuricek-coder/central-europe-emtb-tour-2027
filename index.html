@@ -24,7 +24,9 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
+        // Ensure appId is safe for Firestore collection/document IDs (no slashes)
+        const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
+        const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
 
         window.db = db;
         window.appId = appId;
@@ -1058,7 +1060,8 @@
                 return;
             }
             const { doc, onSnapshot } = window.firebaseModules;
-            const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'tourData');
+            // Firestore doc path must have an even number of segments (collection/document pairs)
+            const docRef = doc(window.db, 'artifacts', window.appId);
 
             onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -1093,7 +1096,7 @@
         function saveData() {
             if (window.db) {
                 const { doc, setDoc } = window.firebaseModules;
-                const docRef = doc(window.db, 'artifacts', window.appId, 'public', 'data', 'tourData');
+                const docRef = doc(window.db, 'artifacts', window.appId);
                 setDoc(docRef, { teams, riders, calendar, raceResults }, { merge: true }).then(() => {
                     console.log("Data successfully saved to Firebase Firestore.");
                 }).catch(err => {
