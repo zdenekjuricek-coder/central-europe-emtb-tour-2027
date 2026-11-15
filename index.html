@@ -102,7 +102,7 @@
 
                         <div class="bg-red-50 p-5 rounded-xl border border-red-200">
                             <h3 class="font-bold text-slate-900 text-base mb-2 flex items-center gap-2">
-                                <span class="w-4 h-4 rounded bg-red-500 inline-block"></span> <span data-i18n="rule_polka">Puntíkovaný dres (Král hor / KOM)</span>
+                                <span class="w-4 h-4 rounded bg-red-500 inline-block"></span> <span data-i18n="rule_polka">Král hor (Puntíkovaný dres)</span>
                             </h3>
                             <p class="text-xs text-slate-700" data-i18n="rule_polka_desc">Vrchařské prémie na vrcholech stoupání. Bodují 3 až 5 nejrychlejších jezdců v kopci podle obtížnosti stoupání (Kategorie HC, 1, 2, 3).</p>
                         </div>
@@ -130,7 +130,7 @@
             
             <!-- SUB-VIEW: LEADERBOARDS -->
             <div id="subview-leaderboards" class="space-y-6">
-                <!-- Top 4 Hero Cards -->
+                <!-- Top 4 Hero Cards (Polka Dot ordered before Pink) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- 1. Yellow Jersey -->
                     <div class="bg-amber-400 text-slate-900 p-5 rounded-2xl shadow-md border border-amber-500 flex flex-col justify-between">
@@ -162,7 +162,7 @@
                         </div>
                     </div>
 
-                    <!-- 3. Polka Dot Jersey -->
+                    <!-- 3. Polka Dot Jersey (Král hor) - placed BEFORE Pink Jersey -->
                     <div class="bg-white text-slate-900 p-5 rounded-2xl shadow-md border-2 border-red-500 relative overflow-hidden flex flex-col justify-between">
                         <div class="absolute inset-0 polka-dot opacity-10 pointer-events-none"></div>
                         <div class="relative z-10">
@@ -178,7 +178,7 @@
                         </div>
                     </div>
 
-                    <!-- 4. Pink Jersey -->
+                    <!-- 4. Pink Jersey (Růžový dres) - placed AFTER Polka Dot -->
                     <div class="bg-pink-500 text-white p-5 rounded-2xl shadow-md border border-pink-600 flex flex-col justify-between">
                         <div>
                             <span class="bg-slate-900 text-pink-300 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md tracking-wider">Růžový dres (Tovární)</span>
@@ -197,7 +197,7 @@
                 <!-- Leaderboard Tabs & Filters -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="p-4 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
-                        <!-- Category Switchers -->
+                        <!-- Category Switchers (Polka Dot before Pink) -->
                         <div class="flex flex-wrap gap-2">
                             <button onclick="switchLeaderboardTab('yellow')" id="lb-tab-yellow" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white shadow-sm transition flex items-center gap-2">
                                 <i class="fa-solid fa-medal text-amber-400"></i> <span data-i18n="lb_yellow">Celkové pořadí (Žlutý trikot)</span>
@@ -304,7 +304,7 @@
 
             <!-- SUB-VIEW: TEAMS & RIDERS -->
             <div id="subview-teams" class="hidden space-y-8">
-                <!-- Section 1: Teams Roster -->
+                <!-- Section 1: Teams Roster (Sekce Tým) -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
                     <h3 class="text-xl font-black text-slate-900 flex items-center gap-2">
                         <i class="fa-solid fa-shield-cat text-amber-500"></i> <span data-i18n="teams_roster_title">Týmy a jejich soupisky jezdců</span>
@@ -314,7 +314,7 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Individual Riders & Skills -->
+                <!-- Section 2: Individual Riders & Skills (Sekce Jednotlivý jezdec) -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
                     <h3 class="text-xl font-black text-slate-900 flex items-center gap-2">
                         <i class="fa-solid fa-user-gear text-amber-500"></i> <span data-i18n="riders_profiles_title">Profily jednotlivých jezdců a dovednosti</span>
@@ -339,7 +339,7 @@
                         <p class="text-xs text-slate-600" data-i18n="admin_panel_sub">Plná správa výsledků, jezdců, týmů, kalendáře a zálohování dat.</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <button onclick="exportJSONData()" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition flex items-center gap-2">
                         <i class="fa-solid fa-download text-amber-400"></i> <span data-i18n="btn_backup">Stáhnout zálohu (JSON)</span>
                     </button>
@@ -540,7 +540,7 @@
                 </div>
             </div>
 
-            <!-- Admin Sub-Content: Manage Teams -->
+            <!-- Admin Sub-Content: Manage Teams (Country Flag Selection & Delete) -->
             <div id="admin-sub-teams" class="admin-sub-content hidden bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
                 <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-shield-plus mr-2 text-amber-500"></i> <span data-i18n="admin_add_team_title">Přidat / Spravovat týmy</span></h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -654,8 +654,8 @@
                 race_results_title: "Výsledkové listiny jednotlivých závodů",
                 select_race_label: "Vyberte závod:",
                 cal_title: "Kalendář závodu Central Europe e-MTB Tour 2027",
-                teams_roster_title: "Týmy a jejich soupisky jezdců",
-                riders_profiles_title: "Profily jednotlivých jezdců a dovednosti",
+                teams_roster_title: "Týmy seriálu a jejich soupisky",
+                riders_profiles_title: "Jednotliví jezdci a jejich skillové profily",
                 admin_panel_title: "Administrátorský panel",
                 admin_panel_sub: "Plná správa výsledků, jezdců, týmů, kalendáře a zálohování dat.",
                 btn_backup: "Stáhnout zálohu (JSON)",
@@ -700,7 +700,7 @@
                 rule_pink_desc: "Súťaž výrobcov motorov a značiek e-bikov (Crussis, Kellys, CTM, AMFLOW, FOCUS atď.). Aby sme vyrovnali rozdiely medzi silnými motormi (napr. DJI) a štandardnými motormi (Bosch, Shimano, Yamaha), aplikuje sa korekčný koeficient motora, ktorý staví do popredia reálnu výkonnosť a kvalitu jazdca.",
                 rule_team_title: "Súťaž tímov (Pravidlá podľa Tour de France)",
                 rule_team_desc: "Tímová súťaž v seriáli sa riadi tradičnými pravidlami Tour de France. V každých pretekoch sa pre hodnotenie tímu sčítajú bodové zisky <strong>3 najlepších jazdcov daného tímu</strong> v celkovom poradí (zo Žltého dresu). Tímová klasifikácia tak oceňuje vyrovnanost a šírku celej stajne, nie iba jedného silného jednotlivca.",
-                lb_yellow: "Celkové poradie (Žltý dres)",
+                lb_yellow: "Celkové poradie (Žlutý dres)",
                 lb_green: "Zelený dres (Šprinty)",
                 lb_polka: "Kráľ hor (Puntíkovaný)",
                 lb_pink: "Ružový dres (Továrenský)",
@@ -714,8 +714,8 @@
                 race_results_title: "Výsledkové listiny jednotlivých pretekov",
                 select_race_label: "Vyberte preteky:",
                 cal_title: "Kalendár pretekov Central Europe e-MTB Tour 2027",
-                teams_roster_title: "Tímy a ich súpisky jazdcov",
-                riders_profiles_title: "Profily jednotlivých jazdcov a zručnosti",
+                teams_roster_title: "Tímy seriálu a ich súpisky",
+                riders_profiles_title: "Jednotliví jazdci a ich skillové profily",
                 admin_panel_title: "Administrátorský panel",
                 admin_panel_sub: "Plná správa výsledkov, jazdcov, tímov, kalendára a zálohovania.",
                 btn_backup: "Stiahnuť zálohu (JSON)",
@@ -774,8 +774,8 @@
                 race_results_title: "Wyniki poszczególnych wyścigów",
                 select_race_label: "Wybierz wyścig:",
                 cal_title: "Kalendarz wyścigów Central Europe e-MTB Tour 2027",
-                teams_roster_title: "Zespoły i ich składy",
-                riders_profiles_title: "Profile kolarzy i umiejętności",
+                teams_roster_title: "Zespoły seriadu i ich składy",
+                riders_profiles_title: "Poszczególni kolarze i ich profile",
                 admin_panel_title: "Panel administracyjny",
                 admin_panel_sub: "Pełne zarządzanie wynikami, kolarzami, zespołami i kalendarzem.",
                 btn_backup: "Pobierz kopię (JSON)",
@@ -835,7 +835,7 @@
                 select_race_label: "Rennen auswählen:",
                 cal_title: "Rennkalender Central Europe e-MTB Tour 2027",
                 teams_roster_title: "Teamkader",
-                riders_profiles_title: "Fahrerprofile & Skills",
+                riders_profiles_title: "Einzelne Fahrer & Skills",
                 admin_panel_title: "Admin-Bereich",
                 admin_panel_sub: "Vollständige Verwaltung von Ergebnissen, Fahrern, Teams und Kalender.",
                 btn_backup: "Backup herunterladen",
@@ -895,7 +895,7 @@
                 select_race_label: "Select Race:",
                 cal_title: "Central Europe e-MTB Tour 2027 Calendar",
                 teams_roster_title: "Teams & Rider Rosters",
-                riders_profiles_title: "Rider Profiles & Skills",
+                riders_profiles_title: "Individual Riders & Skill Profiles",
                 admin_panel_title: "Administration Panel",
                 admin_panel_sub: "Full management of results, riders, teams, calendar, and backups.",
                 btn_backup: "Download Backup (JSON)",
@@ -933,7 +933,7 @@
             });
         }
 
-        // Country flags mapping
+        // Country flags mapping (including Hungary 🇭🇺)
         const countryFlags = {
             'CZ': '🇨🇿',
             'SK': '🇸🇰',
@@ -957,7 +957,8 @@
         let defaultTeams = [
             { id: 't1', name: 'Tatry e-Bike Squad', country: 'SK' },
             { id: 't2', name: 'eMTB Vamos Rápido', country: 'CZ' },
-            { id: 't3', name: 'Sudety Volt Factory', country: 'PL' }
+            { id: 't3', name: 'Sudety Volt Factory', country: 'PL' },
+            { id: 't4', name: 'Balaton e-Power Team', country: 'HU' }
         ];
 
         let defaultRiders = [
@@ -965,7 +966,8 @@
             { id: 'r2', name: 'Lukáš Kovář', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'Crussis', motor: 'DJI Avinox', skills: { cond: 8, tech: 9, battery: 8, sprint: 9, kom: 8 } },
             { id: 'r3', name: 'Piotr Zieliński', country: 'PL', team: 'Sudety Volt Factory', category: 'Masters', ebike: 'Kellys', motor: 'Shimano EP801', skills: { cond: 8, tech: 8, battery: 9, sprint: 7, kom: 8 } },
             { id: 'r4', name: 'Marek Dvořák', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'FOCUS', motor: 'Brose S Mag', skills: { cond: 7, tech: 7, battery: 8, sprint: 8, kom: 7 } },
-            { id: 'r5', name: 'Tereza Novotná', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Women', ebike: 'Specialized', motor: 'Yamaha PW-X3', skills: { cond: 8, tech: 8, battery: 9, sprint: 7, kom: 8 } }
+            { id: 'r5', name: 'Tereza Novotná', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Women', ebike: 'Specialized', motor: 'Yamaha PW-X3', skills: { cond: 8, tech: 8, battery: 9, sprint: 7, kom: 8 } },
+            { id: 'r6', name: 'Zoltán Kovács', country: 'HU', team: 'Balaton e-Power Team', category: 'Elite', ebike: 'Cube', motor: 'Bosch CX Race', skills: { cond: 9, tech: 8, battery: 8, sprint: 9, kom: 8 } }
         ];
 
         let defaultCalendar = [
@@ -1028,6 +1030,7 @@
                 populateAdminSelects();
                 renderAdminRidersTable();
                 renderAdminTeamsGrid();
+                switchAdminSubTab(currentAdminSubTab);
             }
         }
 
@@ -1087,7 +1090,8 @@
                     btn.className = "px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition flex items-center gap-2";
                 }
             });
-            document.getElementById(`admin-sub-${sub}`).classList.remove('hidden');
+            const targetEl = document.getElementById(`admin-sub-${sub}`);
+            if (targetEl) targetEl.classList.remove('hidden');
         }
 
         // Admin Login Prompt
@@ -1114,7 +1118,7 @@
             document.getElementById('custom-modal').classList.add('hidden');
         }
 
-        // Points calculation logic according to Tour de France rules
+        // Points calculation logic (2nd place is 90 pts)
         function getFinishPoints(pos) {
             const table = [100, 90, 80, 70, 60, 50, 45, 40, 36, 32, 29, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 7, 6, 5, 4, 3, 2, 1];
             if (pos >= 1 && pos <= table.length) return table[pos - 1];
@@ -1146,7 +1150,6 @@
                 };
             });
 
-            // Iterate over all races and results
             for (let raceId in raceResults) {
                 let rRes = raceResults[raceId];
                 for (let riderId in rRes) {
@@ -1160,13 +1163,12 @@
                     stats[riderId].totalGreen += sPts;
                     stats[riderId].totalPolka += kPts;
 
-                    // Pink jersey calculation with motor handicap coefficient
                     let handicap = motorHandicaps[stats[riderId].rider.motor] || 1.0;
                     stats[riderId].totalPink += Math.round((fPts + sPts + kPts) * handicap);
                 }
             }
 
-            // Apply 7-out-10 drop rule for Yellow Jersey (sum top 7 scores)
+            // Apply 7-out-10 drop rule for Yellow Jersey
             for (let riderId in stats) {
                 let scores = stats[riderId].finishScores.sort((a, b) => b - a);
                 let top7 = scores.slice(0, 7);
@@ -1186,7 +1188,6 @@
                 arr = arr.filter(item => item.rider.category === catFilter);
             }
 
-            // Sort for each jersey
             let yellowSorted = [...arr].sort((a, b) => b.totalYellow - a.totalYellow);
             let greenSorted = [...arr].sort((a, b) => b.totalGreen - a.totalGreen);
             let polkaSorted = [...arr].sort((a, b) => b.totalPolka - a.totalPolka);
@@ -1214,7 +1215,6 @@
                 document.getElementById('hero-pink-pts').textContent = pinkSorted[0].totalPink + ' b.';
             }
 
-            // Render Table based on currentLeaderboardTab
             const headerRow = document.getElementById('table-header-row');
             const tbody = document.getElementById('public-table-body');
             tbody.innerHTML = '';
@@ -1293,7 +1293,6 @@
                     <th class="p-4">Motor</th>
                     <th class="p-4 text-right">Konstruktérské Body</th>
                 `;
-                // Group by ebike brand
                 let brandMap = {};
                 arr.forEach(item => {
                     let brand = item.rider.ebike;
@@ -1339,7 +1338,6 @@
                 let tArr = [];
                 for (let tName in teamStats) {
                     let tItem = teamStats[tName];
-                    // Sort rider scores descending and take top 3 (Tour de France team rule)
                     tItem.riderScores.sort((a, b) => b - a);
                     let top3Sum = tItem.riderScores.slice(0, 3).reduce((acc, val) => acc + val, 0);
                     tArr.push({ team: tItem.team, totalPts: top3Sum, count: tItem.count });
@@ -1426,7 +1424,6 @@
                 }
             }
 
-            // Sort by finish position
             raceRidersList.sort((a, b) => a.finish - b.finish);
 
             if (raceRidersList.length === 0) {
@@ -1454,7 +1451,7 @@
         }
 
         function renderTeamsAndRidersView() {
-            // Render Teams Roster
+            // Section 1: Tým (Teams roster with their respective riders)
             const teamsGrid = document.getElementById('teams-roster-grid');
             teamsGrid.innerHTML = '';
             teams.forEach(t => {
@@ -1480,7 +1477,7 @@
                 teamsGrid.appendChild(div);
             });
 
-            // Render Individual Riders & Skills
+            // Section 2: Jednotlivý jezdec (All rider profiles and skill cards)
             const ridersGrid = document.getElementById('riders-profiles-grid');
             ridersGrid.innerHTML = '';
             riders.forEach(r => {
@@ -1534,7 +1531,6 @@
 
         // Admin Management functions
         function populateAdminSelects() {
-            // Race select
             const rSelect = document.getElementById('admin-result-race-select');
             rSelect.innerHTML = '';
             calendar.forEach(c => {
@@ -1544,7 +1540,6 @@
                 rSelect.appendChild(opt);
             });
 
-            // Rider select for results
             const riderResSelect = document.getElementById('admin-result-rider-select');
             riderResSelect.innerHTML = '';
             riders.forEach(r => {
@@ -1554,7 +1549,6 @@
                 riderResSelect.appendChild(opt);
             });
 
-            // Rider select for skills
             const riderSkillSelect = document.getElementById('admin-skill-rider-select');
             riderSkillSelect.innerHTML = '';
             riders.forEach(r => {
@@ -1564,7 +1558,6 @@
                 riderSkillSelect.appendChild(opt);
             });
 
-            // New rider team select (including none option)
             const newRiderTeamSelect = document.getElementById('new-rider-team');
             newRiderTeamSelect.innerHTML = '<option value="">-- Bez týmu (Individuální) --</option>';
             teams.forEach(t => {
@@ -1659,6 +1652,7 @@
 
         function renderAdminRidersTable() {
             const tbody = document.getElementById('admin-riders-tbody');
+            if (!tbody) return;
             tbody.innerHTML = '';
             riders.forEach(r => {
                 const tr = document.createElement('tr');
@@ -1697,6 +1691,7 @@
 
         function renderAdminTeamsGrid() {
             const grid = document.getElementById('admin-teams-grid');
+            if (!grid) return;
             grid.innerHTML = '';
             teams.forEach(t => {
                 let div = document.createElement('div');
