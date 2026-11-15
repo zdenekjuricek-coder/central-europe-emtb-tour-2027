@@ -1713,12 +1713,19 @@
         }
 
         function addNewRider() {
-            const name = document.getElementById('new-rider-name').value.trim();
-            const country = document.getElementById('new-rider-country').value;
-            const team = document.getElementById('new-rider-team').value;
-            const category = document.getElementById('new-rider-cat').value;
-            const ebike = document.getElementById('new-rider-ebike').value;
-            const motor = document.getElementById('new-rider-motor').value;
+            const nameEl = document.getElementById('new-rider-name');
+            const countryEl = document.getElementById('new-rider-country');
+            const teamEl = document.getElementById('new-rider-team');
+            const catEl = document.getElementById('new-rider-cat');
+            const ebikeEl = document.getElementById('new-rider-ebike');
+            const motorEl = document.getElementById('new-rider-motor');
+
+            const name = nameEl ? nameEl.value.trim() : '';
+            const country = countryEl ? countryEl.value : 'CZ';
+            const team = teamEl ? teamEl.value : '';
+            const category = catEl ? catEl.value : 'Elite';
+            const ebike = ebikeEl ? ebikeEl.value : 'Crussis';
+            const motor = motorEl ? motorEl.value : 'Bosch CX Race';
 
             if (!name) {
                 showModal("Chyba", "Zadejte prosím jméno jezdce!");
@@ -1738,7 +1745,7 @@
             });
 
             saveData();
-            document.getElementById('new-rider-name').value = '';
+            if (nameEl) nameEl.value = '';
             populateAdminSelects();
             renderAdminRidersTable();
             showModal("Úspěch", "Nový jezdec byl úspěšně přidán!");
@@ -1775,8 +1782,11 @@
         }
 
         function addNewTeam() {
-            const name = document.getElementById('new-team-name').value.trim();
-            const country = document.getElementById('new-team-country').value;
+            const nameEl = document.getElementById('new-team-name');
+            const countryEl = document.getElementById('new-team-country');
+
+            const name = nameEl ? nameEl.value.trim() : '';
+            const country = countryEl ? countryEl.value : 'CZ';
 
             if (!name) {
                 showModal("Chyba", "Zadejte název týmu!");
@@ -1786,7 +1796,7 @@
             const newId = 't_' + Date.now();
             teams.push({ id: newId, name: name, country: country });
             saveData();
-            document.getElementById('new-team-name').value = '';
+            if (nameEl) nameEl.value = '';
             populateAdminSelects();
             renderAdminTeamsGrid();
             showModal("Úspěch", "Nový tým byl vytvořen!");
