@@ -169,138 +169,145 @@
                             <h3 class="font-bold text-pink-400 text-base mb-2 flex items-center gap-2.5">
                                 <span class="w-4 h-4 rounded bg-pink-500 inline-block shadow-sm"></span> <span data-i18n="rule_pink">Růžový dres (Tovární konstruktérský dres)</span>
                             </h3>
-                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_pink_desc">Soutěž výrobců motorů a značek e-biků (Crussis, Kellys, CTM, AMFLOW, FOCUS atd.). Abychom vyrovnali rozdíly mezi silnými motory (např. DJI) a standardními motory (Bosch, Shimano, Yamaha), aplikuje se korekční koeficient motoru, který staví do popředí reálnou výkonnost a kvalitu jezdce.</p>
-                        </div>
-
-                        <div class="bg-blue-600/10 p-6 rounded-2xl border border-blue-600/30 md:col-span-2">
-                            <h3 class="font-bold text-blue-400 text-base mb-2 flex items-center gap-2.5">
-                                <span class="w-4 h-4 rounded bg-blue-600 inline-block shadow-sm"></span> <span data-i18n="rule_team_title">Soutěž týmů (Pravidla podle Tour de France)</span>
-                            </h3>
-                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_team_desc">Týmová soutěž v seriálu se řídí tradičními pravidly Tour de France. V každém závodě se pro hodnocení týmu sčítají bodové zisky <strong>3 nejlepších jezdců daného týmu</strong> v celkovém pořadí (ze Žlutého dresu). Týmová klasifikace tak oceňuje vyrovnanost a šířku celé stáje, nikoliv pouze jednoho silného jednotlivce.</p>
+                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_pink_desc">Soutěž výrobců motorů a značek e-biků. Zástupce (tvář) dané značky se vybírá buď <strong>ručně v administraci</strong> (fixní volba v sekci Správa týmů), nebo <strong>automaticky podle nejvyššího počtu bodů</strong> ze žebříčku dané značky.</p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Rules for Team TdF -->
+            <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl">
+                <h3 class="text-xl font-black text-white mb-3" data-i18n="rule_team_title">Soutěž týmů (Pravidla podle Tour de France)</h3>
+                <p class="text-sm text-slate-300 leading-relaxed" data-i18n="rule_team_desc">Týmová soutěž v seriálu se řídí tradičními pravidly Tour de France. V každém závodě se pro hodnocení týmu sčítají bodové zisky <strong>3 nejlepších jezdců daného týmu</strong> v celkovém pořadí. Týmová klasifikace tak oceňuje vyrovnanost a šířku celé stáje.</p>
+            </div>
         </section>
 
-        <!-- ==================== VIEW: PUBLIC (LEADERBOARDS & CALENDAR & TEAMS) ==================== -->
-        <section id="view-public" class="space-y-6">
-            
-            <!-- SUB-VIEW: LEADERBOARDS -->
+        <!-- ==================== VIEW: PUBLIC ==================== -->
+        <section id="view-public" class="space-y-8">
+            <!-- Sub-View: Leaderboards -->
             <div id="subview-leaderboards" class="space-y-6">
-                <!-- Top 4 Hero Cards (Polka Dot ordered before Pink) -->
+                <!-- Hero Jersey Cards (4 Dresy) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- 1. Yellow Jersey -->
-                    <div class="bg-gradient-to-br from-amber-400 to-amber-500 text-slate-950 p-5 rounded-3xl shadow-xl border border-amber-300 flex flex-col justify-between transform hover:-translate-y-1 transition duration-300">
+                    <!-- Yellow Jersey -->
+                    <div class="bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border border-amber-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
                         <div>
-                            <span class="bg-slate-950 text-amber-400 text-[10px] font-black uppercase px-3 py-1 rounded-lg tracking-wider shadow-sm">Žlutý dres</span>
-                            <div class="mt-4">
-                                <h3 id="hero-yellow-name" class="text-base sm:text-lg font-black tracking-tight truncate">--</h3>
-                                <p id="hero-yellow-team" class="text-xs font-bold text-slate-900/80 truncate">--</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="bg-amber-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Žlutý dres</span>
+                                <i class="fa-solid fa-medal text-amber-400 text-lg"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <div id="hero-yellow-name" class="text-base font-black text-white flex items-center gap-2">--</div>
+                                <div id="hero-yellow-team" class="text-xs text-slate-400 font-semibold">--</div>
                             </div>
                         </div>
-                        <div class="mt-5 pt-3 border-t border-amber-600/30 flex justify-between items-end">
-                            <span class="text-xs font-black uppercase opacity-75">Celkem bodů</span>
-                            <span id="hero-yellow-pts" class="text-2xl font-black">0 b.</span>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Celkem bodů</span>
+                            <span id="hero-yellow-pts" class="text-xl font-black text-amber-400">0 b.</span>
                         </div>
                     </div>
 
-                    <!-- 2. Green Jersey -->
-                    <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-5 rounded-3xl shadow-xl border border-emerald-400 flex flex-col justify-between transform hover:-translate-y-1 transition duration-300">
+                    <!-- Green Jersey -->
+                    <div class="bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
                         <div>
-                            <span class="bg-slate-950 text-emerald-400 text-[10px] font-black uppercase px-3 py-1 rounded-lg tracking-wider shadow-sm">Zelený dres (Sprinty)</span>
-                            <div class="mt-4">
-                                <h3 id="hero-green-name" class="text-base sm:text-lg font-black tracking-tight truncate">--</h3>
-                                <p id="hero-green-team" class="text-xs font-bold text-emerald-100/90 truncate">--</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Zelený dres</span>
+                                <i class="fa-solid fa-bolt text-emerald-400 text-lg"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <div id="hero-green-name" class="text-base font-black text-white flex items-center gap-2">--</div>
+                                <div id="hero-green-team" class="text-xs text-slate-400 font-semibold">--</div>
                             </div>
                         </div>
-                        <div class="mt-5 pt-3 border-t border-emerald-400/30 flex justify-between items-end">
-                            <span class="text-xs font-black uppercase opacity-75">Sprint body</span>
-                            <span id="hero-green-pts" class="text-2xl font-black">0 b.</span>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Sprint Body</span>
+                            <span id="hero-green-pts" class="text-xl font-black text-emerald-400">0 b.</span>
                         </div>
                     </div>
 
-                    <!-- 3. Polka Dot Jersey (Král hor) - placed BEFORE Pink Jersey -->
-                    <div class="bg-white text-slate-950 p-5 rounded-3xl shadow-xl border-2 border-red-500 relative overflow-hidden flex flex-col justify-between transform hover:-translate-y-1 transition duration-300">
-                        <div class="absolute inset-0 polka-dot opacity-15 pointer-events-none"></div>
-                        <div class="relative z-10">
-                            <span class="bg-red-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded-lg tracking-wider shadow-sm">Král hor</span>
-                            <div class="mt-4">
-                                <h3 id="hero-polka-name" class="text-base sm:text-lg font-black tracking-tight truncate">--</h3>
-                                <p id="hero-polka-team" class="text-xs font-bold text-slate-600 truncate">--</p>
+                    <!-- Polka Dot Jersey -->
+                    <div class="bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between polka-dot">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-red-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                        <div class="bg-[#111827]/90 p-3 rounded-2xl">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="bg-red-500 text-white font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Král hor</span>
+                                <i class="fa-solid fa-mountain text-red-500 text-lg"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <div id="hero-polka-name" class="text-base font-black text-white flex items-center gap-2">--</div>
+                                <div id="hero-polka-team" class="text-xs text-slate-400 font-semibold">--</div>
                             </div>
                         </div>
-                        <div class="relative z-10 mt-5 pt-3 border-t border-slate-200 flex justify-between items-end">
-                            <span class="text-xs font-black uppercase text-slate-500">KOM body</span>
-                            <span id="hero-polka-pts" class="text-2xl font-black text-red-600">0 b.</span>
+                        <div class="mt-4 pt-3 border-t border-slate-800 bg-[#111827]/90 px-3 py-2 rounded-xl flex justify-between items-end">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">KOM Body</span>
+                            <span id="hero-polka-pts" class="text-xl font-black text-red-500">0 b.</span>
                         </div>
                     </div>
 
-                    <!-- 4. Pink Jersey (Růžový dres) - placed AFTER Polka Dot -->
-                    <div class="bg-gradient-to-br from-pink-500 to-pink-600 text-white p-5 rounded-3xl shadow-xl border border-pink-400 flex flex-col justify-between transform hover:-translate-y-1 transition duration-300">
+                    <!-- Pink Jersey -->
+                    <div class="bg-gradient-to-br from-pink-500/20 via-[#111827] to-[#0f172a] border border-pink-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-pink-500/10 rounded-full blur-2xl pointer-events-none"></div>
                         <div>
-                            <span class="bg-slate-950 text-pink-300 text-[10px] font-black uppercase px-3 py-1 rounded-lg tracking-wider shadow-sm">Růžový dres (Tovární)</span>
-                            <div class="mt-4">
-                                <h3 id="hero-pink-name" class="text-base sm:text-lg font-black tracking-tight truncate">--</h3>
-                                <p id="hero-pink-brand" class="text-xs font-bold text-pink-100/90 truncate">--</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="bg-pink-500 text-white font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Růžový dres</span>
+                                <i class="fa-solid fa-industry text-pink-400 text-lg"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <div id="hero-pink-name" class="text-base font-black text-white flex items-center gap-2">--</div>
+                                <div id="hero-pink-brand" class="text-xs text-slate-400 font-semibold">--</div>
                             </div>
                         </div>
-                        <div class="mt-5 pt-3 border-t border-pink-400/30 flex justify-between items-end">
-                            <span class="text-xs font-black uppercase opacity-75">Konstruktér body</span>
-                            <span id="hero-pink-pts" class="text-2xl font-black">0 b.</span>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Tovární Body</span>
+                            <span id="hero-pink-pts" class="text-xl font-black text-pink-400">0 b.</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Leaderboard Tabs & Filters -->
-                <div class="bg-[#111827] rounded-3xl shadow-2xl border border-slate-800 overflow-hidden">
-                    <div class="p-4 sm:p-5 border-b border-slate-800 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 bg-[#0f172a]/50">
-                        <!-- Category Switchers (Polka Dot before Pink) -->
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="switchLeaderboardTab('yellow')" id="lb-tab-yellow" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-2">
-                                <i class="fa-solid fa-medal"></i> <span data-i18n="lb_yellow">Celkové pořadí (Žlutý trikot)</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('green')" id="lb-tab-green" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-bolt text-emerald-400"></i> <span data-i18n="lb_green">Zelený trikot (Sprinty)</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('polka')" id="lb-tab-polka" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-mountain text-red-500"></i> <span data-i18n="lb_polka">Král hor (Puntíkovaný)</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('pink')" id="lb-tab-pink" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-industry text-pink-400"></i> <span data-i18n="lb_pink">Růžový trikot (Tovární)</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('teams')" id="lb-tab-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-shield-halved text-amber-400"></i> <span data-i18n="lb_teams">Soutěž týmů</span>
-                            </button>
+                <!-- Leaderboards Navigation & Filters -->
+                <div class="bg-[#111827] border border-slate-800 p-5 sm:p-6 rounded-3xl shadow-2xl space-y-6">
+                    <div class="flex flex-col lg:flex-row justify-between items-center gap-4 flex-wrap">
+                        <!-- Category Filter -->
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <span class="text-xs uppercase font-black text-slate-400" data-i18n="filter_cat">Kategorie:</span>
+                            <select id="rider-category-filter" onchange="renderPublicLeaderboards()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-amber-400 transition shadow-sm">
+                                <option value="all">Všechny kategorie</option>
+                                <option value="Elite">Elite (Muži / Ženy)</option>
+                                <option value="Masters">Masters (35+)</option>
+                                <option value="Women">Ženy</option>
+                            </select>
                         </div>
 
-                        <!-- Category Filter dropdown -->
-                        <div class="flex items-center gap-2.5 w-full md:w-auto">
-                            <label class="text-xs font-black text-slate-400 uppercase whitespace-nowrap" data-i18n="filter_cat">Kategorie:</label>
-                            <select id="rider-category-filter" onchange="renderPublicLeaderboards()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3.5 py-2.5 font-bold shadow-sm focus:outline-none focus:border-amber-400 w-full md:w-auto">
-                                <option value="all">Všichni jezdci (Absolutní)</option>
-                                <option value="Elite">Elite (19-39 let)</option>
-                                <option value="Masters">Masters (40-49 let)</option>
-                                <option value="Grandmasters">Grandmasters (50+ let)</option>
-                                <option value="Women">Ženy (Open)</option>
-                            </select>
+                        <!-- Leaderboard Tabs -->
+                        <div class="flex items-center gap-2 flex-wrap w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
+                            <button onclick="switchLeaderboardTab('yellow')" id="lb-tab-yellow" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-2">
+                                <i class="fa-solid fa-trophy"></i> <span data-i18n="lb_yellow">Celkové pořadí</span>
+                            </button>
+                            <button onclick="switchLeaderboardTab('green')" id="lb-tab-green" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
+                                <i class="fa-solid fa-bolt"></i> <span data-i18n="lb_green">Sprinty</span>
+                            </button>
+                            <button onclick="switchLeaderboardTab('polka')" id="lb-tab-polka" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
+                                <i class="fa-solid fa-mountain"></i> <span data-i18n="lb_polka">Král hor</span>
+                            </button>
+                            <button onclick="switchLeaderboardTab('pink')" id="lb-tab-pink" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
+                                <i class="fa-solid fa-industry"></i> <span data-i18n="lb_pink">Tovární</span>
+                            </button>
+                            <button onclick="switchLeaderboardTab('teams')" id="lb-tab-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved"></i> <span data-i18n="lb_teams">Týmy</span>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Table Container -->
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[640px]" id="public-table">
-                            <thead class="bg-[#0f172a] text-slate-400 uppercase text-[11px] font-black tracking-wider border-b border-slate-800">
-                                <tr id="table-header-row">
-                                    <th class="p-4 w-16">Poř.</th>
-                                    <th class="p-4" data-i18n="th_rider">Jezdec</th>
-                                    <th class="p-4" data-i18n="th_team">Tým</th>
-                                    <th class="p-4" data-i18n="th_ebike">E-Bike značka</th>
-                                    <th class="p-4" data-i18n="th_motor">Motor</th>
-                                    <th class="p-4 text-right" data-i18n="th_points">Body</th>
+                    <!-- Rankings Table -->
+                    <div class="overflow-x-auto rounded-2xl border border-slate-800 shadow-xl">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr id="table-header-row" class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
+                                    <!-- Dynamic headers -->
                                 </tr>
                             </thead>
-                            <tbody id="public-table-body" class="divide-y divide-slate-800/60 text-xs sm:text-sm">
+                            <tbody id="public-table-body" class="divide-y divide-slate-800/60 bg-[#0f172a]">
                                 <!-- Dynamic rows -->
                             </tbody>
                         </table>
@@ -308,36 +315,36 @@
                 </div>
             </div>
 
-            <!-- SUB-VIEW: RACE RESULTS PER RACE -->
+            <!-- Sub-View: Race Results per Race -->
             <div id="subview-race-results" class="hidden space-y-6">
-                <div class="bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                    <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 border-b border-slate-800 pb-4">
-                        <h3 class="text-lg sm:text-xl font-black text-white flex items-center gap-3">
-                            <i class="fa-solid fa-flag-checkered text-amber-400"></i> <span data-i18n="race_results_title">Výsledkové listiny jednotlivých závodů</span>
+                <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <h3 class="text-xl font-black text-white flex items-center gap-3">
+                            <i class="fa-solid fa-list-check text-amber-400"></i> <span data-i18n="race_results_title">Výsledkové listiny jednotlivých závodů</span>
                         </h3>
-                        <div class="flex items-center gap-2.5 w-full md:w-auto">
-                            <label class="text-xs font-black text-slate-400 uppercase whitespace-nowrap" data-i18n="select_race_label">Závod:</label>
-                            <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3.5 py-2.5 font-bold shadow-sm focus:outline-none focus:border-amber-400 w-full md:w-auto">
-                                <!-- Dynamic race options -->
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="select_race_label">Vyberte závod:</span>
+                            <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-amber-400 transition shadow-sm w-full sm:w-72">
+                                <!-- Dynamic races -->
                             </select>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[700px]">
-                            <thead class="bg-[#0f172a] text-slate-400 uppercase text-[11px] font-black tracking-wider border-b border-slate-800">
-                                <tr>
+                    <div class="overflow-x-auto rounded-2xl border border-slate-800 shadow-xl">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
                                     <th class="p-4 w-16">Poř.</th>
                                     <th class="p-4" data-i18n="th_rider">Jezdec</th>
                                     <th class="p-4" data-i18n="th_team">Tým</th>
                                     <th class="p-4" data-i18n="th_ebike">E-Bike & Motor</th>
                                     <th class="p-4 text-center">Cíl (Body)</th>
-                                    <th class="p-4 text-center">Sprint (Body)</th>
-                                    <th class="p-4 text-center">KOM (Body)</th>
-                                    <th class="p-4 text-right" data-i18n="th_points">Celkem zisku</th>
+                                    <th class="p-4 text-center">Sprinty</th>
+                                    <th class="p-4 text-center">KOM</th>
+                                    <th class="p-4 text-right" data-i18n="th_points">Celkem z kola</th>
                                 </tr>
                             </thead>
-                            <tbody id="public-race-results-tbody" class="divide-y divide-slate-800/60 text-xs sm:text-sm">
+                            <tbody id="public-race-results-tbody" class="divide-y divide-slate-800/60 bg-[#0f172a]">
                                 <!-- Dynamic race results -->
                             </tbody>
                         </table>
@@ -345,161 +352,142 @@
                 </div>
             </div>
 
-            <!-- SUB-VIEW: CALENDAR -->
+            <!-- Sub-View: Calendar 2027 -->
             <div id="subview-calendar" class="hidden space-y-6">
-                <div class="bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-3">
-                            <i class="fa-solid fa-calendar-alt text-amber-400"></i> <span data-i18n="cal_title">Kalendář závodu Central Europe e-MTB Tour 2027</span>
-                        </h3>
-                        <span class="bg-amber-400/20 text-amber-300 text-xs font-black px-3.5 py-1.5 rounded-full whitespace-nowrap border border-amber-400/30">10 Závodů</span>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="calendar-grid">
+                <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6">
+                    <h3 class="text-xl font-black text-white flex items-center gap-3">
+                        <i class="fa-regular fa-calendar-days text-amber-400"></i> <span data-i18n="cal_title">Kalendář závodu Central Europe e-MTB Tour 2027</span>
+                    </h3>
+                    <div id="calendar-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                         <!-- Dynamic calendar cards -->
                     </div>
                 </div>
             </div>
 
-            <!-- SUB-VIEW: TEAMS & RIDERS -->
+            <!-- Sub-View: Teams & Riders Rosters -->
             <div id="subview-teams" class="hidden space-y-8">
-                <!-- Section 1: Teams Roster (Sekce Tým) -->
-                <div class="bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-5">
-                    <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-3">
-                        <i class="fa-solid fa-shield-cat text-amber-400"></i> <span data-i18n="teams_roster_title">Týmy a jejich soupisky jezdců</span>
+                <div class="space-y-6">
+                    <h3 class="text-xl font-black text-white flex items-center gap-3">
+                        <i class="fa-solid fa-users text-amber-400"></i> <span data-i18n="teams_roster_title">Týmy seriálu a jejich soupisky</span>
                     </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="teams-roster-grid">
-                        <!-- Dynamic teams roster -->
+                    <div id="teams-roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dynamic team rosters -->
                     </div>
                 </div>
 
-                <!-- Section 2: Individual Riders & Skills (Sekce Jednotlivý jezdec) -->
-                <div class="bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-5">
-                    <h3 class="text-base sm:text-xl font-black text-white flex items-center gap-3">
-                        <i class="fa-solid fa-user-gear text-amber-400"></i> <span data-i18n="riders_profiles_title">Profily jednotlivých jezdců a dovednosti</span>
+                <div class="space-y-6 pt-6 border-t border-slate-800">
+                    <h3 class="text-xl font-black text-white flex items-center gap-3">
+                        <i class="fa-solid fa-id-card text-amber-400"></i> <span data-i18n="riders_profiles_title">Jednotliví jezdci a jejich skillové profily</span>
                     </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="riders-profiles-grid">
-                        <!-- Dynamic rider cards with skill bars -->
+                    <div id="riders-profiles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dynamic rider profiles -->
                     </div>
                 </div>
             </div>
-
         </section>
 
         <!-- ==================== VIEW: ADMIN ==================== -->
         <section id="view-admin" class="hidden space-y-6">
-            <div class="bg-gradient-to-r from-amber-500/20 to-slate-900 border border-amber-400/30 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl">
-                <div class="flex items-center gap-4">
-                    <div class="bg-amber-400 text-slate-950 p-3.5 rounded-2xl shadow-lg">
-                        <i class="fa-solid fa-user-shield text-2xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-black text-white" data-i18n="admin_panel_title">Administrátorský panel</h3>
-                        <p class="text-xs text-slate-300 font-medium" data-i18n="admin_panel_sub">Plná správa výsledků, jezdců, týmů, kalendáře a zálohování dat.</p>
-                    </div>
+            <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-black text-white flex items-center gap-3">
+                        <i class="fa-solid fa-gears text-amber-400"></i> <span data-i18n="admin_panel_title">Administrátorský panel</span>
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1" data-i18n="admin_panel_sub">Plná správa výsledků, jezdců, týmů, kalendáře a zálohování dat.</p>
                 </div>
-                <div class="flex items-center gap-2.5 flex-wrap">
-                    <button onclick="exportJSONData()" class="px-4 py-2.5 bg-slate-800 text-slate-200 hover:text-white text-xs font-black rounded-xl hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 shadow-sm">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button onclick="exportJSONData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-sm">
                         <i class="fa-solid fa-download text-amber-400"></i> <span data-i18n="btn_backup">Stáhnout zálohu (JSON)</span>
                     </button>
-                    <label class="px-4 py-2.5 bg-amber-400 text-slate-950 text-xs font-black rounded-xl hover:bg-amber-300 transition cursor-pointer flex items-center gap-2 shadow-lg">
-                        <i class="fa-solid fa-upload"></i> <span data-i18n="btn_restore">Načíst zálohu</span>
-                        <input type="file" id="import-file-input" onchange="importJSONData(event)" class="hidden" accept=".json">
+                    <label class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-upload text-amber-400"></i> <span data-i18n="btn_restore">Načíst zálohu</span>
+                        <input type="file" accept=".json" onchange="importJSONData(event)" class="hidden">
                     </label>
-                    <button onclick="logoutAdmin()" class="px-4 py-2.5 bg-red-600/90 text-white text-xs font-black rounded-xl hover:bg-red-500 transition flex items-center gap-2 shadow-sm">
+                    <button onclick="logoutAdmin()" class="px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold rounded-xl text-xs transition flex items-center gap-2">
                         <i class="fa-solid fa-right-from-bracket"></i> Odhlásit
                     </button>
                 </div>
             </div>
 
-            <!-- Admin Sub-Navigation Tabs -->
-            <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-3">
-                <button onclick="switchAdminSubTab('results')" id="admin-sub-btn-results" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-sm">
+            <!-- Admin Sub Navigation Tabs -->
+            <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none">
+                <button onclick="switchAdminSubTab('results')" id="admin-sub-btn-results" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-sm whitespace-nowrap">
                     <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="admin_tab_results">Zápis výsledků</span>
                 </button>
-                <button onclick="switchAdminSubTab('skills')" id="admin-sub-btn-skills" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-amber-400"></i> <span data-i18n="admin_tab_skills">Nastavení skillů</span>
+                <button onclick="switchAdminSubTab('skills')" id="admin-sub-btn-skills" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-sliders"></i> <span data-i18n="admin_tab_skills">Nastavení skillů</span>
                 </button>
-                <button onclick="switchAdminSubTab('riders')" id="admin-sub-btn-riders" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                    <i class="fa-solid fa-users-gear text-amber-400"></i> <span data-i18n="admin_tab_riders">Správa jezdců</span>
+                <button onclick="switchAdminSubTab('riders')" id="admin-sub-btn-riders" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-user-plus"></i> <span data-i18n="admin_tab_riders">Správa jezdců</span>
                 </button>
-                <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                    <i class="fa-solid fa-shield-halved text-amber-400"></i> <span data-i18n="admin_tab_teams">Správa týmů</span>
+                <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-shield"></i> <span data-i18n="admin_tab_teams">Správa týmů</span>
                 </button>
-                <button onclick="switchAdminSubTab('calendar')" id="admin-sub-btn-calendar" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-days text-amber-400"></i> <span data-i18n="admin_tab_calendar">Správa kalendáře</span>
+                <button onclick="switchAdminSubTab('calendar')" id="admin-sub-btn-calendar" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-calendar-days"></i> <span data-i18n="admin_tab_calendar">Správa kalendáře</span>
                 </button>
             </div>
 
             <!-- Admin Sub-Content: Results Entry -->
             <div id="admin-sub-results" class="admin-sub-content bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-3">
-                    <i class="fa-solid fa-award text-amber-400"></i> <span data-i18n="admin_res_title">Zápis umístění a prémií pro závod</span>
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-trophy mr-2 text-amber-400"></i> <span data-i18n="admin_res_title">Zápis umístění a prémií pro závod</span></h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
                     <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_race">Vyberte závod / etapu</label>
-                        <select id="admin-result-race-select" class="w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm shadow-sm font-bold focus:border-amber-400 focus:outline-none">
-                            <!-- Dynamic races -->
-                        </select>
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_race">Závod / Etapa</label>
+                        <select id="admin-result-race-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
                     </div>
                     <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_rider">Vyberte jezdce</label>
-                        <select id="admin-result-rider-select" class="w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm shadow-sm font-bold focus:border-amber-400 focus:outline-none">
-                            <!-- Dynamic riders -->
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_finish">Umístění v cíli (1-30)</label>
-                        <input type="number" id="admin-input-pos" min="0" max="50" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 focus:outline-none">
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_rider">Jezdec</label>
+                        <select id="admin-result-rider-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
                     </div>
                     <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_sprint">Sprint prémie (Umístění 1-10)</label>
-                        <input type="number" id="admin-input-sprint" min="0" max="20" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 focus:outline-none">
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_finish">Cíl (1-30)</label>
+                        <input type="number" id="admin-input-pos" min="1" max="30" value="1" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_kom">Vrchařská prémie KOM (1-5)</label>
-                        <input type="number" id="admin-input-kom" min="0" max="10" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 focus:outline-none">
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_sprint">Sprint (1-10)</label>
+                        <input type="number" id="admin-input-sprint" min="0" max="10" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_kom">KOM (1-5)</label>
+                        <input type="number" id="admin-input-kom" min="0" max="5" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
                     </div>
                 </div>
                 <div>
-                    <button onclick="saveRiderResult()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="btn_save_result">Uložit výsledky jezdce</span>
+                    <button onclick="saveRiderResult()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                        <span data-i18n="btn_save_result">Uložit výsledky jezdce</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Admin Sub-Content: Skills -->
+            <!-- Admin Sub-Content: Skills Setup -->
             <div id="admin-sub-skills" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-sliders mr-2 text-amber-400"></i> <span data-i18n="admin_skills_title">Nastavení dovedností (Radar skills 1-10)</span></h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-sliders mr-2 text-amber-400"></i> <span data-i18n="admin_skills_title">Nastavení dovedností (1-10)</span></h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
                     <div>
                         <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Vyberte jezdce</label>
-                        <select id="admin-skill-rider-select" onchange="loadRiderSkillsToForm()" class="w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-xl p-3 text-sm shadow-sm font-bold focus:border-amber-400 focus:outline-none">
-                            <!-- Dynamic riders -->
-                        </select>
+                        <select id="admin-skill-rider-select" onchange="loadRiderSkillsToForm()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
                     </div>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs font-black text-slate-400 mb-1">Kondice / Výdrž (1-10)</label>
-                        <input type="number" id="skill-cond" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Kondice (1-10)</label>
+                            <input type="number" id="skill-cond" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Technika (1-10)</label>
+                            <input type="number" id="skill-tech" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Baterie (1-10)</label>
+                            <input type="number" id="skill-battery" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Sprint (1-10)</label>
+                            <input type="number" id="skill-sprint" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-black text-slate-400 mb-1">Technika sjezdu (1-10)</label>
-                        <input type="number" id="skill-tech" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-black text-slate-400 mb-1">Práce s baterií (1-10)</label>
-                        <input type="number" id="skill-battery" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-black text-slate-400 mb-1">Výbušnost/Sprint (1-10)</label>
-                        <input type="number" id="skill-sprint" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-black text-slate-400 mb-1">Kopce / KOM (1-10)</label>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-slate-400 mb-1">Vrcholy / KOM (1-10)</label>
                         <input type="number" id="skill-kom" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
                     </div>
                 </div>
@@ -530,17 +518,14 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="th_team">Tým</label>
-                        <select id="new-rider-team" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <!-- Dynamic teams list + none option -->
-                        </select>
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_team_name">Tým</label>
+                        <select id="new-rider-team" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
                     </div>
                     <div>
                         <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Kategorie</label>
                         <select id="new-rider-cat" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
                             <option value="Elite">Elite</option>
-                            <option value="Masters">Masters</option>
-                            <option value="Grandmasters">Grandmasters</option>
+                            <option value="Masters">Masters (35+)</option>
                             <option value="Women">Ženy</option>
                         </select>
                     </div>
@@ -559,76 +544,37 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Typ motoru</label>
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Motor (Handicap)</label>
                         <select id="new-rider-motor" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <option value="DJI Avinox">DJI Avinox (Handicap 0.75)</option>
-                            <option value="Bosch CX Race">Bosch CX Race (Handicap 0.90)</option>
-                            <option value="Shimano EP801">Shimano EP801 (Handicap 0.95)</option>
-                            <option value="Yamaha PW-X3">Yamaha PW-X3 (Handicap 0.95)</option>
-                            <option value="Brose S Mag">Brose S Mag (Handicap 1.00)</option>
-                            <option value="Panasonic GX Ultimate">Panasonic GX Ultimate (Handicap 1.00)</option>
+                            <option value="DJI Avinox">DJI Avinox (0.75)</option>
+                            <option value="Bosch CX Race">Bosch CX Race (0.90)</option>
+                            <option value="Shimano EP801">Shimano EP801 (0.95)</option>
+                            <option value="Yamaha PW-X3">Yamaha PW-X3 (0.95)</option>
+                            <option value="Brose S Mag">Brose S Mag (1.00)</option>
+                            <option value="Panasonic GX Ultimate">Panasonic GX Ultimate (1.00)</option>
                         </select>
                     </div>
                 </div>
                 <div>
                     <button onclick="addNewRider()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Přidat nového jezdce
+                        Vytvořit a uložit jezdce
                     </button>
                 </div>
-                
-                <div class="mt-6">
-                    <h4 class="text-sm font-black text-white mb-3">Seznam registrovaných jezdců</h4>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs min-w-[600px]" id="admin-riders-table">
-                            <thead class="bg-[#0f172a] text-slate-400 uppercase font-black">
-                                <tr>
-                                    <th class="p-3">Jméno</th>
-                                    <th class="p-3">Stát</th>
-                                    <th class="p-3">Tým</th>
-                                    <th class="p-3">E-Bike</th>
-                                    <th class="p-3">Motor</th>
-                                    <th class="p-3 text-right">Akce</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-riders-tbody" class="divide-y divide-slate-800">
-                                <!-- Dynamic admin riders -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Admin Sub-Content: Manage Teams -->
-            <div id="admin-sub-teams" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-shield-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_team_title">Přidat / Spravovat týmy</span></h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_team_name">Název týmu</label>
-                        <input type="text" id="new-team-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. F.R.A.G. CZE">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_rider_country">Stát týmu (Vlajka)</label>
-                        <select id="new-team-country" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <option value="CZ">🇨🇿 Česká republika</option>
-                            <option value="SK">🇸🇰 Slovensko</option>
-                            <option value="PL">🇵🇱 Polsko</option>
-                            <option value="DE">🇩🇪 Německo</option>
-                            <option value="AT">🇦🇹 Rakousko</option>
-                            <option value="HU">🇭🇺 Maďarsko</option>
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="addNewTeam()" class="w-full px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                            Vytvořit tým
-                        </button>
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <h4 class="text-sm font-black text-white mb-3">Seznam týmů v seriálu</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="admin-teams-grid">
-                        <!-- Dynamic teams grid -->
-                    </div>
+                <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
+                                <th class="p-3">Jméno</th>
+                                <th class="p-3">Stát</th>
+                                <th class="p-3">Tým</th>
+                                <th class="p-3">E-Bike</th>
+                                <th class="p-3">Motor</th>
+                                <th class="p-3 text-right">Akce</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-riders-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1022,10 +968,10 @@
         };
 
         let defaultTeams = [
-            { id: 't1', name: 'Tatry e-Bike Squad', country: 'SK' },
-            { id: 't2', name: 'eMTB Vamos Rápido', country: 'CZ' },
-            { id: 't3', name: 'Sudety Volt Factory', country: 'PL' },
-            { id: 't4', name: 'Balaton e-Power Team', country: 'HU' }
+            { id: 't1', name: 'Tatry e-Bike Squad', country: 'SK', brand: 'CTM', featuredRiderId: '' },
+            { id: 't2', name: 'eMTB Vamos Rápido', country: 'CZ', brand: 'Crussis', featuredRiderId: '' },
+            { id: 't3', name: 'Sudety Volt Factory', country: 'PL', brand: 'Kellys', featuredRiderId: '' },
+            { id: 't4', name: 'Balaton e-Power Team', country: 'HU', brand: 'Cube', featuredRiderId: '' }
         ];
 
         let defaultRiders = [
@@ -1144,32 +1090,40 @@
 
         function switchPublicSubTab(sub) {
             currentPublicSubTab = sub;
-            document.getElementById('subview-leaderboards').classList.add('hidden');
-            document.getElementById('subview-race-results').classList.add('hidden');
-            document.getElementById('subview-calendar').classList.add('hidden');
-            document.getElementById('subview-teams').classList.add('hidden');
+            ['subview-leaderboards', 'subview-race-results', 'subview-calendar', 'subview-teams'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
 
-            document.getElementById('sub-btn-leaderboards').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300";
-            document.getElementById('sub-btn-race-results').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300";
-            document.getElementById('sub-btn-calendar').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300";
-            document.getElementById('sub-btn-teams').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300";
+            ['sub-btn-leaderboards', 'sub-btn-race-results', 'sub-btn-calendar', 'sub-btn-teams'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300";
+            });
 
             if (sub === 'leaderboards') {
-                document.getElementById('subview-leaderboards').classList.remove('hidden');
-                document.getElementById('sub-btn-leaderboards').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                const target = document.getElementById('subview-leaderboards');
+                if (target) target.classList.remove('hidden');
+                const btn = document.getElementById('sub-btn-leaderboards');
+                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
                 renderPublicLeaderboards();
             } else if (sub === 'race_results') {
-                document.getElementById('subview-race-results').classList.remove('hidden');
-                document.getElementById('sub-btn-race-results').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                const target = document.getElementById('subview-race-results');
+                if (target) target.classList.remove('hidden');
+                const btn = document.getElementById('sub-btn-race-results');
+                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
                 populatePublicRaceResultsSelect();
                 renderPublicRaceResults();
             } else if (sub === 'calendar') {
-                document.getElementById('subview-calendar').classList.remove('hidden');
-                document.getElementById('sub-btn-calendar').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                const target = document.getElementById('subview-calendar');
+                if (target) target.classList.remove('hidden');
+                const btn = document.getElementById('sub-btn-calendar');
+                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
                 renderCalendar();
             } else if (sub === 'teams') {
-                document.getElementById('subview-teams').classList.remove('hidden');
-                document.getElementById('sub-btn-teams').className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                const target = document.getElementById('subview-teams');
+                if (target) target.classList.remove('hidden');
+                const btn = document.getElementById('sub-btn-teams');
+                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
                 renderTeamsAndRidersView();
             }
         }
@@ -1392,7 +1346,7 @@
                 headerRow.innerHTML = `
                     <th class="p-4 w-16">Poř.</th>
                     <th class="p-4">Značka E-Biku / Výrobce</th>
-                    <th class="p-4">Top Jezdec</th>
+                    <th class="p-4">Tovární top jezdec (Ručně / Auto)</th>
                     <th class="p-4">Motor</th>
                     <th class="p-4 text-right">Konstruktérské Body</th>
                 `;
@@ -1400,11 +1354,38 @@
                 arr.forEach(item => {
                     let brand = item.rider.ebike;
                     if (!brandMap[brand]) {
-                        brandMap[brand] = { brand: brand, totalPts: 0, topRider: item.rider.name, motor: item.rider.motor };
+                        brandMap[brand] = { brand: brand, totalPts: 0, ridersOfBrand: [], motor: item.rider.motor };
                     }
                     brandMap[brand].totalPts += item.totalPink;
+                    brandMap[brand].ridersOfBrand.push(item);
                 });
-                let brandArr = Object.values(brandMap).sort((a, b) => b.totalPts - a.totalPts);
+
+                // Check manual selection from team/brand assignment if any, else auto pick highest points in brand
+                let brandArr = Object.values(brandMap).map(bItem => {
+                    let topRiderName = '--';
+                    // Check if any team has manual featured rider for this brand
+                    let manualRider = null;
+                    teams.forEach(t => {
+                        if (t.brand === bItem.brand && t.featuredRiderId) {
+                            let found = riders.find(r => r.id === t.featuredRiderId);
+                            if (found) manualRider = found.name;
+                        }
+                    });
+
+                    if (manualRider) {
+                        topRiderName = manualRider + ' <span class="text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded font-bold ml-1">Manual</span>';
+                    } else if (bItem.ridersOfBrand.length > 0) {
+                        bItem.ridersOfBrand.sort((x, y) => y.totalPink - x.totalPink);
+                        topRiderName = bItem.ridersOfBrand[0].rider.name + ' <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold ml-1">Auto (Leader)</span>';
+                    }
+
+                    return {
+                        brand: bItem.brand,
+                        totalPts: bItem.totalPts,
+                        topRider: topRiderName,
+                        motor: bItem.motor
+                    };
+                }).sort((a, b) => b.totalPts - a.totalPts);
 
                 brandArr.forEach((bItem, index) => {
                     const tr = document.createElement('tr');
@@ -1555,117 +1536,129 @@
 
         function renderTeamsAndRidersView() {
             const teamsGrid = document.getElementById('teams-roster-grid');
-            teamsGrid.innerHTML = '';
-            teams.forEach(t => {
-                let teamRiders = riders.filter(r => r.team === t.name);
-                let div = document.createElement('div');
-                div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3.5";
-                div.innerHTML = `
-                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                        <h4 class="font-black text-white text-base flex items-center gap-2.5">
-                            ${getFlagIcon(t.country)} ${t.name}
-                        </h4>
-                        <span class="bg-amber-400/20 text-amber-300 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-400/30">${teamRiders.length} jezdců</span>
-                    </div>
-                    <ul class="space-y-2.5">
-                        ${teamRiders.length === 0 ? '<li class="text-xs text-slate-500 italic">Žádní jezdci v týmu</li>' : teamRiders.map(r => `
-                            <li class="flex justify-between items-center text-xs bg-slate-800/70 p-3 rounded-xl border border-slate-700/60 shadow-sm">
-                                <span class="font-bold text-white flex items-center gap-2">${getFlagIcon(r.country)} ${r.name}</span>
-                                <span class="text-slate-300 font-semibold">${r.ebike} (${r.motor})</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-                `;
-                teamsGrid.appendChild(div);
-            });
+            if (teamsGrid) {
+                teamsGrid.innerHTML = '';
+                teams.forEach(t => {
+                    let teamRiders = riders.filter(r => r.team === t.name);
+                    let div = document.createElement('div');
+                    div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3.5";
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <h4 class="font-black text-white text-base flex items-center gap-2.5">
+                                ${getFlagIcon(t.country)} ${t.name}
+                            </h4>
+                            <span class="bg-amber-400/20 text-amber-300 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-400/30">${teamRiders.length} jezdců</span>
+                        </div>
+                        <ul class="space-y-2.5">
+                            ${teamRiders.length === 0 ? '<li class="text-xs text-slate-500 italic">Žádní jezdci v týmu</li>' : teamRiders.map(r => `
+                                <li class="flex justify-between items-center text-xs bg-slate-800/70 p-3 rounded-xl border border-slate-700/60 shadow-sm">
+                                    <span class="font-bold text-white flex items-center gap-2">${getFlagIcon(r.country)} ${r.name}</span>
+                                    <span class="text-slate-300 font-semibold">${r.ebike} (${r.motor})</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    `;
+                    teamsGrid.appendChild(div);
+                });
+            }
 
             const ridersGrid = document.getElementById('riders-profiles-grid');
-            ridersGrid.innerHTML = '';
-            riders.forEach(r => {
-                let sk = r.skills || { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 };
-                let card = document.createElement('div');
-                card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start border-b border-slate-800 pb-3">
-                        <div>
-                            <h4 class="font-black text-white text-base flex items-center gap-2.5">
-                                ${getFlagIcon(r.country)} ${r.name}
-                            </h4>
-                            <p class="text-xs text-slate-400 font-medium">${r.team || 'Individuální jezdec'} | Kat: <span class="font-bold text-white">${r.category}</span></p>
+            if (ridersGrid) {
+                ridersGrid.innerHTML = '';
+                riders.forEach(r => {
+                    let sk = r.skills || { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 };
+                    let card = document.createElement('div');
+                    card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start border-b border-slate-800 pb-3">
+                            <div>
+                                <h4 class="font-black text-white text-base flex items-center gap-2.5">
+                                    ${getFlagIcon(r.country)} ${r.name}
+                                </h4>
+                                <p class="text-xs text-slate-400 font-medium">${r.team || 'Individuální jezdec'} | Kat: <span class="font-bold text-white">${r.category}</span></p>
+                            </div>
+                            <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-lg">${r.ebike}</span>
                         </div>
-                        <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-lg">${r.ebike}</span>
-                    </div>
-                    <div class="space-y-2.5 text-xs">
-                        <div class="flex justify-between items-center font-medium">
-                            <span class="text-slate-400">Kondice / Výdrž:</span>
-                            <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.cond * 10}%"></div></div>
-                            <span class="font-bold text-white">${sk.cond}/10</span>
+                        <div class="space-y-2.5 text-xs">
+                            <div class="flex justify-between items-center font-medium">
+                                <span class="text-slate-400">Kondice / Výdrž:</span>
+                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.cond * 10}%"></div></div>
+                                <span class="font-bold text-white">${sk.cond}/10</span>
+                            </div>
+                            <div class="flex justify-between items-center font-medium">
+                                <span class="text-slate-400">Technika sjezdu:</span>
+                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.tech * 10}%"></div></div>
+                                <span class="font-bold text-white">${sk.tech}/10</span>
+                            </div>
+                            <div class="flex justify-between items-center font-medium">
+                                <span class="text-slate-400">Práce s baterií:</span>
+                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.battery * 10}%"></div></div>
+                                <span class="font-bold text-white">${sk.battery}/10</span>
+                            </div>
+                            <div class="flex justify-between items-center font-medium">
+                                <span class="text-slate-400">Sprint / Výbušnost:</span>
+                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.sprint * 10}%"></div></div>
+                                <span class="font-bold text-white">${sk.sprint}/10</span>
+                            </div>
+                            <div class="flex justify-between items-center font-medium">
+                                <span class="text-slate-400">Kopce / KOM:</span>
+                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.kom * 10}%"></div></div>
+                                <span class="font-bold text-white">${sk.kom}/10</span>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-center font-medium">
-                            <span class="text-slate-400">Technika sjezdu:</span>
-                            <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.tech * 10}%"></div></div>
-                            <span class="font-bold text-white">${sk.tech}/10</span>
+                        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex justify-between font-semibold">
+                            <span>Motor: <strong class="text-white">${r.motor}</strong></span>
                         </div>
-                        <div class="flex justify-between items-center font-medium">
-                            <span class="text-slate-400">Práce s baterií:</span>
-                            <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.battery * 10}%"></div></div>
-                            <span class="font-bold text-white">${sk.battery}/10</span>
-                        </div>
-                        <div class="flex justify-between items-center font-medium">
-                            <span class="text-slate-400">Sprint / Výbušnost:</span>
-                            <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.sprint * 10}%"></div></div>
-                            <span class="font-bold text-white">${sk.sprint}/10</span>
-                        </div>
-                        <div class="flex justify-between items-center font-medium">
-                            <span class="text-slate-400">Kopce / KOM:</span>
-                            <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.kom * 10}%"></div></div>
-                            <span class="font-bold text-white">${sk.kom}/10</span>
-                        </div>
-                    </div>
-                    <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex justify-between font-semibold">
-                        <span>Motor: <strong class="text-white">${r.motor}</strong></span>
-                    </div>
-                `;
-                ridersGrid.appendChild(card);
-            });
+                    `;
+                    ridersGrid.appendChild(card);
+                });
+            }
         }
 
         function populateAdminSelects() {
             const rSelect = document.getElementById('admin-result-race-select');
-            rSelect.innerHTML = '';
-            calendar.forEach(c => {
-                let opt = document.createElement('option');
-                opt.value = c.id;
-                opt.textContent = c.name + ' (' + c.date + ')';
-                rSelect.appendChild(opt);
-            });
+            if (rSelect) {
+                rSelect.innerHTML = '';
+                calendar.forEach(c => {
+                    let opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.name + ' (' + c.date + ')';
+                    rSelect.appendChild(opt);
+                });
+            }
 
             const riderResSelect = document.getElementById('admin-result-rider-select');
-            riderResSelect.innerHTML = '';
-            riders.forEach(r => {
-                let opt = document.createElement('option');
-                opt.value = r.id;
-                opt.textContent = r.name + ' (' + (r.team || 'Indiv.') + ')';
-                riderResSelect.appendChild(opt);
-            });
+            if (riderResSelect) {
+                riderResSelect.innerHTML = '';
+                riders.forEach(r => {
+                    let opt = document.createElement('option');
+                    opt.value = r.id;
+                    opt.textContent = r.name + ' (' + (r.team || 'Indiv.') + ')';
+                    riderResSelect.appendChild(opt);
+                });
+            }
 
             const riderSkillSelect = document.getElementById('admin-skill-rider-select');
-            riderSkillSelect.innerHTML = '';
-            riders.forEach(r => {
-                let opt = document.createElement('option');
-                opt.value = r.id;
-                opt.textContent = r.name;
-                riderSkillSelect.appendChild(opt);
-            });
+            if (riderSkillSelect) {
+                riderSkillSelect.innerHTML = '';
+                riders.forEach(r => {
+                    let opt = document.createElement('option');
+                    opt.value = r.id;
+                    opt.textContent = r.name;
+                    riderSkillSelect.appendChild(opt);
+                });
+            }
 
             const newRiderTeamSelect = document.getElementById('new-rider-team');
-            newRiderTeamSelect.innerHTML = '<option value="">-- Bez týmu (Individuální) --</option>';
-            teams.forEach(t => {
-                let opt = document.createElement('option');
-                opt.value = t.name;
-                opt.textContent = t.name;
-                newRiderTeamSelect.appendChild(opt);
-            });
+            if (newRiderTeamSelect) {
+                newRiderTeamSelect.innerHTML = '<option value="">-- Bez týmu (Individuální) --</option>';
+                teams.forEach(t => {
+                    let opt = document.createElement('option');
+                    opt.value = t.name;
+                    opt.textContent = t.name;
+                    newRiderTeamSelect.appendChild(opt);
+                });
+            }
         }
 
         function loadRiderSkillsToForm() {
@@ -1783,9 +1776,11 @@
         function addNewTeam() {
             const nameEl = document.getElementById('new-team-name');
             const countryEl = document.getElementById('new-team-country');
+            const brandEl = document.getElementById('new-team-brand');
 
             const name = nameEl ? nameEl.value.trim() : '';
             const country = countryEl ? countryEl.value : 'CZ';
+            const brand = brandEl ? brandEl.value : 'Crussis';
 
             if (!name) {
                 showModal("Chyba", "Zadejte název týmu!");
@@ -1793,13 +1788,13 @@
             }
 
             const newId = 't_' + Date.now();
-            teams.push({ id: newId, name: name, country: country });
+            teams.push({ id: newId, name: name, country: country, brand: brand, featuredRiderId: '' });
             saveData();
             if (nameEl) nameEl.value = '';
             populateAdminSelects();
             renderAdminTeamsGrid();
             renderPublicLeaderboards();
-            showModal("Úspěch", "Nový tým byl vytvořen a uložen do databáze!");
+            showModal("Úspěch", "Nový tým a značka byly vytvořeny!");
         }
 
         function renderAdminTeamsGrid() {
@@ -1808,16 +1803,34 @@
             grid.innerHTML = '';
             teams.forEach(t => {
                 let div = document.createElement('div');
-                div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl flex justify-between items-center";
+                div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3";
                 div.innerHTML = `
-                    <div>
+                    <div class="flex justify-between items-center">
                         <h5 class="font-black text-white text-sm flex items-center gap-2">${getFlagIcon(t.country)} ${t.name}</h5>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Stát: ${t.country}</p>
+                        <button onclick="deleteTeam('${t.id}')" class="px-2.5 py-1 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-[11px] border border-red-500/30">Smazat</button>
                     </div>
-                    <button onclick="deleteTeam('${t.id}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
+                    <div class="text-xs text-slate-400 space-y-1">
+                        <div>Značka e-biku: <strong class="text-white">${t.brand || 'Neuvedeno'}</strong></div>
+                        <div class="flex items-center gap-2 pt-1">
+                            <span>Manuální top jezdec:</span>
+                            <select onchange="updateTeamFeaturedRider('${t.id}', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-1.5 font-bold">
+                                <option value="">-- Auto (Dle bodů) --</option>
+                                ${riders.filter(r => r.team === t.name).map(r => `<option value="${r.id}" ${t.featuredRiderId === r.id ? 'selected' : ''}>${r.name}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
                 `;
                 grid.appendChild(div);
             });
+        }
+
+        function updateTeamFeaturedRider(teamId, riderId) {
+            let t = teams.find(item => item.id === teamId);
+            if (t) {
+                t.featuredRiderId = riderId;
+                saveData();
+                renderPublicLeaderboards();
+            }
         }
 
         function deleteTeam(id) {
