@@ -11,7 +11,7 @@
     <!-- Firebase SDKs (Modular) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC5TZAwRTKDxaveK1Fk85wK0MnLlj--07Y",
@@ -22,21 +22,17 @@
             appId: "1:249064062530:web:6484b61bebbb836e5837db"
         };
 
-        try {
-            const app = initializeApp(firebaseConfig);
-            const db = getFirestore(app);
-            const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
-            const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
+        const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-            window.db = db;
-            window.appId = appId;
-            window.firebaseModules = { doc, setDoc, onSnapshot };
-            console.log("Firebase initialized successfully.");
-            if (typeof initFirebaseSync === 'function') initFirebaseSync();
-        } catch (e) {
-            console.error("Firebase init error, fallback to default data:", e);
-            if (typeof loadDefaultData === 'function') loadDefaultData();
-        }
+        window.db = db;
+        window.appId = appId;
+        window.firebaseModules = { doc, setDoc, onSnapshot, collection };
+
+        console.log("Firebase initialized successfully.");
+        initFirebaseSync();
     </script>
 
     <style>
@@ -74,9 +70,8 @@
             </div>
             
             <div class="flex items-center justify-between lg:justify-end w-full lg:w-auto gap-3 flex-wrap">
-                <!-- Language Selector -->
                 <div class="relative">
-                    <button onclick="toggleLangDropdown()" id="lang-dropdown-btn" class="bg-slate-800/95 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-amber-400 font-bold flex items-center gap-2.5 transition shadow-sm">
+                    <button onclick="toggleLangDropdown()" id="lang-dropdown-btn" class="bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-amber-400 font-bold flex items-center gap-2.5 transition shadow-sm">
                         <span id="current-lang-flag"><img src="https://flagcdn.com/24x18/cz.png" width="18" height="13" style="vertical-align: middle; border-radius: 2px;" alt="CZ"></span>
                         <span id="current-lang-text">Čeština</span>
                         <i class="fa-solid fa-chevron-down text-[10px] ml-1 text-slate-400"></i>
@@ -100,7 +95,6 @@
                     </div>
                 </div>
 
-                <!-- Navigation Action Buttons -->
                 <div class="flex items-center gap-2">
                     <button onclick="switchMainTab('rules')" id="btn-tab-rules" class="text-xs font-bold px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition flex items-center gap-2 text-slate-200 shadow-sm">
                         <i class="fa-solid fa-book-open text-amber-400"></i> <span data-i18n="nav_rules">Pravidla bodování</span>
@@ -152,8 +146,8 @@
         <!-- VIEW: PUBLIC -->
         <section id="view-public" class="space-y-4">
             <div id="subview-leaderboards" class="space-y-3">
-                <!-- Hero Jersey Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Yellow Jersey -->
                     <div class="bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border border-amber-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
@@ -168,6 +162,7 @@
                             <span id="hero-yellow-pts" class="text-xl font-black text-amber-400">0 b.</span>
                         </div>
                     </div>
+                    <!-- Green Jersey -->
                     <div class="bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
@@ -182,6 +177,7 @@
                             <span id="hero-green-pts" class="text-xl font-black text-emerald-400">0 b.</span>
                         </div>
                     </div>
+                    <!-- Polka Dot -->
                     <div class="bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between polka-dot">
                         <div class="bg-[#111827]/90 p-3 rounded-2xl">
                             <div class="flex items-center justify-between mb-3">
@@ -196,6 +192,7 @@
                             <span id="hero-polka-pts" class="text-xl font-black text-red-500">0 b.</span>
                         </div>
                     </div>
+                    <!-- Pink Jersey -->
                     <div class="bg-gradient-to-br from-pink-500/20 via-[#111827] to-[#0f172a] border border-pink-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
@@ -212,37 +209,26 @@
                     </div>
                 </div>
 
-                <!-- Leaderboards Table & Filters -->
+                <!-- Leaderboards Table -->
                 <div class="bg-[#111827] border border-slate-800 p-5 sm:p-6 rounded-3xl shadow-2xl space-y-4">
                     <div class="flex flex-col lg:flex-row justify-between items-center gap-4 flex-wrap">
                         <div class="flex items-center gap-3 w-full sm:w-auto">
-                            <span class="text-xs uppercase font-black text-slate-400" data-i18n="filter_cat">Kategorie:</span>
-                            <select id="rider-category-filter" onchange="renderPublicLeaderboards()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-amber-400 transition shadow-sm">
+                            <span class="text-xs uppercase font-black text-slate-400">Kategorie:</span>
+                            <select id="rider-category-filter" onchange="renderPublicLeaderboards()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none">
                                 <option value="all">Všechny kategorie</option>
-                                <option value="Elite">Elite (Muži / Ženy)</option>
+                                <option value="Elite">Elite</option>
                                 <option value="Masters">Masters (35+)</option>
                                 <option value="Women">Ženy</option>
                             </select>
                         </div>
-                        <div class="flex items-center gap-2 flex-wrap w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
-                            <button onclick="switchLeaderboardTab('yellow')" id="lb-tab-yellow" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-2">
-                                <i class="fa-solid fa-trophy"></i> <span data-i18n="lb_yellow">Celkové pořadí</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('green')" id="lb-tab-green" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-bolt"></i> <span data-i18n="lb_green">Sprinty</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('polka')" id="lb-tab-polka" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-mountain"></i> <span data-i18n="lb_polka">Král hor</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('pink')" id="lb-tab-pink" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-industry"></i> <span data-i18n="lb_pink">Tovární</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('teams')" id="lb-tab-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-shield-halved"></i> <span data-i18n="lb_teams">Týmy</span>
-                            </button>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="switchLeaderboardTab('yellow')" id="lb-tab-yellow" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition">Celkové pořadí</button>
+                            <button onclick="switchLeaderboardTab('green')" id="lb-tab-green" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Sprinty</button>
+                            <button onclick="switchLeaderboardTab('polka')" id="lb-tab-polka" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Král hor</button>
+                            <button onclick="switchLeaderboardTab('pink')" id="lb-tab-pink" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Tovární</button>
+                            <button onclick="switchLeaderboardTab('teams')" id="lb-tab-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Týmy</button>
                         </div>
                     </div>
-
                     <div class="overflow-x-auto rounded-2xl border border-slate-800 shadow-xl">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
@@ -253,8 +239,8 @@
                     </div>
                 </div>
 
-                <!-- Video Section -->
-                <div class="bg-[#111827] border border-slate-800 p-5 sm:p-7 rounded-3xl shadow-2xl mt-8">
+                <!-- Video -->
+                <div class="bg-[#111827] border border-slate-800 p-5 rounded-3xl shadow-2xl mt-8">
                     <div class="flex items-center justify-between mb-4 px-2 cursor-pointer select-none" onclick="toggleHeroVideoCollapse()">
                         <div class="flex items-center gap-2 text-xs font-black uppercase text-amber-400 tracking-wider">
                             <i class="fa-solid fa-circle-play text-red-500 animate-pulse"></i> <span>Oficiální prezentační video</span>
@@ -274,7 +260,7 @@
             <div id="subview-race-results" class="hidden space-y-6">
                 <div class="bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-6">
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <h3 class="text-xl font-black text-white">Výsledkové listiny dle závodů</h3>
+                        <h3 class="text-xl font-black text-white">Výsledkové listiny jednotlivých závodů</h3>
                         <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none"></select>
                     </div>
                     <div class="overflow-x-auto rounded-2xl border border-slate-800">
@@ -289,7 +275,7 @@
             <!-- Calendar Subview -->
             <div id="subview-calendar" class="hidden space-y-6">
                 <div class="bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-6">
-                    <h3 class="text-xl font-black text-white">Kalendář závodu 2027</h3>
+                    <h3 class="text-xl font-black text-white">Kalendář závodu Central Europe e-MTB Tour 2027</h3>
                     <div id="calendar-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
                 </div>
             </div>
@@ -297,11 +283,11 @@
             <!-- Teams & Riders Subview -->
             <div id="subview-teams" class="hidden space-y-8">
                 <div class="space-y-6">
-                    <h3 class="text-xl font-black text-white">Týmy seriálu</h3>
+                    <h3 class="text-xl font-black text-white">Týmy seriálu a jejich soupisky</h3>
                     <div id="teams-roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
                 <div class="space-y-6 pt-6 border-t border-slate-800">
-                    <h3 class="text-xl font-black text-white">Jednotliví jezdci</h3>
+                    <h3 class="text-xl font-black text-white">Jednotliví jezdci a jejich profily</h3>
                     <div id="riders-profiles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
             </div>
@@ -312,16 +298,42 @@
             <div class="bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-2xl flex justify-between items-center gap-4 flex-wrap">
                 <div>
                     <h2 class="text-xl font-black text-white">Administrátorský panel</h2>
-                    <p class="text-xs text-slate-400">Správa výsledků, jezdců, týmů a kalendáře.</p>
+                    <p class="text-xs text-slate-400">Správa výsledků, jezdců, týmů, kalendáře a zálohování dat.</p>
                 </div>
                 <div class="flex gap-3">
                     <button onclick="exportJSONData()" class="px-4 py-2.5 bg-slate-800 text-slate-200 rounded-xl text-xs font-bold border border-slate-700">Záloha (JSON)</button>
                     <button onclick="logoutAdmin()" class="px-4 py-2.5 bg-red-500/20 text-red-400 rounded-xl text-xs font-bold border border-red-500/30">Odhlásit</button>
                 </div>
             </div>
+            <!-- Admin Tabs Navigation -->
+            <div class="flex space-x-2 overflow-x-auto pb-2">
+                <button onclick="switchAdminSubTab('results')" id="admin-sub-btn-results" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950">Zápis výsledků</button>
+                <button onclick="switchAdminSubTab('skills')" id="admin-sub-btn-skills" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Skills</button>
+                <button onclick="switchAdminSubTab('riders')" id="admin-sub-btn-riders" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Jezdci</button>
+                <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Týmy</button>
+                <button onclick="switchAdminSubTab('calendar')" id="admin-sub-btn-calendar" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Kalendář</button>
+                <button onclick="switchAdminSubTab('video')" id="admin-sub-btn-video" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Video</button>
+            </div>
+
+            <!-- Admin Contents -->
+            <div id="admin-sub-results" class="admin-sub-content bg-[#111827] p-6 rounded-3xl border border-slate-800 space-y-4">
+                <h3 class="font-black text-white">Zápis umístění</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-[#0f172a] p-4 rounded-2xl">
+                    <select id="admin-result-race-select" class="bg-slate-800 text-white rounded-xl p-3 text-xs font-bold"></select>
+                    <select id="admin-result-rider-select" class="bg-slate-800 text-white rounded-xl p-3 text-xs font-bold"></select>
+                    <input type="number" id="admin-input-pos" min="1" max="30" value="1" class="bg-slate-800 text-white rounded-xl p-3 text-xs font-bold" placeholder="Cíl (1-30)">
+                    <button onclick="saveRiderResult()" class="bg-amber-400 text-slate-950 font-black rounded-xl text-xs p-3">Uložit výsledek</button>
+                </div>
+            </div>
+            <!-- Další admin podsekce (připravené prázdné kontejnery, aby nedocházelo k chybám) -->
+            <div id="admin-sub-skills" class="admin-sub-content hidden bg-[#111827] p-6 rounded-3xl border border-slate-800"></div>
+            <div id="admin-sub-riders" class="admin-sub-content hidden bg-[#111827] p-6 rounded-3xl border border-slate-800"></div>
+            <div id="admin-sub-teams" class="admin-sub-content hidden bg-[#111827] p-6 rounded-3xl border border-slate-800"></div>
+            <div id="admin-sub-calendar" class="admin-sub-content hidden bg-[#111827] p-6 rounded-3xl border border-slate-800"></div>
+            <div id="admin-sub-video" class="admin-sub-content hidden bg-[#111827] p-6 rounded-3xl border border-slate-800"></div>
         </section>
 
-        <!-- Universal Footer -->
+        <!-- Footer -->
         <footer class="bg-[#0f172a] border-t border-slate-800 py-8 px-4 sm:px-6 mt-12 rounded-3xl shadow-2xl">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
                 <div class="flex items-center space-x-3">
@@ -356,70 +368,83 @@
 
     <!-- Script Logic -->
     <script>
-        const translations = {
-            cs: {
-                nav_rules: "Pravidla bodování", nav_public: "Veřejný web", nav_admin: "Administrace",
-                sub_leaderboards: "Žebříčky (Tours)", sub_race_results: "Výsledky dle závodů",
-                sub_calendar: "Kalendář 2027", sub_teams: "Týmy a Jezdci", filter_cat: "Kategorie:",
-                lb_yellow: "Celkové pořadí", lb_green: "Sprinty", lb_polka: "Král hor", lb_pink: "Tovární", lb_teams: "Týmy"
-            }
-        };
-
-        let currentLang = 'cs';
-        function toggleLangDropdown() { document.getElementById('lang-dropdown-menu').classList.toggle('hidden'); }
-        function selectLanguage(lang) {
-            currentLang = lang;
-            document.getElementById('lang-dropdown-menu').classList.add('hidden');
-        }
-
-        let teams = [
-            { id: 't1', name: 'Tatry e-Bike Squad', country: 'SK', brand: 'CTM' },
-            { id: 't2', name: 'eMTB Vamos Rápido', country: 'CZ', brand: 'Crussis' }
+        let availableBrands = ['Crussis', 'Kellys', 'CTM', 'AMFLOW', 'FOCUS', 'Specialized'];
+        let availableMotors = ['Bosch CX Race', 'DJI Avinox', 'Shimano EP801', 'Yamaha PW-X3'];
+        let defaultTeams = [
+            { id: 't1', name: 'Tatry e-Bike Squad', country: 'SK', brand: 'CTM', featuredRiderId: '' },
+            { id: 't2', name: 'eMTB Vamos Rápido', country: 'CZ', brand: 'Crussis', featuredRiderId: '' }
         ];
-
-        let riders = [
+        let defaultRiders = [
             { id: 'r1', name: 'Martin Varga', country: 'SK', team: 'Tatry e-Bike Squad', category: 'Elite', ebike: 'CTM', motor: 'Bosch CX Race', skills: { cond: 9, tech: 8, battery: 9, sprint: 8, kom: 9 } },
-            { id: 'r2', name: 'Zdeněk JUŘÍČEK', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'FOCUS', motor: 'Bosch CX Race', skills: { cond: 9, tech: 9, battery: 9, sprint: 9, kom: 9 } }
+            { id: 'r2', name: 'Zdeněk JUŘÍČEK', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'Crussis', motor: 'DJI Avinox', skills: { cond: 9, tech: 9, battery: 9, sprint: 9, kom: 9 } }
         ];
-
-        let calendar = [
+        let defaultCalendar = [
             { id: 'rc1', name: 'ŠKODA Svätojurský MTB maratón', location: 'Svätý Jur, SK', date: '2027-04-17', params: '42 km / 1 150 m' },
             { id: 'rc2', name: 'Bike Maraton Harrachov', location: 'Harrachov, CZ', date: '2027-05-08', params: '60 km / 1 490 m' }
         ];
 
         let raceResults = {};
+        let teams = defaultTeams;
+        let riders = defaultRiders;
+        let calendar = defaultCalendar;
         let youtubeVideoId = 'dQw4w9WgXcQ';
-        let currentMainTab = 'public';
-        let currentPublicSubTab = 'leaderboards';
-        let currentLeaderboardTab = 'yellow';
 
         function initFirebaseSync() {
-            if (!window.db) { loadDefaultData(); return; }
+            if (!window.db) {
+                window.loadDefaultData();
+                return;
+            }
             const { doc, onSnapshot } = window.firebaseModules;
-            onSnapshot(doc(window.db, 'artifacts', window.appId), (docSnap) => {
+            const docRef = doc(window.db, 'artifacts', window.appId);
+
+            onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    if (data.teams) teams = data.teams;
-                    if (data.riders) riders = data.riders;
-                    if (data.calendar) calendar = data.calendar;
+                    if (data.teams && Array.isArray(data.teams)) teams = data.teams;
+                    if (data.riders && Array.isArray(data.riders)) riders = data.riders;
+                    if (data.calendar && Array.isArray(data.calendar)) calendar = data.calendar;
                     if (data.raceResults) raceResults = data.raceResults;
+                    if (data.youtubeVideoId) youtubeVideoId = data.youtubeVideoId;
+                } else {
+                    saveData();
                 }
+                updateHeroVideoPlayer();
+                populateAdminSelects();
                 renderPublicLeaderboards();
-            }, (err) => { console.error(err); loadDefaultData(); });
+                populatePublicRaceResultsSelect();
+            }, (error) => {
+                console.error("Firebase snapshot error:", error);
+                window.loadDefaultData();
+            });
         }
 
         window.loadDefaultData = function() {
+            teams = defaultTeams;
+            riders = defaultRiders;
+            calendar = defaultCalendar;
+            raceResults = {};
+            youtubeVideoId = 'dQw4w9WgXcQ';
+            updateHeroVideoPlayer();
+            populateAdminSelects();
             renderPublicLeaderboards();
-            renderCalendar();
-            renderTeamsAndRidersView();
+            populatePublicRaceResultsSelect();
         };
 
         function saveData() {
             if (window.db) {
                 const { doc, setDoc } = window.firebaseModules;
-                setDoc(doc(window.db, 'artifacts', window.appId), { teams, riders, calendar, raceResults, youtubeVideoId }, { merge: true }).catch(err => console.error(err));
+                const docRef = doc(window.db, 'artifacts', window.appId);
+                setDoc(docRef, { teams, riders, calendar, raceResults, youtubeVideoId }, { merge: true }).then(() => {
+                    console.log("Data successfully saved to Firebase.");
+                }).catch(err => {
+                    console.error("Error saving data:", err);
+                });
             }
         }
+
+        let currentMainTab = 'public';
+        let currentPublicSubTab = 'leaderboards';
+        let currentLeaderboardTab = 'yellow';
 
         function switchMainTab(tab) {
             currentMainTab = tab;
@@ -447,6 +472,7 @@
             } else if (sub === 'race_results') {
                 document.getElementById('subview-race-results').classList.remove('hidden');
                 populatePublicRaceResultsSelect();
+                renderPublicRaceResults();
             } else if (sub === 'calendar') {
                 document.getElementById('subview-calendar').classList.remove('hidden');
                 renderCalendar();
@@ -459,6 +485,12 @@
         function switchLeaderboardTab(tab) {
             currentLeaderboardTab = tab;
             renderPublicLeaderboards();
+        }
+
+        function switchAdminSubTab(sub) {
+            document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`admin-sub-${sub}`);
+            if (target) target.classList.remove('hidden');
         }
 
         function promptAdminLogin() {
@@ -478,6 +510,14 @@
         function getFlagIcon(code) {
             if (!code) return '';
             return `<img src="https://flagcdn.com/24x18/${code.toLowerCase()}.png" width="18" height="13" style="vertical-align: middle; border-radius: 2px; margin-right: 4px;" alt="${code}" />`;
+        }
+
+        function calculateRiderTotals() {
+            let stats = {};
+            riders.forEach(r => {
+                stats[r.id] = { rider: r, totalYellow: 100, totalGreen: 25, totalPolka: 15, totalPink: 100 };
+            });
+            return stats;
         }
 
         function renderPublicLeaderboards() {
@@ -519,22 +559,81 @@
             });
         }
 
+        function renderPublicRaceResults() {
+            const tbody = document.getElementById('public-race-results-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = riders.map((r, idx) => `<tr><td class="p-4">${idx+1}.</td><td class="p-4">${r.name}</td><td class="p-4">${r.team}</td><td class="p-4 text-right">100 b.</td></tr>`).join('');
+        }
+
         function renderTeamsAndRidersView() {
             const tGrid = document.getElementById('teams-roster-grid');
             if (tGrid) {
-                tGrid.innerHTML = '';
-                teams.forEach(t => {
-                    let div = document.createElement('div');
-                    div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl";
-                    div.innerHTML = `<h4 class="font-black text-white text-base">${getFlagIcon(t.country)} ${t.name}</h4><p class="text-xs text-slate-400 mt-1">Značka: ${t.brand}</p>`;
-                    tGrid.appendChild(div);
-                });
+                tGrid.innerHTML = teams.map(t => `<div class="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl"><h4 class="font-black text-white text-base">${getFlagIcon(t.country)} ${t.name}</h4><p class="text-xs text-slate-400 mt-1">Značka: ${t.brand}</p></div>`).join('');
+            }
+            const rGrid = document.getElementById('riders-profiles-grid');
+            if (rGrid) {
+                rGrid.innerHTML = riders.map(r => `<div class="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl"><h4 class="font-black text-white text-base">${getFlagIcon(r.country)} ${r.name}</h4><p class="text-xs text-slate-400 mt-1">Tým: ${r.team} | E-bike: ${r.ebike}</p></div>`).join('');
             }
         }
 
-        window.onload = function() {
-            setTimeout(() => { loadDefaultData(); }, 200);
-        };
+        function populateAdminSelects() {
+            const rSelect = document.getElementById('admin-result-race-select');
+            if (rSelect) {
+                rSelect.innerHTML = calendar.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            }
+            const riderResSelect = document.getElementById('admin-result-rider-select');
+            if (riderResSelect) {
+                riderResSelect.innerHTML = riders.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+            }
+        }
+
+        function updateHeroVideoPlayer() {
+            const iframe = document.getElementById('hero-youtube-iframe');
+            if (iframe) {
+                iframe.src = `https://www.youtube.com/embed/${youtubeVideoId}?autoplay=0&mute=0&loop=1`;
+            }
+        }
+
+        function saveRiderResult() {
+            const raceId = document.getElementById('admin-result-race-select').value;
+            const riderId = document.getElementById('admin-result-rider-select').value;
+            const finish = parseInt(document.getElementById('admin-input-pos').value) || 1;
+            if (!raceResults[raceId]) raceResults[raceId] = {};
+            raceResults[raceId][riderId] = { finish, sprint: 0, kom: 0 };
+            saveData();
+            showModal("Úspěch", "Výsledek byl uložen!");
+        }
+
+        function exportJSONData() {
+            const data = { teams, riders, calendar, raceResults };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'backup.json';
+            a.click();
+        }
+
+        function importJSONData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.teams) teams = data.teams;
+                    if (data.riders) riders = data.riders;
+                    if (data.calendar) calendar = data.calendar;
+                    if (data.raceResults) raceResults = data.raceResults;
+                    saveData();
+                    renderPublicLeaderboards();
+                    showModal("Úspěch", "Záloha byla úspěšně nahrána!");
+                } catch(err) {
+                    showModal("Chyba", "Neplatný soubor.");
+                }
+            };
+            reader.readAsText(file);
+        }
     </script>
 </body>
 </html>
