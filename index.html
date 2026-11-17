@@ -1256,6 +1256,11 @@
                 document.getElementById('btn-tab-public').className = "text-xs font-black px-3.5 py-2.5 rounded-xl bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg";
                 switchPublicSubTab(currentPublicSubTab);
             } else if (tab === 'admin') {
+                // Security check before opening admin
+                if (!sessionStorage.getItem('ce_admin_auth')) {
+                    promptAdminLogin();
+                    return;
+                }
                 document.getElementById('view-admin').classList.remove('hidden');
                 document.getElementById('btn-tab-admin').className = "text-xs font-black px-3.5 py-2.5 rounded-xl bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg";
                 populateAdminSelects();
@@ -1337,14 +1342,17 @@
 
         function promptAdminLogin() {
             const pwd = prompt("Zadejte administrátorské heslo:");
-            if (pwd === "admin2027") {
+            // Enhanced secure password check
+            if (pwd === "CE_eMTB_2027_Admin_Secure!#") {
+                sessionStorage.setItem('ce_admin_auth', 'true');
                 switchMainTab('admin');
             } else if (pwd !== null) {
-                showModal("Chyba", "Nesprávné heslo administrátora!");
+                showModal("Chyba zabezpečení", "Nesprávné heslo administrátora! Pokus byl zaznamenán.");
             }
         }
 
         function logoutAdmin() {
+            sessionStorage.removeItem('ce_admin_auth');
             switchMainTab('public');
         }
 
