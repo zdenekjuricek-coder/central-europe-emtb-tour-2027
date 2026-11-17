@@ -8,10 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDKs (Modular) -->
+    <!-- Firebase SDKs (Modular) & Auth Binding -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC5TZAwRTKDxaveK1Fk85wK0MnLlj--07Y",
@@ -22,17 +23,25 @@
             appId: "1:249064062530:web:6484b61bebbb836e5837db"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
-        const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const auth = getAuth(app);
+            const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
+            const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-        window.db = db;
-        window.appId = appId;
-        window.firebaseModules = { doc, setDoc, onSnapshot, collection };
+            window.db = db;
+            window.auth = auth;
+            window.appId = appId;
+            window.firebaseModules = { doc, setDoc, onSnapshot, collection, signInWithEmailAndPassword, signOut, onAuthStateChanged };
 
-        console.log("Firebase initialized successfully.");
-        initFirebaseSync();
+            console.log("Firebase & Auth initialized successfully.");
+            if (typeof initFirebaseSync === 'function') initFirebaseSync();
+            if (typeof initAuthListener === 'function') initAuthListener();
+        } catch (e) {
+            console.error("Firebase init error, fallback to default data:", e);
+            if (typeof loadDefaultData === 'function') loadDefaultData();
+        }
     </script>
 
     <style>
@@ -46,7 +55,6 @@
             background-size: 20px 20px;
             background-position: 0 0, 10px 10px;
         }
-        /* Custom scrollbars for professional sports look */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -55,7 +63,7 @@
 </head>
 <body class="bg-[#0b0f19] text-slate-100 h-full flex flex-col antialiased">
 
-    <!-- Top Header Bar (Pro Cycling Theme) -->
+    <!-- Top Header Bar -->
     <header class="bg-[#0f172a] text-white shadow-xl border-b border-slate-800 relative z-40">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3 w-full lg:w-auto justify-between lg:justify-start">
@@ -71,41 +79,15 @@
             </div>
             
             <div class="flex items-center justify-between lg:justify-end w-full lg:w-auto gap-3 flex-wrap">
-                <!-- Custom Reliable Language Selector -->
-                <div class="relative">
-                    <button onclick="toggleLangDropdown()" id="lang-dropdown-btn" class="bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-amber-400 font-bold flex items-center gap-2.5 transition shadow-sm">
-                        <span id="current-lang-flag"><img src="https://flagcdn.com/24x18/cz.png" width="18" height="13" style="vertical-align: middle; border-radius: 2px;" alt="CZ"></span>
-                        <span id="current-lang-text">Čeština</span>
-                        <i class="fa-solid fa-chevron-down text-[10px] ml-1 text-slate-400"></i>
-                    </button>
-                    <div id="lang-dropdown-menu" class="hidden absolute right-0 mt-2 w-44 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl z-50 overflow-hidden py-1.5 backdrop-blur-md">
-                        <button onclick="selectLanguage('cs', 'Čeština', 'cz')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-amber-400 flex items-center gap-3 transition">
-                            <img src="https://flagcdn.com/24x18/cz.png" width="18" height="13" style="border-radius: 2px;" alt="CZ"> Čeština
-                        </button>
-                        <button onclick="selectLanguage('sk', 'Slovenčina', 'sk')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-amber-400 flex items-center gap-3 transition">
-                            <img src="https://flagcdn.com/24x18/sk.png" width="18" height="13" style="border-radius: 2px;" alt="SK"> Slovenčina
-                        </button>
-                        <button onclick="selectLanguage('pl', 'Polski', 'pl')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-amber-400 flex items-center gap-3 transition">
-                            <img src="https://flagcdn.com/24x18/pl.png" width="18" height="13" style="border-radius: 2px;" alt="PL"> Polski
-                        </button>
-                        <button onclick="selectLanguage('de', 'Deutsch', 'de')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-amber-400 flex items-center gap-3 transition">
-                            <img src="https://flagcdn.com/24x18/de.png" width="18" height="13" style="border-radius: 2px;" alt="DE"> Deutsch
-                        </button>
-                        <button onclick="selectLanguage('en', 'English', 'gb')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-amber-400 flex items-center gap-3 transition">
-                            <img src="https://flagcdn.com/24x18/gb.png" width="18" height="13" style="border-radius: 2px;" alt="GB"> English
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Navigation Action Buttons -->
                 <div class="flex items-center gap-2">
                     <button onclick="switchMainTab('rules')" id="btn-tab-rules" class="text-xs font-bold px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition flex items-center gap-2 text-slate-200 shadow-sm">
-                        <i class="fa-solid fa-book-open text-amber-400"></i> <span data-i18n="nav_rules">Pravidla bodování</span>
+                        <i class="fa-solid fa-book-open text-amber-400"></i> <span>Pravidla bodování</span>
                     </button>
                     <button onclick="switchMainTab('public')" id="btn-tab-public" class="text-xs font-bold px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 transition flex items-center gap-2 shadow-lg shadow-amber-400/20">
-                        <i class="fa-solid fa-globe"></i> <span data-i18n="nav_public">Veřejný web</span>
+                        <i class="fa-solid fa-globe"></i> <span>Veřejný web</span>
                     </button>
-                    <button onclick="promptAdminLogin()" id="btn-tab-admin" class="text-xs font-bold px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition flex items-center gap-2 text-slate-200 shadow-sm">
+                    <button onclick="handleAdminNavClick()" id="btn-tab-admin" class="text-xs font-bold px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition flex items-center gap-2 text-slate-200 shadow-sm">
                         <i class="fa-solid fa-lock text-amber-400"></i> <span data-i18n="nav_admin">Administrace</span>
                     </button>
                 </div>
@@ -113,22 +95,20 @@
         </div>
     </header>
 
-    <!-- Presentation Video Hero Section has been moved below the leaderboards -->
-
     <!-- Sub Navigation (Public View) -->
     <nav id="public-subnav" class="bg-[#111827] text-slate-300 border-b border-slate-800 shadow-md sticky top-0 z-30 backdrop-blur-md bg-opacity-95">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 flex space-x-2 overflow-x-auto py-2.5 scrollbar-none">
             <button onclick="switchPublicSubTab('leaderboards')" id="sub-btn-leaderboards" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm">
-                <i class="fa-solid fa-trophy"></i> <span data-i18n="sub_leaderboards">Žebříčky (Tours)</span>
+                <i class="fa-solid fa-trophy"></i> <span>Žebříčky (Tours)</span>
             </button>
             <button onclick="switchPublicSubTab('race_results')" id="sub-btn-race-results" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
-                <i class="fa-solid fa-list-check text-amber-400"></i> <span data-i18n="sub_race_results">Výsledky dle závodů</span>
+                <i class="fa-solid fa-list-check text-amber-400"></i> <span>Výsledky dle závodů</span>
             </button>
             <button onclick="switchPublicSubTab('calendar')" id="sub-btn-calendar" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
-                <i class="fa-solid fa-calendar-days text-amber-400"></i> <span data-i18n="sub_calendar">Kalendář 2027</span>
+                <i class="fa-solid fa-calendar-days text-amber-400"></i> <span>Kalendář 2027</span>
             </button>
             <button onclick="switchPublicSubTab('teams')" id="sub-btn-teams" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
-                <i class="fa-solid fa-users text-amber-400"></i> <span data-i18n="sub_teams">Týmy a Jezdci</span>
+                <i class="fa-solid fa-users text-amber-400"></i> <span>Týmy a Jezdci</span>
             </button>
         </div>
     </nav>
@@ -136,548 +116,457 @@
     <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 overflow-y-auto space-y-4">
 
-        <!-- ==================== VIEW: RULES ==================== -->
+        <!-- VIEW: RULES -->
         <section id="view-rules" class="hidden space-y-6">
             <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl">
                 <h2 class="text-2xl font-black text-white mb-4 flex items-center gap-3">
-                    <i class="fa-solid fa-book-bookmark text-amber-400"></i> <span data-i18n="rules_title">Pravidla bodování seriálu Central Europe e-MTB Tour 2027</span>
+                    <i class="fa-solid fa-book-bookmark text-amber-400"></i> Pravidla bodování seriálu Central Europe e-MTB Tour 2027
                 </h2>
                 <div class="prose max-w-none text-slate-300 space-y-4 text-sm leading-relaxed">
-                    <p data-i18n="rules_intro">Seriál e-MTB maratonů 2027 kombinuje fyzickou náročnost, taktickou jízdu s elektrokoly, sprinterské dovednosti i týmovou strategii. Níže naleznete detailní bodovací systémy pro jednotlivé dresy a týmovou soutěž.</p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <div class="bg-amber-400/10 p-6 rounded-2xl border border-amber-400/30">
-                            <h3 class="font-bold text-amber-300 text-base mb-2 flex items-center gap-2.5">
-                                <span class="w-4 h-4 rounded bg-amber-400 inline-block shadow-sm"></span> <span data-i18n="rule_yellow">Žlutý dres (Celkové pořadí)</span>
-                            </h3>
-                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_yellow_desc">Body z jednotlivých závodů se sčítají podle umístění (1.místo = 100b, 2.místo = 90b, 3.místo = 80b atd.). Pro konečné celkové pořadí v seriálu se uplatňuje pravidlo <strong>7 nejlepších výsledků z 10</strong> celkových závodů (nejhorší 3 výsledky nebo neúčasti se škrtají).</p>
-                        </div>
-
-                        <div class="bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/30">
-                            <h3 class="font-bold text-emerald-400 text-base mb-2 flex items-center gap-2.5">
-                                <span class="w-4 h-4 rounded bg-emerald-500 inline-block shadow-sm"></span> <span data-i18n="rule_green">Zelený dres (Sprinty / Strava Segments)</span>
-                            </h3>
-                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_green_desc">Bodování na vybraných Strava prémiích v průběhu etapy (1. místo = 25b, 2. místo = 20b, 3. místo = 16b, 4. místo = 13b, 5. místo = 11b, 6.-10. místo = 10-8-6-4-2b). Hodnotí výbušnost a schopnosti na specifických úsecích.</p>
-                        </div>
-
-                        <div class="bg-red-500/10 p-6 rounded-2xl border border-red-500/30">
-                            <h3 class="font-bold text-red-400 text-base mb-2 flex items-center gap-2.5">
-                                <span class="w-4 h-4 rounded bg-red-500 inline-block shadow-sm"></span> <span data-i18n="rule_polka">Král hor (Puntíkovaný dres)</span>
-                            </h3>
-                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_polka_desc">Vrchařské prémie na vrcholech stoupání. Bodují 3 až 5 nejrychlejších jezdců v kopci podle obtížnosti stoupání (Kategorie HC, 1, 2, 3).</p>
-                        </div>
-
-                        <div class="bg-pink-500/10 p-6 rounded-2xl border border-pink-500/30">
-                            <h3 class="font-bold text-pink-400 text-base mb-2 flex items-center gap-2.5">
-                                <span class="w-4 h-4 rounded bg-pink-500 inline-block shadow-sm"></span> <span data-i18n="rule_pink">Růžový dres (Tovární konstruktérský dres)</span>
-                            </h3>
-                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_pink_desc">Soutěž výrobců motorů a značek e-biků. Zástupce (tvář) dané značky se vybírá buď <strong>ručně v administraci</strong> (fixní volba v sekci Správa týmů), nebo <strong>automaticky podle nejvyššího počtu bodů</strong> ze žebříčku dané značky.</p>
-                        </div>
-                    </div>
+                    <p>Seriál e-MTB maratonů 2027 kombinuje fyzickou náročnost, taktickou jízdu s elektrokoly, sprinterské dovednosti i týmovou strategii.</p>
                 </div>
-            </div>
-
-            <!-- Rules for Team TdF -->
-            <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl">
-                <h3 class="text-xl font-black text-white mb-3" data-i18n="rule_team_title">Soutěž týmů (Pravidla podle Tour de France)</h3>
-                <p class="text-sm text-slate-300 leading-relaxed" data-i18n="rule_team_desc">Týmová soutěž v seriálu se řídí tradičními pravidly Tour de France. V každém závodě se pro hodnocení týmu sčítají bodové zisky <strong>3 nejlepších jezdců daného týmu</strong> v celkovém pořadí. Týmová klasifikace tak oceňuje vyrovnanost a šířku celé stáje.</p>
             </div>
         </section>
 
-        <!-- ==================== VIEW: PUBLIC ==================== -->
+        <!-- VIEW: PUBLIC -->
         <section id="view-public" class="space-y-4">
-            <!-- Sub-View: Leaderboards -->
             <div id="subview-leaderboards" class="space-y-3">
-                <!-- Hero Jersey Cards (4 Dresy) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Yellow Jersey -->
-                    <div class="bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border border-amber-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border border-amber-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="bg-amber-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Žlutý dres</span>
+                                <span class="bg-amber-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase">Žlutý dres</span>
                                 <i class="fa-solid fa-medal text-amber-400 text-lg"></i>
                             </div>
-                            <div class="space-y-1">
-                                <div id="hero-yellow-name" class="text-base font-black text-white flex items-center gap-2">--</div>
-                                <div id="hero-yellow-team" class="text-xs text-slate-400 font-semibold">--</div>
-                            </div>
+                            <div id="hero-yellow-name" class="text-base font-black text-white">--</div>
+                            <div id="hero-yellow-team" class="text-xs text-slate-400 font-semibold">--</div>
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Celkem bodů</span>
+                            <span class="text-[11px] text-slate-400 uppercase font-bold">Celkem bodů</span>
                             <span id="hero-yellow-pts" class="text-xl font-black text-amber-400">0 b.</span>
                         </div>
                     </div>
-
                     <!-- Green Jersey -->
-                    <div class="bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Zelený dres</span>
+                                <span class="bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase">Zelený dres</span>
                                 <i class="fa-solid fa-bolt text-emerald-400 text-lg"></i>
                             </div>
-                            <div class="space-y-1">
-                                <div id="hero-green-name" class="text-base font-black text-white flex items-center gap-2">--</div>
-                                <div id="hero-green-team" class="text-xs text-slate-400 font-semibold">--</div>
-                            </div>
+                            <div id="hero-green-name" class="text-base font-black text-white">--</div>
+                            <div id="hero-green-team" class="text-xs text-slate-400 font-semibold">--</div>
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Sprint Body</span>
+                            <span class="text-[11px] text-slate-400 uppercase font-bold">Sprint Body</span>
                             <span id="hero-green-pts" class="text-xl font-black text-emerald-400">0 b.</span>
                         </div>
                     </div>
-
-                    <!-- Polka Dot Jersey -->
-                    <div class="bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between polka-dot">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-red-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <!-- Polka Dot -->
+                    <div class="bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between polka-dot">
                         <div class="bg-[#111827]/90 p-3 rounded-2xl">
                             <div class="flex items-center justify-between mb-3">
-                                <span class="bg-red-500 text-white font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Král hor</span>
+                                <span class="bg-red-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase">Král hor</span>
                                 <i class="fa-solid fa-mountain text-red-500 text-lg"></i>
                             </div>
-                            <div class="space-y-1">
-                                <div id="hero-polka-name" class="text-base font-black text-white flex items-center gap-2">--</div>
-                                <div id="hero-polka-team" class="text-xs text-slate-400 font-semibold">--</div>
-                            </div>
+                            <div id="hero-polka-name" class="text-base font-black text-white">--</div>
+                            <div id="hero-polka-team" class="text-xs text-slate-400 font-semibold">--</div>
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-800 bg-[#111827]/90 px-3 py-2 rounded-xl flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">KOM Body</span>
+                            <span class="text-[11px] text-slate-400 uppercase font-bold">KOM Body</span>
                             <span id="hero-polka-pts" class="text-xl font-black text-red-500">0 b.</span>
                         </div>
                     </div>
-
                     <!-- Pink Jersey -->
-                    <div class="bg-gradient-to-br from-pink-500/20 via-[#111827] to-[#0f172a] border border-pink-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-pink-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="bg-gradient-to-br from-pink-500/20 via-[#111827] to-[#0f172a] border border-pink-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="bg-pink-500 text-white font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Růžový dres</span>
+                                <span class="bg-pink-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase">Růžový dres</span>
                                 <i class="fa-solid fa-industry text-pink-400 text-lg"></i>
                             </div>
-                            <div class="space-y-1">
-                                <div id="hero-pink-name" class="text-base font-black text-white flex items-center gap-2">--</div>
-                                <div id="hero-pink-brand" class="text-xs text-slate-400 font-semibold">--</div>
-                            </div>
+                            <div id="hero-pink-name" class="text-base font-black text-white">--</div>
+                            <div id="hero-pink-brand" class="text-xs text-slate-400 font-semibold">--</div>
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Tovární Body</span>
+                            <span class="text-[11px] text-slate-400 uppercase font-bold">Tovární Body</span>
                             <span id="hero-pink-pts" class="text-xl font-black text-pink-400">0 b.</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Leaderboards Navigation & Filters -->
+                <!-- Leaderboards Table -->
                 <div class="bg-[#111827] border border-slate-800 p-5 sm:p-6 rounded-3xl shadow-2xl space-y-4">
                     <div class="flex flex-col lg:flex-row justify-between items-center gap-4 flex-wrap">
-                        <!-- Category Filter -->
                         <div class="flex items-center gap-3 w-full sm:w-auto">
-                            <span class="text-xs uppercase font-black text-slate-400" data-i18n="filter_cat">Kategorie:</span>
-                            <select id="rider-category-filter" onchange="renderPublicLeaderboards()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-amber-400 transition shadow-sm">
+                            <span class="text-xs uppercase font-black text-slate-400">Kategorie:</span>
+                            <select id="rider-category-filter" onchange="renderPublicLeaderboards()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none">
                                 <option value="all">Všechny kategorie</option>
-                                <option value="Elite">Elite (Muži / Ženy)</option>
+                                <option value="Elite">Elite</option>
                                 <option value="Masters">Masters (35+)</option>
                                 <option value="Women">Ženy</option>
                             </select>
                         </div>
-
-                        <!-- Leaderboard Tabs -->
-                        <div class="flex items-center gap-2 flex-wrap w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
-                            <button onclick="switchLeaderboardTab('yellow')" id="lb-tab-yellow" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-2">
-                                <i class="fa-solid fa-trophy"></i> <span data-i18n="lb_yellow">Celkové pořadí</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('green')" id="lb-tab-green" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-bolt"></i> <span data-i18n="lb_green">Sprinty</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('polka')" id="lb-tab-polka" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-mountain"></i> <span data-i18n="lb_polka">Král hor</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('pink')" id="lb-tab-pink" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-industry"></i> <span data-i18n="lb_pink">Tovární</span>
-                            </button>
-                            <button onclick="switchLeaderboardTab('teams')" id="lb-tab-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
-                                <i class="fa-solid fa-shield-halved"></i> <span data-i18n="lb_teams">Týmy</span>
-                            </button>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="switchLeaderboardTab('yellow')" id="lb-tab-yellow" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition">Celkové pořadí</button>
+                            <button onclick="switchLeaderboardTab('green')" id="lb-tab-green" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Sprinty</button>
+                            <button onclick="switchLeaderboardTab('polka')" id="lb-tab-polka" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Král hor</button>
+                            <button onclick="switchLeaderboardTab('pink')" id="lb-tab-pink" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Tovární</button>
+                            <button onclick="switchLeaderboardTab('teams')" id="lb-tab-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">Týmy</button>
                         </div>
                     </div>
-
-                    <!-- Rankings Table -->
                     <div class="overflow-x-auto rounded-2xl border border-slate-800 shadow-xl">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
-                                <tr id="table-header-row" class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
-                                    <!-- Dynamic headers -->
-                                </tr>
+                                <tr id="table-header-row" class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800"></tr>
                             </thead>
-                            <tbody id="public-table-body" class="divide-y divide-slate-800/60 bg-[#0f172a]">
-                                <!-- Dynamic rows -->
-                            </tbody>
+                            <tbody id="public-table-body" class="divide-y divide-slate-800/60 bg-[#0f172a]"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Presentation Video Section (Moved below leaderboards as requested) -->
-                <div class="bg-[#111827] border border-slate-800 p-5 sm:p-7 rounded-3xl shadow-2xl mt-8">
+                <!-- Video -->
+                <div class="bg-[#111827] border border-slate-800 p-5 rounded-3xl shadow-2xl mt-8">
                     <div class="flex items-center justify-between mb-4 px-2 cursor-pointer select-none" onclick="toggleHeroVideoCollapse()">
                         <div class="flex items-center gap-2 text-xs font-black uppercase text-amber-400 tracking-wider">
-                            <i class="fa-solid fa-circle-play text-red-500 animate-pulse"></i> <span data-i18n="video_section_title">Oficiální prezentační video / Highlights</span>
+                            <i class="fa-solid fa-circle-play text-red-500 animate-pulse"></i> <span>Oficiální prezentační video</span>
                         </div>
-                        <div class="flex items-center gap-2 text-xs text-slate-400 font-semibold hover:text-white transition">
+                        <div class="flex items-center gap-2 text-xs text-slate-400 font-semibold">
                             <span id="video-collapse-label">Sbalit video</span>
                             <i id="video-collapse-icon" class="fa-solid fa-chevron-up transition-transform duration-300"></i>
                         </div>
                     </div>
-                    <div id="hero-video-container" class="relative w-full rounded-2xl overflow-hidden shadow-xl transition-all duration-300" style="padding-bottom: 56.25%; height: 0;">
-                        <iframe id="hero-youtube-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=0&loop=1" 
-                                title="Central Europe e-MTB Tour Presentation" 
-                                class="absolute top-0 left-0 w-full h-full border-0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen>
-                        </iframe>
+                    <div id="hero-video-container" class="relative w-full rounded-2xl overflow-hidden shadow-xl" style="padding-bottom: 56.25%; height: 0;">
+                        <iframe id="hero-youtube-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=0&loop=1" class="absolute top-0 left-0 w-full h-full border-0" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
 
-            <!-- Sub-View: Race Results per Race -->
+            <!-- Race Results Subview -->
             <div id="subview-race-results" class="hidden space-y-6">
-                <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <h3 class="text-xl font-black text-white flex items-center gap-3">
-                            <i class="fa-solid fa-list-check text-amber-400"></i> <span data-i18n="race_results_title">Výsledkové listiny jednotlivých závodů</span>
-                        </h3>
-                        <div class="flex items-center gap-3 w-full sm:w-auto">
-                            <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="select_race_label">Vyberte závod:</span>
-                            <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-amber-400 transition shadow-sm w-full sm:w-72">
-                                <!-- Dynamic races -->
-                            </select>
-                        </div>
+                <div class="bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h3 class="text-xl font-black text-white">Výsledkové listiny jednotlivých závodů</h3>
+                        <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none"></select>
                     </div>
-
-                    <div class="overflow-x-auto rounded-2xl border border-slate-800 shadow-xl">
-                        <table class="w-full text-left border-collapse text-sm">
-                            <thead>
-                                <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
-                                    <th class="p-4 w-16">Poř.</th>
-                                    <th class="p-4" data-i18n="th_rider">Jezdec</th>
-                                    <th class="p-4" data-i18n="th_team">Tým</th>
-                                    <th class="p-4" data-i18n="th_ebike">E-Bike & Motor</th>
-                                    <th class="p-4 text-center">Cíl (Body)</th>
-                                    <th class="p-4 text-center">Sprinty</th>
-                                    <th class="p-4 text-center">KOM</th>
-                                    <th class="p-4 text-right" data-i18n="th_points">Celkem z kola</th>
-                                </tr>
-                            </thead>
-                            <tbody id="public-race-results-tbody" class="divide-y divide-slate-800/60 bg-[#0f172a]">
-                                <!-- Dynamic race results -->
-                            </tbody>
+                    <div class="overflow-x-auto rounded-2xl border border-slate-800">
+                        <table class="w-full text-left text-sm">
+                            <thead><tr class="bg-slate-900 text-slate-400 text-xs"><th class="p-4">Poř.</th><th class="p-4">Jezdec</th><th class="p-4">Tým</th><th class="p-4 text-right">Body</th></tr></thead>
+                            <tbody id="public-race-results-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Sub-View: Calendar 2027 -->
+            <!-- Calendar Subview -->
             <div id="subview-calendar" class="hidden space-y-6">
-                <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6">
-                    <h3 class="text-xl font-black text-white flex items-center gap-3">
-                        <i class="fa-regular fa-calendar-days text-amber-400"></i> <span data-i18n="cal_title">Kalendář závodu Central Europe e-MTB Tour 2027</span>
-                    </h3>
-                    <div id="calendar-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                        <!-- Dynamic calendar cards -->
-                    </div>
+                <div class="bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-6">
+                    <h3 class="text-xl font-black text-white">Kalendář závodu Central Europe e-MTB Tour 2027</h3>
+                    <div id="calendar-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
                 </div>
             </div>
 
-            <!-- Sub-View: Teams & Riders Rosters -->
+            <!-- Teams & Riders Subview -->
             <div id="subview-teams" class="hidden space-y-8">
                 <div class="space-y-6">
-                    <h3 class="text-xl font-black text-white flex items-center gap-3">
-                        <i class="fa-solid fa-users text-amber-400"></i> <span data-i18n="teams_roster_title">Týmy seriálu a jejich soupisky</span>
-                    </h3>
-                    <div id="teams-roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Dynamic team rosters -->
-                    </div>
+                    <h3 class="text-xl font-black text-white">Týmy seriálu a jejich soupisky</h3>
+                    <div id="teams-roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
-
                 <div class="space-y-6 pt-6 border-t border-slate-800">
-                    <h3 class="text-xl font-black text-white flex items-center gap-3">
-                        <i class="fa-solid fa-id-card text-amber-400"></i> <span data-i18n="riders_profiles_title">Jednotliví jezdci a jejich skillové profily</span>
-                    </h3>
-                    <div id="riders-profiles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Dynamic rider profiles -->
-                    </div>
+                    <h3 class="text-xl font-black text-white">Jednotliví jezdci a jejich profily</h3>
+                    <div id="riders-profiles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
             </div>
         </section>
 
-        <!-- ==================== VIEW: ADMIN ==================== -->
+        <!-- VIEW: ADMIN -->
         <section id="view-admin" class="hidden space-y-6">
-            <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <h2 class="text-xl sm:text-2xl font-black text-white flex items-center gap-3">
-                        <i class="fa-solid fa-gears text-amber-400"></i> <span data-i18n="admin_panel_title">Administrátorský panel</span>
-                    </h2>
-                    <p class="text-xs sm:text-sm text-slate-400 mt-1" data-i18n="admin_panel_sub">Plná správa výsledků, jezdců, týmů, kalendáře a zálohování dat.</p>
+            <!-- Firebase Email/Password Login Screen (Shown when not authenticated) -->
+            <div id="admin-login-card" class="max-w-md mx-auto bg-[#111827] border border-slate-800 p-8 rounded-3xl shadow-2xl space-y-6 my-12">
+                <div class="text-center space-y-2">
+                    <div class="w-14 h-14 bg-amber-400/10 border border-amber-400/30 text-amber-400 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-lg">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h2 class="text-xl font-black text-white">Zabezpečená administrace</h2>
+                    <p class="text-xs text-slate-400">Pro přístup k úpravám výsledků a týmů se přihlaste svým účtem z Firebase Authentication.</p>
                 </div>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <button onclick="exportJSONData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-download text-amber-400"></i> <span data-i18n="btn_backup">Stáhnout zálohu (JSON)</span>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Admin E-mail</label>
+                        <input type="email" id="admin-login-email" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="zdenek@fragcze.cz" value="zdenek@fragcze.cz">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Heslo</label>
+                        <input type="password" id="admin-login-password" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="••••••••">
+                    </div>
+                    <button onclick="performFirebaseLogin()" class="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                        Přihlásit se do administrace
                     </button>
-                    <label class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
-                        <i class="fa-solid fa-upload text-amber-400"></i> <span data-i18n="btn_restore">Načíst zálohu</span>
-                        <input type="file" accept=".json" onchange="importJSONData(event)" class="hidden">
-                    </label>
-                    <button onclick="logoutAdmin()" class="px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold rounded-xl text-xs transition flex items-center gap-2">
-                        <i class="fa-solid fa-right-from-bracket"></i> Odhlásit
-                    </button>
+                    <p id="admin-login-error" class="text-xs text-red-400 text-center font-semibold min-h-[16px]"></p>
                 </div>
             </div>
 
-            <!-- Admin Sub Navigation Tabs -->
-            <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none">
-                <button onclick="switchAdminSubTab('results')" id="admin-sub-btn-results" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-sm whitespace-nowrap">
-                    <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="admin_tab_results">Zápis výsledků</span>
-                </button>
-                <button onclick="switchAdminSubTab('skills')" id="admin-sub-btn-skills" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-sliders"></i> <span data-i18n="admin_tab_skills">Nastavení skillů</span>
-                </button>
-                <button onclick="switchAdminSubTab('riders')" id="admin-sub-btn-riders" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-user-plus"></i> <span data-i18n="admin_tab_riders">Správa jezdců</span>
-                </button>
-                <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-shield"></i> <span data-i18n="admin_tab_teams">Správa týmů</span>
-                </button>
-                <button onclick="switchAdminSubTab('calendar')" id="admin-sub-btn-calendar" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-calendar-days"></i> <span data-i18n="admin_tab_calendar">Správa kalendáře</span>
-                </button>
-                <button onclick="switchAdminSubTab('video')" id="admin-sub-btn-video" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-brands fa-youtube"></i> <span data-i18n="admin_tab_video">Nastavení videa</span>
-                </button>
-            </div>
-
-            <!-- Admin Sub-Content: Results Entry -->
-            <div id="admin-sub-results" class="admin-sub-content bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-trophy mr-2 text-amber-400"></i> <span data-i18n="admin_res_title">Zápis umístění a prémií pro závod</span></h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+            <!-- Protected Admin Dashboard Content (Hidden until authenticated) -->
+            <div id="admin-dashboard-wrapper" class="hidden space-y-6">
+                <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_race">Závod / Etapa</label>
-                        <select id="admin-result-race-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                        <h2 class="text-xl sm:text-2xl font-black text-white flex items-center gap-3">
+                            <i class="fa-solid fa-gears text-amber-400"></i> <span data-i18n="admin_panel_title">Administrátorský panel</span>
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-1" id="admin-user-status-label">Přihlášen jako správce</p>
                     </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_rider">Jezdec</label>
-                        <select id="admin-result-rider-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_finish">Cíl (1-30)</label>
-                        <input type="number" id="admin-input-pos" min="1" max="30" value="1" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_sprint">Sprint (1-10)</label>
-                        <input type="number" id="admin-input-sprint" min="0" max="10" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_kom">KOM (1-5)</label>
-                        <input type="number" id="admin-input-kom" min="0" max="5" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                    </div>
-                </div>
-                <div>
-                    <button onclick="saveRiderResult()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        <span data-i18n="btn_save_result">Uložit výsledky jezdce</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Admin Sub-Content: Skills Setup -->
-            <div id="admin-sub-skills" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-sliders mr-2 text-amber-400"></i> <span data-i18n="admin_skills_title">Nastavení dovedností (1-10)</span></h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Vyberte jezdce</label>
-                        <select id="admin-skill-rider-select" onchange="loadRiderSkillsToForm()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Kondice (1-10)</label>
-                            <input type="number" id="skill-cond" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Technika (1-10)</label>
-                            <input type="number" id="skill-tech" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Baterie (1-10)</label>
-                            <input type="number" id="skill-battery" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Sprint (1-10)</label>
-                            <input type="number" id="skill-sprint" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                        </div>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-xs font-bold text-slate-400 mb-1">Vrcholy / KOM (1-10)</label>
-                        <input type="number" id="skill-kom" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                    </div>
-                </div>
-                <div>
-                    <button onclick="saveRiderSkills()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Uložit skilly jezdce
-                    </button>
-                </div>
-            </div>
-
-            <!-- Admin Sub-Content: Manage Riders -->
-            <div id="admin-sub-riders" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-user-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_rider_title">Přidat / Spravovat jezdce</span></h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_rider_name">Jméno a příjmení</label>
-                        <input type="text" id="new-rider-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Jan Novák">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_rider_country">Stát (Vlajka)</label>
-                        <select id="new-rider-country" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <option value="CZ">🇨🇿 Česká republika</option>
-                            <option value="SK">🇸🇰 Slovensko</option>
-                            <option value="PL">🇵🇱 Polsko</option>
-                            <option value="DE">🇩🇪 Německo</option>
-                            <option value="AT">🇦🇹 Rakousko</option>
-                            <option value="HU">🇭🇺 Maďarsko</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_team_name">Tým</label>
-                        <select id="new-rider-team" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Kategorie</label>
-                        <select id="new-rider-cat" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <option value="Elite">Elite</option>
-                            <option value="Masters">Masters (35+)</option>
-                            <option value="Women">Ženy</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Značka E-Biku</label>
-                        <select id="new-rider-ebike" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Motor & Pohon</label>
-                        <select id="new-rider-motor" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <button onclick="addNewRider()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Vytvořit a uložit jezdce
-                    </button>
-                </div>
-
-                <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
-                                <th class="p-3">Jméno</th>
-                                <th class="p-3">Stát</th>
-                                <th class="p-3">Tým</th>
-                                <th class="p-3">E-Bike</th>
-                                <th class="p-3">Motor</th>
-                                <th class="p-3 text-right">Akce</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-riders-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Admin Sub-Content: Manage Teams -->
-            <div id="admin-sub-teams" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-shield mr-2 text-amber-400"></i> <span data-i18n="admin_add_team_title">Přidat / Spravovat týmy a výrobce</span></h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název týmu</label>
-                        <input type="text" id="new-team-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Factory e-Bike Team">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Stát týmu</label>
-                        <select id="new-team-country" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <option value="CZ">🇨🇿 Česká republika</option>
-                            <option value="SK">🇸🇰 Slovensko</option>
-                            <option value="PL">🇵🇱 Polsko</option>
-                            <option value="DE">🇩🇪 Německo</option>
-                            <option value="AT">🇦🇹 Rakousko</option>
-                            <option value="HU">🇭🇺 Maďarsko</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Značka E-Biku (Výrobce)</label>
-                        <select id="new-team-brand" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="addNewCustomBrand()" class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded-xl text-xs border border-slate-700 transition">
-                            + Přidat novou značku
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <button onclick="exportJSONData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-download text-amber-400"></i> <span data-i18n="btn_backup">Stáhnout zálohu (JSON)</span>
+                        </button>
+                        <label class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
+                            <i class="fa-solid fa-upload text-amber-400"></i> <span data-i18n="btn_restore">Načíst zálohu</span>
+                            <input type="file" accept=".json" onchange="importJSONData(event)" class="hidden">
+                        </label>
+                        <button onclick="logoutAdminSession()" class="px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold rounded-xl text-xs transition flex items-center gap-2">
+                            <i class="fa-solid fa-right-from-bracket"></i> Odhlásit
                         </button>
                     </div>
                 </div>
-                <div>
-                    <button onclick="addNewTeam()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Vytvořit nový tým
+
+                <!-- Admin Sub Navigation Tabs -->
+                <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none">
+                    <button onclick="switchAdminSubTab('results')" id="admin-sub-btn-results" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-sm whitespace-nowrap">
+                        <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="admin_tab_results">Zápis výsledků</span>
+                    </button>
+                    <button onclick="switchAdminSubTab('skills')" id="admin-sub-btn-skills" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-sliders"></i> <span data-i18n="admin_tab_skills">Nastavení skillů</span>
+                    </button>
+                    <button onclick="switchAdminSubTab('riders')" id="admin-sub-btn-riders" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-user-plus"></i> <span data-i18n="admin_tab_riders">Správa jezdců</span>
+                    </button>
+                    <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-shield"></i> <span data-i18n="admin_tab_teams">Správa týmů</span>
+                    </button>
+                    <button onclick="switchAdminSubTab('calendar')" id="admin-sub-btn-calendar" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-calendar-days"></i> <span data-i18n="admin_tab_calendar">Správa kalendáře</span>
+                    </button>
+                    <button onclick="switchAdminSubTab('video')" id="admin-sub-btn-video" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-brands fa-youtube"></i> <span data-i18n="admin_tab_video">Nastavení videa</span>
                     </button>
                 </div>
 
-                <div class="mt-6">
-                    <h4 class="text-sm font-bold text-slate-300 mb-3">Existující týmy v seriálu</h4>
-                    <div id="admin-teams-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Populated dynamically -->
+                <!-- Admin Sub-Content: Results Entry -->
+                <div id="admin-sub-results" class="admin-sub-content bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-trophy mr-2 text-amber-400"></i> <span data-i18n="admin_res_title">Zápis umístění a prémií pro závod</span></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_race">Závod / Etapa</label>
+                            <select id="admin-result-race-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_rider">Jezdec</label>
+                            <select id="admin-result-rider-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_finish">Cíl (1-30)</label>
+                            <input type="number" id="admin-input-pos" min="1" max="30" value="1" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_sprint">Sprint (1-10)</label>
+                            <input type="number" id="admin-input-sprint" min="0" max="10" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_kom">KOM (1-5)</label>
+                            <input type="number" id="admin-input-kom" min="0" max="5" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="saveRiderResult()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                            <span data-i18n="btn_save_result">Uložit výsledky jezdce</span>
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Admin Sub-Content: Manage Calendar -->
-            <div id="admin-sub-calendar" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-calendar-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_race_title">Přidat / Spravovat závod</span></h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název závodu</label>
-                        <input type="text" id="new-race-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Beskydy e-MTB">
+                <!-- Admin Sub-Content: Skills Setup -->
+                <div id="admin-sub-skills" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-sliders mr-2 text-amber-400"></i> <span data-i18n="admin_skills_title">Nastavení dovedností (1-10)</span></h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Vyberte jezdce</label>
+                            <select id="admin-skill-rider-select" onchange="loadRiderSkillsToForm()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Kondice (1-10)</label>
+                                <input type="number" id="skill-cond" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Technika (1-10)</label>
+                                <input type="number" id="skill-tech" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Baterie (1-10)</label>
+                                <input type="number" id="skill-battery" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Sprint (1-10)</label>
+                                <input type="number" id="skill-sprint" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold text-slate-400 mb-1">Vrcholy / KOM (1-10)</label>
+                            <input type="number" id="skill-kom" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Město / Lokace</label>
-                        <input type="text" id="new-race-loc" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="Dolní Bečva, CZ">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Datum</label>
-                        <input type="date" id="new-race-date" value="2027-05-15" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Parametry (km / převýšení)</label>
-                        <input type="text" id="new-race-params" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="52 km / 1600m">
+                        <button onclick="saveRiderSkills()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                            Uložit skilly jezdce
+                        </button>
                     </div>
                 </div>
-                <div>
-                    <button onclick="addNewRace()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Přidat závod do kalendáře
-                    </button>
-                </div>
-            </div>
 
-            <!-- Admin Sub-Content: Video Settings -->
-            <div id="admin-sub-video" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-brands fa-youtube mr-2 text-red-500"></i> <span data-i18n="admin_video_title">Nastavení prezentačního YouTube videa</span></h3>
-                <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">YouTube Video ID (např. <code class="text-amber-400">dQw4w9WgXcQ</code> nebo celý odkaz)</label>
-                        <input type="text" id="admin-youtube-id-input" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="dQw4w9WgXcQ">
+                <!-- Admin Sub-Content: Manage Riders -->
+                <div id="admin-sub-riders" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-user-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_rider_title">Přidat / Spravovat jezdce</span></h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_rider_name">Jméno a příjmení</label>
+                            <input type="text" id="new-rider-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Jan Novák">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_rider_country">Stát (Vlajka)</label>
+                            <select id="new-rider-country" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
+                                <option value="CZ">🇨🇿 Česká republika</option>
+                                <option value="SK">🇸🇰 Slovensko</option>
+                                <option value="PL">🇵🇱 Polsko</option>
+                                <option value="DE">🇩🇪 Německo</option>
+                                <option value="AT">🇦🇹 Rakousko</option>
+                                <option value="HU">🇭🇺 Maďarsko</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_team_name">Tým</label>
+                            <select id="new-rider-team" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Kategorie</label>
+                            <select id="new-rider-cat" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
+                                <option value="Elite">Elite</option>
+                                <option value="Masters">Masters (35+)</option>
+                                <option value="Women">Ženy</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Značka E-Biku</label>
+                            <select id="new-rider-ebike" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Motor & Pohon</label>
+                            <select id="new-rider-motor" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                        </div>
                     </div>
-                    <p class="text-xs text-slate-400">Zadejte ID videa z YouTube (kód za <code class="text-amber-400">watch?v=</code> v URL odkazu). Změna se po uložení okamžitě projeví na hlavním webu.</p>
+                    <div>
+                        <button onclick="addNewRider()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                            Vytvořit a uložit jezdce
+                        </button>
+                    </div>
+
+                    <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
+                                    <th class="p-3">Jméno</th>
+                                    <th class="p-3">Stát</th>
+                                    <th class="p-3">Tým</th>
+                                    <th class="p-3">E-Bike</th>
+                                    <th class="p-3">Motor</th>
+                                    <th class="p-3 text-right">Akce</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-riders-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div>
-                    <button onclick="saveYouTubeVideoId()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Uložit YouTube video
-                    </button>
+
+                <!-- Admin Sub-Content: Manage Teams -->
+                <div id="admin-sub-teams" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-shield mr-2 text-amber-400"></i> <span data-i18n="admin_add_team_title">Přidat / Spravovat týmy a výrobce</span></h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název týmu</label>
+                            <input type="text" id="new-team-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Factory e-Bike Team">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Stát týmu</label>
+                            <select id="new-team-country" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
+                                <option value="CZ">🇨🇿 Česká republika</option>
+                                <option value="SK">🇸🇰 Slovensko</option>
+                                <option value="PL">🇵🇱 Polsko</option>
+                                <option value="DE">🇩🇪 Německo</option>
+                                <option value="AT">🇦🇹 Rakousko</option>
+                                <option value="HU">🇭🇺 Maďarsko</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Značka E-Biku (Výrobce)</label>
+                            <select id="new-team-brand" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="addNewCustomBrand()" class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded-xl text-xs border border-slate-700 transition">
+                                + Přidat novou značku
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="addNewTeam()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                            Vytvořit nový tým
+                        </button>
+                    </div>
+
+                    <div class="mt-6">
+                        <h4 class="text-sm font-bold text-slate-300 mb-3">Existující týmy v seriálu</h4>
+                        <div id="admin-teams-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
+                </div>
+
+                <!-- Admin Sub-Content: Manage Calendar -->
+                <div id="admin-sub-calendar" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-calendar-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_race_title">Přidat / Spravovat závod</span></h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název závodu</label>
+                            <input type="text" id="new-race-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Beskydy e-MTB">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Město / Lokace</label>
+                            <input type="text" id="new-race-loc" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="Dolní Bečva, CZ">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Datum</label>
+                            <input type="date" id="new-race-date" value="2027-05-15" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Parametry (km / převýšení)</label>
+                            <input type="text" id="new-race-params" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="52 km / 1600m">
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="addNewRace()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                            Přidat závod do kalendáře
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Sub-Content: Video Settings -->
+                <div id="admin-sub-video" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-brands fa-youtube mr-2 text-red-500"></i> <span data-i18n="admin_video_title">Nastavení prezentačního YouTube videa</span></h3>
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">YouTube Video ID (např. <code class="text-amber-400">dQw4w9WgXcQ</code> nebo celý odkaz)</label>
+                            <input type="text" id="admin-youtube-id-input" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="dQw4w9WgXcQ">
+                        </div>
+                        <p class="text-xs text-slate-400">Zadejte ID videa z YouTube (kód za <code class="text-amber-400">watch?v=</code> v URL odkazu). Změna se po uložení okamžitě projeví na hlavním webu.</p>
+                    </div>
+                    <div>
+                        <button onclick="saveYouTubeVideoId()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                            Uložit YouTube video
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -699,7 +588,7 @@
                     <a href="#" onclick="switchMainTab('rules'); return false;" class="hover:text-amber-400 transition">Pravidla bodování</a>
                     <a href="#" onclick="switchMainTab('public'); switchPublicSubTab('calendar'); return false;" class="hover:text-amber-400 transition">Kalendář 2027</a>
                     <a href="#" onclick="switchMainTab('public'); switchPublicSubTab('teams'); return false;" class="hover:text-amber-400 transition">Týmy a jezdci</a>
-                    <a href="#" onclick="promptAdminLogin(); return false;" class="hover:text-amber-400 transition">Administrace</a>
+                    <a href="#" onclick="handleAdminNavClick(); return false;" class="hover:text-amber-400 transition">Administrace</a>
                 </div>
 
                 <div class="text-xs text-slate-500 font-medium">
@@ -1144,6 +1033,61 @@
             }
         }
 
+        function initAuthListener() {
+            if (window.auth && window.firebaseModules) {
+                const { onAuthStateChanged } = window.firebaseModules;
+                onAuthStateChanged(window.auth, (user) => {
+                    const loginCard = document.getElementById('admin-login-card');
+                    const dashboardWrapper = document.getElementById('admin-dashboard-wrapper');
+                    const statusLabel = document.getElementById('admin-user-status-label');
+
+                    if (user) {
+                        if (loginCard) loginCard.classList.add('hidden');
+                        if (dashboardWrapper) dashboardWrapper.classList.remove('hidden');
+                        if (statusLabel) statusLabel.textContent = `Přihlášen jako: ${user.email}`;
+                    } else {
+                        if (loginCard) loginCard.classList.remove('hidden');
+                        if (dashboardWrapper) dashboardWrapper.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        async function performFirebaseLogin() {
+            const emailInput = document.getElementById('admin-login-email').value.trim();
+            const passwordInput = document.getElementById('admin-login-password').value;
+            const errorEl = document.getElementById('admin-login-error');
+            errorEl.textContent = '';
+
+            if (!emailInput || !passwordInput) {
+                errorEl.textContent = 'Zadejte prosím e-mail i heslo.';
+                return;
+            }
+
+            try {
+                const { signInWithEmailAndPassword } = window.firebaseModules;
+                await signInWithEmailAndPassword(window.auth, emailInput, passwordInput);
+            } catch (err) {
+                console.error("Firebase auth login error:", err);
+                errorEl.textContent = 'Chyba přihlášení: Nesprávný e-mail nebo heslo.';
+            }
+        }
+
+        function logoutAdminSession() {
+            if (window.auth && window.firebaseModules) {
+                const { signOut } = window.firebaseModules;
+                signOut(window.auth).then(() => {
+                    switchMainTab('public');
+                });
+            } else {
+                switchMainTab('public');
+            }
+        }
+
+        function handleAdminNavClick() {
+            switchMainTab('admin');
+        }
+
         function initFirebaseSync() {
             if (!window.db) {
                 window.loadDefaultData();
@@ -1333,19 +1277,6 @@
             });
             const targetEl = document.getElementById(`admin-sub-${sub}`);
             if (targetEl) targetEl.classList.remove('hidden');
-        }
-
-        function promptAdminLogin() {
-            const pwd = prompt("Zadejte administrátorské heslo:");
-            if (pwd === "admin2027") {
-                switchMainTab('admin');
-            } else if (pwd !== null) {
-                showModal("Chyba", "Nesprávné heslo administrátora!");
-            }
-        }
-
-        function logoutAdmin() {
-            switchMainTab('public');
         }
 
         function showModal(title, message) {
@@ -1539,10 +1470,8 @@
                     brandMap[brand].ridersOfBrand.push(item);
                 });
 
-                // Check manual selection from team/brand assignment if any, else auto pick highest points in brand
                 let brandArr = Object.values(brandMap).map(bItem => {
                     let topRiderName = '--';
-                    // Check if any team has manual featured rider for this brand
                     let manualRider = null;
                     teams.forEach(t => {
                         if (t.brand === bItem.brand && t.featuredRiderId) {
@@ -2116,7 +2045,7 @@
                 populateAdminSelects();
                 renderPublicLeaderboards();
                 populatePublicRaceResultsSelect();
-            }, 500);
+            }, 300);
         };
     </script>
 </body>
