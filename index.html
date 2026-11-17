@@ -8,10 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDKs (Modular) -->
+    <!-- Firebase SDKs & Global Bindings -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC5TZAwRTKDxaveK1Fk85wK0MnLlj--07Y",
@@ -22,17 +22,27 @@
             appId: "1:249064062530:web:6484b61bebbb836e5837db"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
-        const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
+            const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-        window.db = db;
-        window.appId = appId;
-        window.firebaseModules = { doc, setDoc, onSnapshot, collection };
-
-        console.log("Firebase initialized successfully.");
-        initFirebaseSync();
+            window.db = db;
+            window.appId = appId;
+            window.firebaseModules = { doc, setDoc, onSnapshot };
+            console.log("Firebase initialized successfully.");
+            
+            // Spuštění synchronizace s databází
+            if (typeof initFirebaseSync === 'function') {
+                initFirebaseSync();
+            }
+        } catch (e) {
+            console.error("Firebase init error, fallback to default data:", e);
+            if (typeof loadDefaultData === 'function') {
+                loadDefaultData();
+            }
+        }
     </script>
 
     <style>
@@ -70,40 +80,16 @@
             </div>
             
             <div class="flex items-center justify-between lg:justify-end w-full lg:w-auto gap-3 flex-wrap">
-                <div class="relative">
-                    <button onclick="toggleLangDropdown()" id="lang-dropdown-btn" class="bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-amber-400 font-bold flex items-center gap-2.5 transition shadow-sm">
-                        <span id="current-lang-flag"><img src="https://flagcdn.com/24x18/cz.png" width="18" height="13" style="vertical-align: middle; border-radius: 2px;" alt="CZ"></span>
-                        <span id="current-lang-text">Čeština</span>
-                        <i class="fa-solid fa-chevron-down text-[10px] ml-1 text-slate-400"></i>
-                    </button>
-                    <div id="lang-dropdown-menu" class="hidden absolute right-0 mt-2 w-44 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl z-50 overflow-hidden py-1.5 backdrop-blur-md">
-                        <button onclick="selectLanguage('cs', 'Čeština', 'cz')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-amber-400 flex items-center gap-3 transition">
-                            <img src="https://flagcdn.com/24x18/cz.png" width="18" height="13" style="border-radius: 2px;" alt="CZ"> Čeština
-                        </button>
-                        <button onclick="selectLanguage('sk', 'Slovenčina', 'sk')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-amber-400 flex items-center gap-3 transition">
-                            <img src="https://flagcdn.com/24x18/sk.png" width="18" height="13" style="border-radius: 2px;" alt="SK"> Slovenčina
-                        </button>
-                        <button onclick="selectLanguage('pl', 'Polski', 'pl')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-amber-400 flex items-center gap-3 transition">
-                            <img src="https://flagcdn.com/24x18/pl.png" width="18" height="13" style="border-radius: 2px;" alt="PL"> Polski
-                        </button>
-                        <button onclick="selectLanguage('de', 'Deutsch', 'de')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-amber-400 flex items-center gap-3 transition">
-                            <img src="https://flagcdn.com/24x18/de.png" width="18" height="13" style="border-radius: 2px;" alt="DE"> Deutsch
-                        </button>
-                        <button onclick="selectLanguage('en', 'English', 'gb')" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-200 hover:bg-slate-800 hover:text-amber-400 flex items-center gap-3 transition">
-                            <img src="https://flagcdn.com/24x18/gb.png" width="18" height="13" style="border-radius: 2px;" alt="GB"> English
-                        </button>
-                    </div>
-                </div>
-
+                <!-- Navigation Action Buttons -->
                 <div class="flex items-center gap-2">
                     <button onclick="switchMainTab('rules')" id="btn-tab-rules" class="text-xs font-bold px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition flex items-center gap-2 text-slate-200 shadow-sm">
-                        <i class="fa-solid fa-book-open text-amber-400"></i> <span data-i18n="nav_rules">Pravidla bodování</span>
+                        <i class="fa-solid fa-book-open text-amber-400"></i> <span>Pravidla bodování</span>
                     </button>
                     <button onclick="switchMainTab('public')" id="btn-tab-public" class="text-xs font-bold px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 transition flex items-center gap-2 shadow-lg shadow-amber-400/20">
-                        <i class="fa-solid fa-globe"></i> <span data-i18n="nav_public">Veřejný web</span>
+                        <i class="fa-solid fa-globe"></i> <span>Veřejný web</span>
                     </button>
                     <button onclick="promptAdminLogin()" id="btn-tab-admin" class="text-xs font-bold px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition flex items-center gap-2 text-slate-200 shadow-sm">
-                        <i class="fa-solid fa-lock text-amber-400"></i> <span data-i18n="nav_admin">Administrace</span>
+                        <i class="fa-solid fa-lock text-amber-400"></i> <span>Administrace</span>
                     </button>
                 </div>
             </div>
@@ -114,16 +100,16 @@
     <nav id="public-subnav" class="bg-[#111827] text-slate-300 border-b border-slate-800 shadow-md sticky top-0 z-30 backdrop-blur-md bg-opacity-95">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 flex space-x-2 overflow-x-auto py-2.5 scrollbar-none">
             <button onclick="switchPublicSubTab('leaderboards')" id="sub-btn-leaderboards" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm">
-                <i class="fa-solid fa-trophy"></i> <span data-i18n="sub_leaderboards">Žebříčky (Tours)</span>
+                <i class="fa-solid fa-trophy"></i> <span>Žebříčky (Tours)</span>
             </button>
             <button onclick="switchPublicSubTab('race_results')" id="sub-btn-race-results" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
-                <i class="fa-solid fa-list-check text-amber-400"></i> <span data-i18n="sub_race_results">Výsledky dle závodů</span>
+                <i class="fa-solid fa-list-check text-amber-400"></i> <span>Výsledky dle závodů</span>
             </button>
             <button onclick="switchPublicSubTab('calendar')" id="sub-btn-calendar" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
-                <i class="fa-solid fa-calendar-days text-amber-400"></i> <span data-i18n="sub_calendar">Kalendář 2027</span>
+                <i class="fa-solid fa-calendar-days text-amber-400"></i> <span>Kalendář 2027</span>
             </button>
             <button onclick="switchPublicSubTab('teams')" id="sub-btn-teams" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
-                <i class="fa-solid fa-users text-amber-400"></i> <span data-i18n="sub_teams">Týmy a Jezdci</span>
+                <i class="fa-solid fa-users text-amber-400"></i> <span>Týmy a Jezdci</span>
             </button>
         </div>
     </nav>
@@ -135,10 +121,10 @@
         <section id="view-rules" class="hidden space-y-6">
             <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl">
                 <h2 class="text-2xl font-black text-white mb-4 flex items-center gap-3">
-                    <i class="fa-solid fa-book-bookmark text-amber-400"></i> <span data-i18n="rules_title">Pravidla bodování seriálu Central Europe e-MTB Tour 2027</span>
+                    <i class="fa-solid fa-book-bookmark text-amber-400"></i> Pravidla bodování seriálu Central Europe e-MTB Tour 2027
                 </h2>
                 <div class="prose max-w-none text-slate-300 space-y-4 text-sm leading-relaxed">
-                    <p data-i18n="rules_intro">Seriál e-MTB maratonů 2027 kombinuje fyzickou náročnost, taktickou jízdu s elektrokoly, sprinterské dovednosti i týmovou strategii.</p>
+                    <p>Seriál e-MTB maratonů 2027 kombinuje fyzickou náročnost, taktickou jízdu s elektrokoly, sprinterské dovednosti i týmovou strategii.</p>
                 </div>
             </div>
         </section>
@@ -325,7 +311,6 @@
                     <button onclick="saveRiderResult()" class="bg-amber-400 text-slate-950 font-black rounded-xl text-xs p-3">Uložit výsledek</button>
                 </div>
             </div>
-            <!-- Další admin podsekce (připravené prázdné kontejnery, aby nedocházelo k chybám) -->
             <div id="admin-sub-skills" class="admin-sub-content hidden bg-[#111827] p-6 rounded-3xl border border-slate-800"></div>
             <div id="admin-sub-riders" class="admin-sub-content hidden bg-[#111827] p-6 rounded-3xl border border-slate-800"></div>
             <div id="admin-sub-teams" class="admin-sub-content hidden bg-[#111827] p-6 rounded-3xl border border-slate-800"></div>
@@ -366,10 +351,8 @@
         </div>
     </div>
 
-    <!-- Script Logic -->
+    <!-- Script Logic with Global Function Attachments -->
     <script>
-        let availableBrands = ['Crussis', 'Kellys', 'CTM', 'AMFLOW', 'FOCUS', 'Specialized'];
-        let availableMotors = ['Bosch CX Race', 'DJI Avinox', 'Shimano EP801', 'Yamaha PW-X3'];
         let defaultTeams = [
             { id: 't1', name: 'Tatry e-Bike Squad', country: 'SK', brand: 'CTM', featuredRiderId: '' },
             { id: 't2', name: 'eMTB Vamos Rápido', country: 'CZ', brand: 'Crussis', featuredRiderId: '' }
@@ -464,20 +447,25 @@
         function switchPublicSubTab(sub) {
             currentPublicSubTab = sub;
             ['subview-leaderboards', 'subview-race-results', 'subview-calendar', 'subview-teams'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
             });
             if (sub === 'leaderboards') {
-                document.getElementById('subview-leaderboards').classList.remove('hidden');
+                const target = document.getElementById('subview-leaderboards');
+                if (target) target.classList.remove('hidden');
                 renderPublicLeaderboards();
             } else if (sub === 'race_results') {
-                document.getElementById('subview-race-results').classList.remove('hidden');
+                const target = document.getElementById('subview-race-results');
+                if (target) target.classList.remove('hidden');
                 populatePublicRaceResultsSelect();
                 renderPublicRaceResults();
             } else if (sub === 'calendar') {
-                document.getElementById('subview-calendar').classList.remove('hidden');
+                const target = document.getElementById('subview-calendar');
+                if (target) target.classList.remove('hidden');
                 renderCalendar();
             } else if (sub === 'teams') {
-                document.getElementById('subview-teams').classList.remove('hidden');
+                const target = document.getElementById('subview-teams');
+                if (target) target.classList.remove('hidden');
                 renderTeamsAndRidersView();
             }
         }
@@ -510,14 +498,6 @@
         function getFlagIcon(code) {
             if (!code) return '';
             return `<img src="https://flagcdn.com/24x18/${code.toLowerCase()}.png" width="18" height="13" style="vertical-align: middle; border-radius: 2px; margin-right: 4px;" alt="${code}" />`;
-        }
-
-        function calculateRiderTotals() {
-            let stats = {};
-            riders.forEach(r => {
-                stats[r.id] = { rider: r, totalYellow: 100, totalGreen: 25, totalPolka: 15, totalPink: 100 };
-            });
-            return stats;
         }
 
         function renderPublicLeaderboards() {
@@ -634,6 +614,28 @@
             };
             reader.readAsText(file);
         }
+
+        // Explicitní vystavení funkcí do globálního okna, aby na ně HTML tlačítka spolehlivě dosáhla
+        window.switchMainTab = switchMainTab;
+        window.switchPublicSubTab = switchPublicSubTab;
+        window.switchLeaderboardTab = switchLeaderboardTab;
+        window.switchAdminSubTab = switchAdminSubTab;
+        window.promptAdminLogin = promptAdminLogin;
+        window.logoutAdmin = logoutAdmin;
+        window.closeModal = closeModal;
+        window.saveRiderResult = saveRiderResult;
+        window.exportJSONData = exportJSONData;
+        window.importJSONData = importJSONData;
+        window.toggleHeroVideoCollapse = function() {};
+
+        // Automatické spuštění výchozího zobrazení po načtení okna
+        window.onload = function() {
+            setTimeout(() => {
+                if (typeof initFirebaseSync !== 'function' || !window.db) {
+                    loadDefaultData();
+                }
+            }, 300);
+        };
     </script>
 </body>
 </html>
