@@ -22,17 +22,21 @@
             appId: "1:249064062530:web:6484b61bebbb836e5837db"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
-        const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
+            const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-        window.db = db;
-        window.appId = appId;
-        window.firebaseModules = { doc, setDoc, onSnapshot, collection };
-
-        console.log("Firebase initialized successfully.");
-        initFirebaseSync();
+            window.db = db;
+            window.appId = appId;
+            window.firebaseModules = { doc, setDoc, onSnapshot, collection };
+            console.log("Firebase initialized successfully.");
+            if (typeof initFirebaseSync === 'function') initFirebaseSync();
+        } catch (e) {
+            console.error("Firebase init error, falling back to local data:", e);
+            if (typeof loadDefaultData === 'function') loadDefaultData();
+        }
     </script>
 
     <style>
@@ -46,7 +50,6 @@
             background-size: 20px 20px;
             background-position: 0 0, 10px 10px;
         }
-        /* Custom scrollbars for professional sports look */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -55,7 +58,7 @@
 </head>
 <body class="bg-[#0b0f19] text-slate-100 h-full flex flex-col antialiased">
 
-    <!-- Top Header Bar (Pro Cycling Theme) -->
+    <!-- Top Header Bar -->
     <header class="bg-[#0f172a] text-white shadow-xl border-b border-slate-800 relative z-40">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3 w-full lg:w-auto justify-between lg:justify-start">
@@ -71,9 +74,8 @@
             </div>
             
             <div class="flex items-center justify-between lg:justify-end w-full lg:w-auto gap-3 flex-wrap">
-                <!-- Custom Reliable Language Selector -->
                 <div class="relative">
-                    <button onclick="toggleLangDropdown()" id="lang-dropdown-btn" class="bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-amber-400 font-bold flex items-center gap-2.5 transition shadow-sm">
+                    <button onclick="toggleLangDropdown()" id="lang-dropdown-btn" class="bg-slate-800/95 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-amber-400 font-bold flex items-center gap-2.5 transition shadow-sm">
                         <span id="current-lang-flag"><img src="https://flagcdn.com/24x18/cz.png" width="18" height="13" style="vertical-align: middle; border-radius: 2px;" alt="CZ"></span>
                         <span id="current-lang-text">Čeština</span>
                         <i class="fa-solid fa-chevron-down text-[10px] ml-1 text-slate-400"></i>
@@ -97,7 +99,6 @@
                     </div>
                 </div>
 
-                <!-- Navigation Action Buttons -->
                 <div class="flex items-center gap-2">
                     <button onclick="switchMainTab('rules')" id="btn-tab-rules" class="text-xs font-bold px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition flex items-center gap-2 text-slate-200 shadow-sm">
                         <i class="fa-solid fa-book-open text-amber-400"></i> <span data-i18n="nav_rules">Pravidla bodování</span>
@@ -113,9 +114,7 @@
         </div>
     </header>
 
-    <!-- Presentation Video Hero Section has been moved below the leaderboards -->
-
-    <!-- Sub Navigation (Public View) -->
+    <!-- Sub Navigation -->
     <nav id="public-subnav" class="bg-[#111827] text-slate-300 border-b border-slate-800 shadow-md sticky top-0 z-30 backdrop-blur-md bg-opacity-95">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 flex space-x-2 overflow-x-auto py-2.5 scrollbar-none">
             <button onclick="switchPublicSubTab('leaderboards')" id="sub-btn-leaderboards" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm">
@@ -136,141 +135,84 @@
     <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 overflow-y-auto space-y-4">
 
-        <!-- ==================== VIEW: RULES ==================== -->
+        <!-- VIEW: RULES -->
         <section id="view-rules" class="hidden space-y-6">
             <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl">
                 <h2 class="text-2xl font-black text-white mb-4 flex items-center gap-3">
                     <i class="fa-solid fa-book-bookmark text-amber-400"></i> <span data-i18n="rules_title">Pravidla bodování seriálu Central Europe e-MTB Tour 2027</span>
                 </h2>
                 <div class="prose max-w-none text-slate-300 space-y-4 text-sm leading-relaxed">
-                    <p data-i18n="rules_intro">Seriál e-MTB maratonů 2027 kombinuje fyzickou náročnost, taktickou jízdu s elektrokoly, sprinterské dovednosti i týmovou strategii. Níže naleznete detailní bodovací systémy pro jednotlivé dresy a týmovou soutěž.</p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <div class="bg-amber-400/10 p-6 rounded-2xl border border-amber-400/30">
-                            <h3 class="font-bold text-amber-300 text-base mb-2 flex items-center gap-2.5">
-                                <span class="w-4 h-4 rounded bg-amber-400 inline-block shadow-sm"></span> <span data-i18n="rule_yellow">Žlutý dres (Celkové pořadí)</span>
-                            </h3>
-                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_yellow_desc">Body z jednotlivých závodů se sčítají podle umístění (1.místo = 100b, 2.místo = 90b, 3.místo = 80b atd.). Pro konečné celkové pořadí v seriálu se uplatňuje pravidlo <strong>7 nejlepších výsledků z 10</strong> celkových závodů (nejhorší 3 výsledky nebo neúčasti se škrtají).</p>
-                        </div>
-
-                        <div class="bg-emerald-500/10 p-6 rounded-2xl border border-emerald-500/30">
-                            <h3 class="font-bold text-emerald-400 text-base mb-2 flex items-center gap-2.5">
-                                <span class="w-4 h-4 rounded bg-emerald-500 inline-block shadow-sm"></span> <span data-i18n="rule_green">Zelený dres (Sprinty / Strava Segments)</span>
-                            </h3>
-                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_green_desc">Bodování na vybraných Strava prémiích v průběhu etapy (1. místo = 25b, 2. místo = 20b, 3. místo = 16b, 4. místo = 13b, 5. místo = 11b, 6.-10. místo = 10-8-6-4-2b). Hodnotí výbušnost a schopnosti na specifických úsecích.</p>
-                        </div>
-
-                        <div class="bg-red-500/10 p-6 rounded-2xl border border-red-500/30">
-                            <h3 class="font-bold text-red-400 text-base mb-2 flex items-center gap-2.5">
-                                <span class="w-4 h-4 rounded bg-red-500 inline-block shadow-sm"></span> <span data-i18n="rule_polka">Král hor (Puntíkovaný dres)</span>
-                            </h3>
-                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_polka_desc">Vrchařské prémie na vrcholech stoupání. Bodují 3 až 5 nejrychlejších jezdců v kopci podle obtížnosti stoupání (Kategorie HC, 1, 2, 3).</p>
-                        </div>
-
-                        <div class="bg-pink-500/10 p-6 rounded-2xl border border-pink-500/30">
-                            <h3 class="font-bold text-pink-400 text-base mb-2 flex items-center gap-2.5">
-                                <span class="w-4 h-4 rounded bg-pink-500 inline-block shadow-sm"></span> <span data-i18n="rule_pink">Růžový dres (Tovární konstruktérský dres)</span>
-                            </h3>
-                            <p class="text-xs text-slate-300 leading-relaxed" data-i18n="rule_pink_desc">Soutěž výrobců motorů a značek e-biků. Zástupce (tvář) dané značky se vybírá buď <strong>ručně v administraci</strong> (fixní volba v sekci Správa týmů), nebo <strong>automaticky podle nejvyššího počtu bodů</strong> ze žebříčku dané značky.</p>
-                        </div>
-                    </div>
+                    <p data-i18n="rules_intro">Seriál e-MTB maratonů 2027 kombinuje fyzickou náročnost, taktickou jízdu s elektrokoly a týmovou strategii.</p>
                 </div>
-            </div>
-
-            <!-- Rules for Team TdF -->
-            <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl">
-                <h3 class="text-xl font-black text-white mb-3" data-i18n="rule_team_title">Soutěž týmů (Pravidla podle Tour de France)</h3>
-                <p class="text-sm text-slate-300 leading-relaxed" data-i18n="rule_team_desc">Týmová soutěž v seriálu se řídí tradičními pravidly Tour de France. V každém závodě se pro hodnocení týmu sčítají bodové zisky <strong>3 nejlepších jezdců daného týmu</strong> v celkovém pořadí. Týmová klasifikace tak oceňuje vyrovnanost a šířku celé stáje.</p>
             </div>
         </section>
 
-        <!-- ==================== VIEW: PUBLIC ==================== -->
+        <!-- VIEW: PUBLIC -->
         <section id="view-public" class="space-y-4">
-            <!-- Sub-View: Leaderboards -->
             <div id="subview-leaderboards" class="space-y-3">
-                <!-- Hero Jersey Cards (4 Dresy) -->
+                <!-- Hero Jersey Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Yellow Jersey -->
-                    <div class="bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border border-amber-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border border-amber-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="bg-amber-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Žlutý dres</span>
+                                <span class="bg-amber-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase">Žlutý dres</span>
                                 <i class="fa-solid fa-medal text-amber-400 text-lg"></i>
                             </div>
-                            <div class="space-y-1">
-                                <div id="hero-yellow-name" class="text-base font-black text-white flex items-center gap-2">--</div>
-                                <div id="hero-yellow-team" class="text-xs text-slate-400 font-semibold">--</div>
-                            </div>
+                            <div id="hero-yellow-name" class="text-base font-black text-white">--</div>
+                            <div id="hero-yellow-team" class="text-xs text-slate-400 font-semibold">--</div>
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Celkem bodů</span>
+                            <span class="text-[11px] text-slate-400 uppercase font-bold">Celkem bodů</span>
                             <span id="hero-yellow-pts" class="text-xl font-black text-amber-400">0 b.</span>
                         </div>
                     </div>
-
-                    <!-- Green Jersey -->
-                    <div class="bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Zelený dres</span>
+                                <span class="bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase">Zelený dres</span>
                                 <i class="fa-solid fa-bolt text-emerald-400 text-lg"></i>
                             </div>
-                            <div class="space-y-1">
-                                <div id="hero-green-name" class="text-base font-black text-white flex items-center gap-2">--</div>
-                                <div id="hero-green-team" class="text-xs text-slate-400 font-semibold">--</div>
-                            </div>
+                            <div id="hero-green-name" class="text-base font-black text-white">--</div>
+                            <div id="hero-green-team" class="text-xs text-slate-400 font-semibold">--</div>
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Sprint Body</span>
+                            <span class="text-[11px] text-slate-400 uppercase font-bold">Sprint Body</span>
                             <span id="hero-green-pts" class="text-xl font-black text-emerald-400">0 b.</span>
                         </div>
                     </div>
-
-                    <!-- Polka Dot Jersey -->
-                    <div class="bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between polka-dot">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-red-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between polka-dot">
                         <div class="bg-[#111827]/90 p-3 rounded-2xl">
                             <div class="flex items-center justify-between mb-3">
-                                <span class="bg-red-500 text-white font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Král hor</span>
+                                <span class="bg-red-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase">Král hor</span>
                                 <i class="fa-solid fa-mountain text-red-500 text-lg"></i>
                             </div>
-                            <div class="space-y-1">
-                                <div id="hero-polka-name" class="text-base font-black text-white flex items-center gap-2">--</div>
-                                <div id="hero-polka-team" class="text-xs text-slate-400 font-semibold">--</div>
-                            </div>
+                            <div id="hero-polka-name" class="text-base font-black text-white">--</div>
+                            <div id="hero-polka-team" class="text-xs text-slate-400 font-semibold">--</div>
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-800 bg-[#111827]/90 px-3 py-2 rounded-xl flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">KOM Body</span>
+                            <span class="text-[11px] text-slate-400 uppercase font-bold">KOM Body</span>
                             <span id="hero-polka-pts" class="text-xl font-black text-red-500">0 b.</span>
                         </div>
                     </div>
-
-                    <!-- Pink Jersey -->
-                    <div class="bg-gradient-to-br from-pink-500/20 via-[#111827] to-[#0f172a] border border-pink-500/40 rounded-3xl p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-pink-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="bg-gradient-to-br from-pink-500/20 via-[#111827] to-[#0f172a] border border-pink-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="bg-pink-500 text-white font-black text-[11px] px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">Růžový dres</span>
+                                <span class="bg-pink-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase">Růžový dres</span>
                                 <i class="fa-solid fa-industry text-pink-400 text-lg"></i>
                             </div>
-                            <div class="space-y-1">
-                                <div id="hero-pink-name" class="text-base font-black text-white flex items-center gap-2">--</div>
-                                <div id="hero-pink-brand" class="text-xs text-slate-400 font-semibold">--</div>
-                            </div>
+                            <div id="hero-pink-name" class="text-base font-black text-white">--</div>
+                            <div id="hero-pink-brand" class="text-xs text-slate-400 font-semibold">--</div>
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Tovární Body</span>
+                            <span class="text-[11px] text-slate-400 uppercase font-bold">Tovární Body</span>
                             <span id="hero-pink-pts" class="text-xl font-black text-pink-400">0 b.</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Leaderboards Navigation & Filters -->
+                <!-- Leaderboards Table -->
                 <div class="bg-[#111827] border border-slate-800 p-5 sm:p-6 rounded-3xl shadow-2xl space-y-4">
                     <div class="flex flex-col lg:flex-row justify-between items-center gap-4 flex-wrap">
-                        <!-- Category Filter -->
                         <div class="flex items-center gap-3 w-full sm:w-auto">
                             <span class="text-xs uppercase font-black text-slate-400" data-i18n="filter_cat">Kategorie:</span>
                             <select id="rider-category-filter" onchange="renderPublicLeaderboards()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-amber-400 transition shadow-sm">
@@ -280,8 +222,6 @@
                                 <option value="Women">Ženy</option>
                             </select>
                         </div>
-
-                        <!-- Leaderboard Tabs -->
                         <div class="flex items-center gap-2 flex-wrap w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0">
                             <button onclick="switchLeaderboardTab('yellow')" id="lb-tab-yellow" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-2">
                                 <i class="fa-solid fa-trophy"></i> <span data-i18n="lb_yellow">Celkové pořadí</span>
@@ -301,940 +241,183 @@
                         </div>
                     </div>
 
-                    <!-- Rankings Table -->
                     <div class="overflow-x-auto rounded-2xl border border-slate-800 shadow-xl">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
-                                <tr id="table-header-row" class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
-                                    <!-- Dynamic headers -->
-                                </tr>
+                                <tr id="table-header-row" class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800"></tr>
                             </thead>
-                            <tbody id="public-table-body" class="divide-y divide-slate-800/60 bg-[#0f172a]">
-                                <!-- Dynamic rows -->
-                            </tbody>
+                            <tbody id="public-table-body" class="divide-y divide-slate-800/60 bg-[#0f172a]"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Presentation Video Section (Moved below leaderboards as requested) -->
+                <!-- Video Section -->
                 <div class="bg-[#111827] border border-slate-800 p-5 sm:p-7 rounded-3xl shadow-2xl mt-8">
                     <div class="flex items-center justify-between mb-4 px-2 cursor-pointer select-none" onclick="toggleHeroVideoCollapse()">
                         <div class="flex items-center gap-2 text-xs font-black uppercase text-amber-400 tracking-wider">
-                            <i class="fa-solid fa-circle-play text-red-500 animate-pulse"></i> <span data-i18n="video_section_title">Oficiální prezentační video / Highlights</span>
+                            <i class="fa-solid fa-circle-play text-red-500 animate-pulse"></i> <span>Oficiální prezentační video</span>
                         </div>
-                        <div class="flex items-center gap-2 text-xs text-slate-400 font-semibold hover:text-white transition">
+                        <div class="flex items-center gap-2 text-xs text-slate-400 font-semibold">
                             <span id="video-collapse-label">Sbalit video</span>
                             <i id="video-collapse-icon" class="fa-solid fa-chevron-up transition-transform duration-300"></i>
                         </div>
                     </div>
-                    <div id="hero-video-container" class="relative w-full rounded-2xl overflow-hidden shadow-xl transition-all duration-300" style="padding-bottom: 56.25%; height: 0;">
-                        <iframe id="hero-youtube-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=0&loop=1" 
-                                title="Central Europe e-MTB Tour Presentation" 
-                                class="absolute top-0 left-0 w-full h-full border-0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen>
-                        </iframe>
+                    <div id="hero-video-container" class="relative w-full rounded-2xl overflow-hidden shadow-xl" style="padding-bottom: 56.25%; height: 0;">
+                        <iframe id="hero-youtube-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=0&loop=1" class="absolute top-0 left-0 w-full h-full border-0" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
 
-            <!-- Sub-View: Race Results per Race -->
+            <!-- Race Results Subview -->
             <div id="subview-race-results" class="hidden space-y-6">
-                <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <h3 class="text-xl font-black text-white flex items-center gap-3">
-                            <i class="fa-solid fa-list-check text-amber-400"></i> <span data-i18n="race_results_title">Výsledkové listiny jednotlivých závodů</span>
-                        </h3>
-                        <div class="flex items-center gap-3 w-full sm:w-auto">
-                            <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="select_race_label">Vyberte závod:</span>
-                            <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-amber-400 transition shadow-sm w-full sm:w-72">
-                                <!-- Dynamic races -->
-                            </select>
-                        </div>
+                <div class="bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h3 class="text-xl font-black text-white">Výsledkové listiny dle závodů</h3>
+                        <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none"></select>
                     </div>
-
-                    <div class="overflow-x-auto rounded-2xl border border-slate-800 shadow-xl">
-                        <table class="w-full text-left border-collapse text-sm">
-                            <thead>
-                                <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
-                                    <th class="p-4 w-16">Poř.</th>
-                                    <th class="p-4" data-i18n="th_rider">Jezdec</th>
-                                    <th class="p-4" data-i18n="th_team">Tým</th>
-                                    <th class="p-4" data-i18n="th_ebike">E-Bike & Motor</th>
-                                    <th class="p-4 text-center">Cíl (Body)</th>
-                                    <th class="p-4 text-center">Sprinty</th>
-                                    <th class="p-4 text-center">KOM</th>
-                                    <th class="p-4 text-right" data-i18n="th_points">Celkem z kola</th>
-                                </tr>
-                            </thead>
-                            <tbody id="public-race-results-tbody" class="divide-y divide-slate-800/60 bg-[#0f172a]">
-                                <!-- Dynamic race results -->
-                            </tbody>
+                    <div class="overflow-x-auto rounded-2xl border border-slate-800">
+                        <table class="w-full text-left text-sm">
+                            <thead><tr class="bg-slate-900 text-slate-400 text-xs"><th class="p-4">Poř.</th><th class="p-4">Jezdec</th><th class="p-4">Tým</th><th class="p-4 text-right">Body</th></tr></thead>
+                            <tbody id="public-race-results-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Sub-View: Calendar 2027 -->
+            <!-- Calendar Subview -->
             <div id="subview-calendar" class="hidden space-y-6">
-                <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl space-y-6">
-                    <h3 class="text-xl font-black text-white flex items-center gap-3">
-                        <i class="fa-regular fa-calendar-days text-amber-400"></i> <span data-i18n="cal_title">Kalendář závodu Central Europe e-MTB Tour 2027</span>
-                    </h3>
-                    <div id="calendar-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                        <!-- Dynamic calendar cards -->
-                    </div>
+                <div class="bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-6">
+                    <h3 class="text-xl font-black text-white">Kalendář závodu 2027</h3>
+                    <div id="calendar-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
                 </div>
             </div>
 
-            <!-- Sub-View: Teams & Riders Rosters -->
+            <!-- Teams & Riders Subview -->
             <div id="subview-teams" class="hidden space-y-8">
                 <div class="space-y-6">
-                    <h3 class="text-xl font-black text-white flex items-center gap-3">
-                        <i class="fa-solid fa-users text-amber-400"></i> <span data-i18n="teams_roster_title">Týmy seriálu a jejich soupisky</span>
-                    </h3>
-                    <div id="teams-roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Dynamic team rosters -->
-                    </div>
+                    <h3 class="text-xl font-black text-white">Týmy seriálu</h3>
+                    <div id="teams-roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
-
                 <div class="space-y-6 pt-6 border-t border-slate-800">
-                    <h3 class="text-xl font-black text-white flex items-center gap-3">
-                        <i class="fa-solid fa-id-card text-amber-400"></i> <span data-i18n="riders_profiles_title">Jednotliví jezdci a jejich skillové profily</span>
-                    </h3>
-                    <div id="riders-profiles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Dynamic rider profiles -->
-                    </div>
+                    <h3 class="text-xl font-black text-white">Jednotliví jezdci</h3>
+                    <div id="riders-profiles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
             </div>
         </section>
 
-        <!-- ==================== VIEW: ADMIN ==================== -->
+        <!-- VIEW: ADMIN -->
         <section id="view-admin" class="hidden space-y-6">
-            <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-2xl flex justify-between items-center gap-4 flex-wrap">
                 <div>
-                    <h2 class="text-xl sm:text-2xl font-black text-white flex items-center gap-3">
-                        <i class="fa-solid fa-gears text-amber-400"></i> <span data-i18n="admin_panel_title">Administrátorský panel</span>
-                    </h2>
-                    <p class="text-xs sm:text-sm text-slate-400 mt-1" data-i18n="admin_panel_sub">Plná správa výsledků, jezdců, týmů, kalendáře a zálohování dat.</p>
+                    <h2 class="text-xl font-black text-white">Administrátorský panel</h2>
+                    <p class="text-xs text-slate-400">Správa výsledků, jezdců, týmů a kalendáře.</p>
                 </div>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <button onclick="exportJSONData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-download text-amber-400"></i> <span data-i18n="btn_backup">Stáhnout zálohu (JSON)</span>
-                    </button>
-                    <label class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
-                        <i class="fa-solid fa-upload text-amber-400"></i> <span data-i18n="btn_restore">Načíst zálohu</span>
-                        <input type="file" accept=".json" onchange="importJSONData(event)" class="hidden">
-                    </label>
-                    <button onclick="logoutAdmin()" class="px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold rounded-xl text-xs transition flex items-center gap-2">
-                        <i class="fa-solid fa-right-from-bracket"></i> Odhlásit
-                    </button>
-                </div>
-            </div>
-
-            <!-- Admin Sub Navigation Tabs -->
-            <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none">
-                <button onclick="switchAdminSubTab('results')" id="admin-sub-btn-results" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-sm whitespace-nowrap">
-                    <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="admin_tab_results">Zápis výsledků</span>
-                </button>
-                <button onclick="switchAdminSubTab('skills')" id="admin-sub-btn-skills" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-sliders"></i> <span data-i18n="admin_tab_skills">Nastavení skillů</span>
-                </button>
-                <button onclick="switchAdminSubTab('riders')" id="admin-sub-btn-riders" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-user-plus"></i> <span data-i18n="admin_tab_riders">Správa jezdců</span>
-                </button>
-                <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-shield"></i> <span data-i18n="admin_tab_teams">Správa týmů</span>
-                </button>
-                <button onclick="switchAdminSubTab('calendar')" id="admin-sub-btn-calendar" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-calendar-days"></i> <span data-i18n="admin_tab_calendar">Správa kalendáře</span>
-                </button>
-                <button onclick="switchAdminSubTab('video')" id="admin-sub-btn-video" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-brands fa-youtube"></i> <span data-i18n="admin_tab_video">Nastavení videa</span>
-                </button>
-            </div>
-
-            <!-- Admin Sub-Content: Results Entry -->
-            <div id="admin-sub-results" class="admin-sub-content bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-trophy mr-2 text-amber-400"></i> <span data-i18n="admin_res_title">Zápis umístění a prémií pro závod</span></h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_race">Závod / Etapa</label>
-                        <select id="admin-result-race-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_rider">Jezdec</label>
-                        <select id="admin-result-rider-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_finish">Cíl (1-30)</label>
-                        <input type="number" id="admin-input-pos" min="1" max="30" value="1" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_sprint">Sprint (1-10)</label>
-                        <input type="number" id="admin-input-sprint" min="0" max="10" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_pos_kom">KOM (1-5)</label>
-                        <input type="number" id="admin-input-kom" min="0" max="5" value="0" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                    </div>
-                </div>
-                <div>
-                    <button onclick="saveRiderResult()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        <span data-i18n="btn_save_result">Uložit výsledky jezdce</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Admin Sub-Content: Skills Setup -->
-            <div id="admin-sub-skills" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-sliders mr-2 text-amber-400"></i> <span data-i18n="admin_skills_title">Nastavení dovedností (1-10)</span></h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Vyberte jezdce</label>
-                        <select id="admin-skill-rider-select" onchange="loadRiderSkillsToForm()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Kondice (1-10)</label>
-                            <input type="number" id="skill-cond" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Technika (1-10)</label>
-                            <input type="number" id="skill-tech" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Baterie (1-10)</label>
-                            <input type="number" id="skill-battery" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Sprint (1-10)</label>
-                            <input type="number" id="skill-sprint" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                        </div>
-                    </div>
-                    <div class="col-span-2">
-                        <label class="block text-xs font-bold text-slate-400 mb-1">Vrcholy / KOM (1-10)</label>
-                        <input type="number" id="skill-kom" min="1" max="10" value="8" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-sm font-bold">
-                    </div>
-                </div>
-                <div>
-                    <button onclick="saveRiderSkills()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Uložit skilly jezdce
-                    </button>
-                </div>
-            </div>
-
-            <!-- Admin Sub-Content: Manage Riders -->
-            <div id="admin-sub-riders" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-user-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_rider_title">Přidat / Spravovat jezdce</span></h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_rider_name">Jméno a příjmení</label>
-                        <input type="text" id="new-rider-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Jan Novák">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_rider_country">Stát (Vlajka)</label>
-                        <select id="new-rider-country" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <option value="CZ">🇨🇿 Česká republika</option>
-                            <option value="SK">🇸🇰 Slovensko</option>
-                            <option value="PL">🇵🇱 Polsko</option>
-                            <option value="DE">🇩🇪 Německo</option>
-                            <option value="AT">🇦🇹 Rakousko</option>
-                            <option value="HU">🇭🇺 Maďarsko</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_team_name">Tým</label>
-                        <select id="new-rider-team" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Kategorie</label>
-                        <select id="new-rider-cat" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <option value="Elite">Elite</option>
-                            <option value="Masters">Masters (35+)</option>
-                            <option value="Women">Ženy</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Značka E-Biku</label>
-                        <select id="new-rider-ebike" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Motor & Pohon</label>
-                        <select id="new-rider-motor" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <button onclick="addNewRider()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Vytvořit a uložit jezdce
-                    </button>
-                </div>
-
-                <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
-                                <th class="p-3">Jméno</th>
-                                <th class="p-3">Stát</th>
-                                <th class="p-3">Tým</th>
-                                <th class="p-3">E-Bike</th>
-                                <th class="p-3">Motor</th>
-                                <th class="p-3 text-right">Akce</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-riders-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Admin Sub-Content: Manage Teams -->
-            <div id="admin-sub-teams" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-shield mr-2 text-amber-400"></i> <span data-i18n="admin_add_team_title">Přidat / Spravovat týmy a výrobce</span></h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název týmu</label>
-                        <input type="text" id="new-team-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Factory e-Bike Team">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Stát týmu</label>
-                        <select id="new-team-country" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <option value="CZ">🇨🇿 Česká republika</option>
-                            <option value="SK">🇸🇰 Slovensko</option>
-                            <option value="PL">🇵🇱 Polsko</option>
-                            <option value="DE">🇩🇪 Německo</option>
-                            <option value="AT">🇦🇹 Rakousko</option>
-                            <option value="HU">🇭🇺 Maďarsko</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Značka E-Biku (Výrobce)</label>
-                        <select id="new-team-brand" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="addNewCustomBrand()" class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded-xl text-xs border border-slate-700 transition">
-                            + Přidat novou značku
-                        </button>
-                    </div>
-                </div>
-                <div>
-                    <button onclick="addNewTeam()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Vytvořit nový tým
-                    </button>
-                </div>
-
-                <div class="mt-6">
-                    <h4 class="text-sm font-bold text-slate-300 mb-3">Existující týmy v seriálu</h4>
-                    <div id="admin-teams-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Admin Sub-Content: Manage Calendar -->
-            <div id="admin-sub-calendar" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-calendar-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_race_title">Přidat / Spravovat závod</span></h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název závodu</label>
-                        <input type="text" id="new-race-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Beskydy e-MTB">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Město / Lokace</label>
-                        <input type="text" id="new-race-loc" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="Dolní Bečva, CZ">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Datum</label>
-                        <input type="date" id="new-race-date" value="2027-05-15" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Parametry (km / převýšení)</label>
-                        <input type="text" id="new-race-params" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="52 km / 1600m">
-                    </div>
-                </div>
-                <div>
-                    <button onclick="addNewRace()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Přidat závod do kalendáře
-                    </button>
-                </div>
-            </div>
-
-            <!-- Admin Sub-Content: Video Settings -->
-            <div id="admin-sub-video" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-brands fa-youtube mr-2 text-red-500"></i> <span data-i18n="admin_video_title">Nastavení prezentačního YouTube videa</span></h3>
-                <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
-                    <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">YouTube Video ID (např. <code class="text-amber-400">dQw4w9WgXcQ</code> nebo celý odkaz)</label>
-                        <input type="text" id="admin-youtube-id-input" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="dQw4w9WgXcQ">
-                    </div>
-                    <p class="text-xs text-slate-400">Zadejte ID videa z YouTube (kód za <code class="text-amber-400">watch?v=</code> v URL odkazu). Změna se po uložení okamžitě projeví na hlavním webu.</p>
-                </div>
-                <div>
-                    <button onclick="saveYouTubeVideoId()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
-                        Uložit YouTube video
-                    </button>
+                <div class="flex gap-3">
+                    <button onclick="exportJSONData()" class="px-4 py-2.5 bg-slate-800 text-slate-200 rounded-xl text-xs font-bold border border-slate-700">Záloha (JSON)</button>
+                    <button onclick="logoutAdmin()" class="px-4 py-2.5 bg-red-500/20 text-red-400 rounded-xl text-xs font-bold border border-red-500/30">Odhlásit</button>
                 </div>
             </div>
         </section>
 
-        <!-- Universal Footer present on every view and tab -->
+        <!-- Footer -->
         <footer class="bg-[#0f172a] border-t border-slate-800 py-8 px-4 sm:px-6 mt-12 rounded-3xl shadow-2xl">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
                 <div class="flex items-center space-x-3">
-                    <div class="bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 p-2.5 rounded-xl font-black text-lg shadow-md flex items-center justify-center transform -rotate-2">
+                    <div class="bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 p-2.5 rounded-xl font-black text-lg shadow-md">
                         <i class="fa-solid fa-bolt"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm font-black tracking-wider uppercase text-white">Central Europe <span class="text-amber-400">e-MTB Tour</span> <span class="text-[10px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded font-bold ml-1">2027</span></h3>
-                        <p class="text-[11px] text-slate-400 font-semibold">Oficiální šampionát elektrokoly v regionu CZ • SK • PL • DE • AT • HU</p>
+                        <h3 class="text-sm font-black uppercase text-white">Central Europe e-MTB Tour 2027</h3>
+                        <p class="text-[11px] text-slate-400 font-semibold">Oficiální šampionát v regionu CZ • SK • PL • DE • AT • HU</p>
                     </div>
                 </div>
-
                 <div class="flex flex-wrap justify-center gap-6 text-xs text-slate-400 font-semibold">
-                    <a href="#" onclick="switchMainTab('rules'); return false;" class="hover:text-amber-400 transition">Pravidla bodování</a>
-                    <a href="#" onclick="switchMainTab('public'); switchPublicSubTab('calendar'); return false;" class="hover:text-amber-400 transition">Kalendář 2027</a>
-                    <a href="#" onclick="switchMainTab('public'); switchPublicSubTab('teams'); return false;" class="hover:text-amber-400 transition">Týmy a jezdci</a>
-                    <a href="#" onclick="promptAdminLogin(); return false;" class="hover:text-amber-400 transition">Administrace</a>
+                    <a href="#" onclick="switchMainTab('rules'); return false;" class="hover:text-amber-400">Pravidla</a>
+                    <a href="#" onclick="switchMainTab('public'); switchPublicSubTab('calendar'); return false;" class="hover:text-amber-400">Kalendář</a>
+                    <a href="#" onclick="promptAdminLogin(); return false;" class="hover:text-amber-400">Administrace</a>
                 </div>
-
-                <div class="text-xs text-slate-500 font-medium">
-                    &copy; 2027 Central Europe e-MTB Tour. Všechna práva vyhrazena. Powered by Firebase & GitHub Pages.
-                </div>
+                <div class="text-xs text-slate-500">&copy; 2027 Central Europe e-MTB Tour. Všechna práva vyhrazena.</div>
             </div>
         </footer>
     </main>
 
-    <!-- Custom Modal for Alerts/Messages -->
+    <!-- Modal -->
     <div id="custom-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
         <div class="bg-[#111827] rounded-3xl p-7 max-w-md w-full shadow-2xl border border-slate-800 space-y-4 m-4">
             <h3 id="modal-title" class="text-lg font-black text-white">Oznámení</h3>
-            <p id="modal-message" class="text-sm text-slate-300">Zde bude text zprávy...</p>
+            <p id="modal-message" class="text-sm text-slate-300">Zpráva...</p>
             <div class="flex justify-end pt-2">
-                <button onclick="closeModal()" class="px-6 py-3 bg-amber-400 text-slate-950 rounded-xl text-xs font-black hover:bg-amber-300 transition shadow-lg">Zavřít</button>
+                <button onclick="closeModal()" class="px-6 py-3 bg-amber-400 text-slate-950 rounded-xl text-xs font-black">Zavřít</button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Application Logic -->
+    <!-- Script Logic -->
     <script>
         const translations = {
             cs: {
-                nav_rules: "Pravidla bodování",
-                nav_public: "Veřejný web",
-                nav_admin: "Administrace",
-                sub_leaderboards: "Žebříčky (Tours)",
-                sub_race_results: "Výsledky dle závodů",
-                sub_calendar: "Kalendář 2027",
-                sub_teams: "Týmy a Jezdci",
-                rules_title: "Pravidla bodování seriálu Central Europe e-MTB Tour 2027",
-                rules_intro: "Seriál e-MTB maratonů 2027 kombinuje fyzickou náročnost, taktickou jízdu s elektrokoly, sprinterské dovednosti i týmovou strategii. Níže naleznete detailní bodovací systémy pro jednotlivé dresy a týmovou soutěž.",
-                rule_yellow: "Žlutý dres (Celkové pořadí)",
-                rule_yellow_desc: "Body z jednotlivých závodů se sčítají podle umístění (1.místo = 100b, 2.místo = 90b, 3.místo = 80b atd.). Pro konečné celkové pořadí v seriálu se uplatňuje pravidlo <strong>7 nejlepších výsledků z 10</strong> celkových závodů (nejhorší 3 výsledky nebo neúčasti se škrtají).",
-                rule_green: "Zelený dres (Sprinty / Strava Segments)",
-                rule_green_desc: "Bodování na vybraných Strava prémiích v průběhu etapy (1. místo = 25b, 2. místo = 20b, 3. místo = 16b, 4. místo = 13b, 5. místo = 11b, 6.-10. místo = 10-8-6-4-2b). Hodnotí výbušnost a schopnosti na specifických úsecích.",
-                rule_polka: "Puntíkovaný dres (Král hor / KOM)",
-                rule_polka_desc: "Vrchařské prémie na vrcholech stoupání. Bodují 3 až 5 nejrychlejších jezdců v kopci podle obtížnosti stoupání (Kategorie HC, 1, 2, 3).",
-                rule_pink: "Růžový dres (Tovární konstruktérský dres)",
-                rule_pink_desc: "Soutěž výrobců motorů a značek e-biků (Crussis, Kellys, CTM, AMFLOW, FOCUS atd.). Abychom vyrovnali rozdíly mezi silnými motory (např. DJI) a standardními motory (Bosch, Shimano, Yamaha), aplikuje se korekční koeficient motoru, který staví do popředí reálnou výkonnost a kvalitu jezdce.",
-                rule_team_title: "Soutěž týmů (Pravidla podle Tour de France)",
-                rule_team_desc: "Týmová soutěž v seriálu se řídí tradičními pravidly Tour de France. V každém závodě se pro hodnocení týmu sčítají bodové zisky <strong>3 nejlepších jezdců daného týmu</strong> v celkovém pořadí (ze Žlutého dresu). Týmová klasifikace tak oceňuje vyrovnanost a šířku celé stáje, nikoliv pouze jednoho silného jednotlivce.",
-                lb_yellow: "Celkové pořadí (Žlutý trikot)",
-                lb_green: "Zelený trikot (Sprinty)",
-                lb_polka: "Král hor (Puntíkovaný)",
-                lb_pink: "Růžový trikot (Tovární)",
-                lb_teams: "Soutěž týmů",
-                filter_cat: "Kategorie:",
-                th_rider: "Jezdec",
-                th_team: "Tým",
-                th_ebike: "E-Bike značka",
-                th_motor: "Motor",
-                th_points: "Body",
-                race_results_title: "Výsledkové listiny jednotlivých závodů",
-                select_race_label: "Vyberte závod:",
-                cal_title: "Kalendář závodu Central Europe e-MTB Tour 2027",
-                teams_roster_title: "Týmy seriálu a jejich soupisky",
-                riders_profiles_title: "Jednotliví jezdci a jejich skillové profily",
-                admin_panel_title: "Administrátorský panel",
-                admin_panel_sub: "Plná správa výsledků, jezdců, týmů, kalendáře a zálohování dat.",
-                btn_backup: "Stáhnout zálohu (JSON)",
-                btn_restore: "Načíst zálohu",
-                admin_tab_results: "Zápis výsledků",
-                admin_tab_skills: "Nastavení skillů",
-                admin_tab_riders: "Správa jezdců",
-                admin_tab_teams: "Správa týmů",
-                admin_tab_calendar: "Správa kalendáře",
-                admin_res_title: "Zápis umístění a prémií pro závod",
-                admin_select_race: "Vyberte závod / etapu",
-                admin_select_rider: "Vyberte jezdce",
-                admin_pos_finish: "Umístění v cíli (1-30)",
-                admin_pos_sprint: "Sprint prémie (Umístění 1-10)",
-                admin_pos_kom: "Vrchařská prémie KOM (1-5)",
-                btn_save_result: "Uložit výsledky jezdce",
-                admin_skills_title: "Nastavení dovedností (Radar skills 1-10)",
-                admin_add_rider_title: "Přidat / Spravovat jezdce",
-                admin_rider_name: "Jméno a příjmení",
-                admin_rider_country: "Stát (Vlajka)",
-                admin_team_name: "Název týmu",
-                admin_add_team_title: "Přidat / Spravovat týmy",
-                admin_add_race_title: "Přidat / Spravovat závod"
-            },
-            sk: {
-                nav_rules: "Pravidlá bodovania",
-                nav_public: "Verejný web",
-                nav_admin: "Administrácia",
-                sub_leaderboards: "Rebríčky (Tours)",
-                sub_race_results: "Výsledky podľa pretekov",
-                sub_calendar: "Kalendár 2027",
-                sub_teams: "Tímy a Jazdci",
-                rules_title: "Pravidlá bodovania seriálu Central Europe e-MTB Tour 2027",
-                rules_intro: "Seriál e-MTB maratónov 2027 kombinuje fyzickú náročnosť, taktickú jzidu s elektrobicyklami, šprintérske schopnosti aj tímovú stratégiu. Nižšie nájdete detailné bodovacie systémy pre jednotlivé dresy a tímovú súťaž.",
-                rule_yellow: "Žltý dres (Celkové poradie)",
-                rule_yellow_desc: "Body z jednotlivých pretekov sa sčítajú podľa umiestnenia (1. miesto = 100b, 2. miesto = 90b, 3. miesto = 80b atď.). Pre konečné celkové poradie v seriáli sa uplatňuje pravidlo <strong>7 najlepších výsledkov z 10</strong> celkových pretekov (najhoršie 3 výsledky alebo neúčasti sa škrtajú).",
-                rule_green: "Zelený dres (Šprinty / Strava Segments)",
-                rule_green_desc: "Bodovanie na vybraných Strava prémiách v priebehu etapy (1. miesto = 25b, 2. miesto = 20b, 3. miesto = 16b, 4. miesto = 13b, 5. miesto = 11b, 6.-10. miesto = 10-8-6-4-2b). Hodnotí výbušnosť a schopnosti na špecifických úsekoch.",
-                rule_polka: "Puntíkovaný dres (Kráľ hor / KOM)",
-                rule_polka_desc: "Vrchárske prémie na vrcholoch stúpaní. Bodujú 3 až 5 najrýchlejších jazdcov v kopci podľa obtiažnosti stúpania (Kategórie HC, 1, 2, 3).",
-                rule_pink: "Ružový dres (Továrenský konštruktérsky dres)",
-                rule_pink_desc: "Súťaž výrobcov motorov a značiek e-bikov (Crussis, Kellys, CTM, AMFLOW, FOCUS atd.). Aby sme vyrovnali rozdiely medzi silnými motormi (napr. DJI) a štandardnými motormi (Bosch, Shimano, Yamaha), aplikuje sa korekčný koeficient motora, ktorý staví do popredia reálnu výkonnosť a kvalitu jazdca.",
-                rule_team_title: "Súťaž tímov (Pravidlá podľa Tour de France)",
-                rule_team_desc: "Tímová súťaž v seriáli sa riadi tradičnými pravidlami Tour de France. V každých pretekoch sa pre hodnotenie tímu sčítajú bodové zisky <strong>3 najlepších jazdcov daného tímu</strong> v celkovom poradí (zo Žltého dresu). Tímová klasifikácia tak oceňuje vyrovnanost a šírku celej stajne, nie iba jedného silného jednotlivca.",
-                lb_yellow: "Celkové poradie (Žltý dres)",
-                lb_green: "Zelený dres (Šprinty)",
-                lb_polka: "Kráľ hor (Puntíkovaný)",
-                lb_pink: "Ružový dres (Továrenský)",
-                lb_teams: "Súťaž tímov",
-                filter_cat: "Kategória:",
-                th_rider: "Jazdec",
-                th_team: "Tím",
-                th_ebike: "E-Bike značka",
-                th_motor: "Motor",
-                th_points: "Body",
-                race_results_title: "Výsledkové listiny jednotlivých pretekov",
-                select_race_label: "Vyberte preteky:",
-                cal_title: "Kalendár pretekov Central Europe e-MTB Tour 2027",
-                teams_roster_title: "Tímy seriálu a ich súpisky",
-                riders_profiles_title: "Jednotliví jazdci a ich skillové profily",
-                admin_panel_title: "Administrátorský panel",
-                admin_panel_sub: "Plná správa výsledkov, jazdcov, tímov, kalendára a zálohovania.",
-                btn_backup: "Stiahnuť zálohu (JSON)",
-                btn_restore: "Načítať zálohu",
-                admin_tab_results: "Zápis výsledkov",
-                admin_tab_skills: "Nastavenie skillov",
-                admin_tab_riders: "Správa jazdcov",
-                admin_tab_teams: "Správa tímov",
-                admin_tab_calendar: "Správa kalendára",
-                admin_res_title: "Zápis umiestnenia a prémií pre preteky",
-                admin_select_race: "Vyberte preteky / etapu",
-                admin_select_rider: "Vyberte jazdca",
-                admin_pos_finish: "Umiestnenie v cieli (1-30)",
-                admin_pos_sprint: "Šprint prémia (Umiestnenie 1-10)",
-                admin_pos_kom: "Vrchárska prémia KOM (1-5)",
-                btn_save_result: "Uložiť výsledky jazdca",
-                admin_skills_title: "Nastavenie zručností (Radar skills 1-10)",
-                admin_add_rider_title: "Pridať / Spravovať jazdca",
-                admin_rider_name: "Meno a priezvisko",
-                admin_rider_country: "Štát (Vlajka)",
-                admin_team_name: "Názov tímu",
-                admin_add_team_title: "Pridať / Spravovať tímy",
-                admin_add_race_title: "Pridať / Spravovať preteky"
-            },
-            pl: {
-                nav_rules: "Zasady punktacji",
-                nav_public: "Portal publiczny",
-                nav_admin: "Administracja",
-                sub_leaderboards: "Rankingi (Tours)",
-                sub_race_results: "Wyniki wg wyścigów",
-                sub_calendar: "Kalendarz 2027",
-                sub_teams: "Zespoły i Kolarze",
-                rules_title: "Zasady punktacji Central Europe e-MTB Tour 2027",
-                rules_intro: "Seria maratonów e-MTB 2027 łączy wymagania fizyczne, jazdę taktyczną na rowerach elektrycznych, umiejętności sprinterskie i strategię zespołową.",
-                rule_yellow: "Żółta koszulka (Klasyfikacja generalna)",
-                rule_yellow_desc: "Punkty sumuje się na podstawie miejsc w wyścigach. Liczy się 7 najlepszych wyników z 10.",
-                rule_green: "Zielona koszulka (Sprinty)",
-                rule_green_desc: "Premie sprinterskie na trasie etapów.",
-                rule_polka: "W grochy (Król gór)",
-                rule_polka_desc: "Premie górskie KOM na szczytach podjazdów.",
-                rule_pink: "Różowa koszulka (Konstruktorzy)",
-                rule_pink_desc: "Klasyfikacja producentów silników i e-bików z uwzględnieniem współczynników korekcyjnych.",
-                rule_team_title: "Klasyfikacja zespołowa (Zasady Tour de France)",
-                rule_team_desc: "Suma punktów 3 najlepszych kolarzy zespołu w klasyfikacji generalnej.",
-                lb_yellow: "Klasyfikacja generalna",
-                lb_green: "Zielona koszulka (Sprinty)",
-                lb_polka: "Król gór",
-                lb_pink: "Różowa koszulka",
-                lb_teams: "Klasyfikacja drużynowa",
-                filter_cat: "Kategoria:",
-                th_rider: "Kolarz",
-                th_team: "Zespół",
-                th_ebike: "Marka E-Bike",
-                th_motor: "Silnik",
-                th_points: "Punkty",
-                race_results_title: "Wyniki poszczególnych wyścigów",
-                select_race_label: "Wybierz wyścig:",
-                cal_title: "Kalendarz wyścigów Central Europe e-MTB Tour 2027",
-                teams_roster_title: "Zespoły seriadu i ich składy",
-                riders_profiles_title: "Poszczególni kolarze i ich profile",
-                admin_panel_title: "Panel administracyjny",
-                admin_panel_sub: "Pełne zarządzanie wynikami, kolarzami, zespołami i kalendarzem.",
-                btn_backup: "Pobierz kopię (JSON)",
-                btn_restore: "Wczytaj kopię",
-                admin_tab_results: "Wpis wyników",
-                admin_tab_skills: "Ustawienia umiejętności",
-                admin_tab_riders: "Zarządzanie kolarzami",
-                admin_tab_teams: "Zarządzanie zespołami",
-                admin_tab_calendar: "Zarządzanie kalendarzem",
-                admin_res_title: "Wpis lokacji i premii",
-                admin_select_race: "Wybierz wyścig",
-                admin_select_rider: "Wybierz kolarza",
-                admin_pos_finish: "Miejsce na mecie",
-                admin_pos_sprint: "Premia sprinterska",
-                admin_pos_kom: "Premia górska KOM",
-                btn_save_result: "Zapisz wynik",
-                admin_skills_title: "Umiejętności (1-10)",
-                admin_add_rider_title: "Dodaj / Edytuj kolarza",
-                admin_rider_name: "Imię i nazwisko",
-                admin_rider_country: "Kraj (Flaga)",
-                admin_team_name: "Nazwa zespołu",
-                admin_add_team_title: "Dodaj / Edytuj zespół",
-                admin_add_race_title: "Dodaj wyścig"
-            },
-            de: {
-                nav_rules: "Reglement",
-                nav_public: "Öffentliches Portal",
-                nav_admin: "Administration",
-                sub_leaderboards: "Ranglisten",
-                sub_race_results: "Ergebnisse nach Rennen",
-                sub_calendar: "Kalender 2027",
-                sub_teams: "Teams & Fahrer",
-                rules_title: "Reglement Central Europe e-MTB Tour 2027",
-                rules_intro: "Die e-MTB Rennserie 2027 verbindet Ausdauer, Taktik, Sprintstärke und Teamarbeit.",
-                rule_yellow: "Gelbes Trikot (Gesamtwertung)",
-                rule_yellow_desc: "Punkte aus den Rennen werden addiert (Streichergebnis-Regel: Die besten 7 aus 10).",
-                rule_green: "Grünes Trikot (Sprintwertung)",
-                rule_green_desc: "Sprintwertungen entlang der Strecke.",
-                rule_polka: "Gepunktetes Trikot (Bergwertung)",
-                rule_polka_desc: "KOM-Bergwertungen auf den Gipfeln.",
-                rule_pink: "Rosa Trikot (Herstellerwertung)",
-                rule_pink_desc: "Wertung für Motoren- und E-Bike-Hersteller mit Leistungsausgleich.",
-                rule_team_title: "Teamwertung (Tour de France Modus)",
-                rule_team_desc: "Addition der Punkte der 3 besten Fahrer eines Teams in der Gesamtwertung.",
-                lb_yellow: "Gesamtwertung",
-                lb_green: "Grünes Trikot",
-                lb_polka: "Bergwertung",
-                lb_pink: "Rosa Trikot",
-                lb_teams: "Teamwertung",
-                filter_cat: "Kategorie:",
-                th_rider: "Fahrer",
-                th_team: "Team",
-                th_ebike: "E-Bike Marke",
-                th_motor: "Motor",
-                th_points: "Punkte",
-                race_results_title: "Ergebnisse pro Rennen",
-                select_race_label: "Rennen auswählen:",
-                cal_title: "Rennkalender Central Europe e-MTB Tour 2027",
-                teams_roster_title: "Teamkader",
-                riders_profiles_title: "Einzelne Fahrer & Skills",
-                admin_panel_title: "Admin-Bereich",
-                admin_panel_sub: "Vollständige Verwaltung von Ergebnissen, Fahrern, Teams und Kalender.",
-                btn_backup: "Backup herunterladen",
-                btn_restore: "Backup wiederherstellen",
-                admin_tab_results: "Ergebnisse erfassen",
-                admin_tab_skills: "Skills bearbeiten",
-                admin_tab_riders: "Fahrer verwalten",
-                admin_tab_teams: "Teams verwalten",
-                admin_tab_calendar: "Kalender verwalten",
-                admin_res_title: "Ergebnisse und Prämien eintragen",
-                admin_select_race: "Rennen auswählen",
-                admin_select_rider: "Fahrer auswählen",
-                admin_pos_finish: "Zielplatzierung",
-                admin_pos_sprint: "Sprintwertung",
-                admin_pos_kom: "Bergwertung KOM",
-                btn_save_result: "Ergebnis speichern",
-                admin_skills_title: "Fahrer-Skills (1-10)",
-                admin_add_rider_title: "Fahrer hinzufügen",
-                admin_rider_name: "Name des Fahrers",
-                admin_rider_country: "Land (Flagge)",
-                admin_team_name: "Teamname",
-                admin_add_team_title: "Team hinzufügen",
-                admin_add_race_title: "Rennen hinzufügen"
-            },
-            en: {
-                nav_rules: "Scoring Rules",
-                nav_public: "Public Portal",
-                nav_admin: "Administration",
-                sub_leaderboards: "Leaderboards",
-                sub_race_results: "Results per Race",
-                sub_calendar: "2027 Calendar",
-                sub_teams: "Teams & Riders",
-                rules_title: "Scoring Rules for Central Europe e-MTB Tour 2027",
-                rules_intro: "The 2027 e-MTB race series combines endurance, tactical e-bike management, sprinting skills, and team strategy.",
-                rule_yellow: "Yellow Jersey (General Classification)",
-                rule_yellow_desc: "Points from races are accumulated based on finish positions. Best 7 results out of 10 count.",
-                rule_green: "Green Jersey (Sprints)",
-                rule_green_desc: "Sprint segment bonuses along the stage.",
-                rule_polka: "Polka Dot Jersey (King of Mountains)",
-                rule_polka_desc: "KOM mountain climbs scoring.",
-                rule_pink: "Pink Jersey (Manufacturers Championship)",
-                rule_pink_desc: "Manufacturer and motor brand scoring with balanced handicap coefficients.",
-                rule_team_title: "Team Classification (Tour de France Rules)",
-                rule_team_desc: "Sum of points of the 3 best-placed riders from each team in the General Classification.",
-                lb_yellow: "General Classification",
-                lb_green: "Green Jersey (Sprints)",
-                lb_polka: "Polka Dot Jersey (KOM)",
-                lb_pink: "Pink Jersey (Manufacturers)",
-                lb_teams: "Team Classification",
-                filter_cat: "Category:",
-                th_rider: "Rider",
-                th_team: "Team",
-                th_ebike: "E-Bike Brand",
-                th_motor: "Motor",
-                th_points: "Points",
-                race_results_title: "Race Results per Event",
-                select_race_label: "Select Race:",
-                cal_title: "Central Europe e-MTB Tour 2027 Calendar",
-                teams_roster_title: "Teams & Rider Rosters",
-                riders_profiles_title: "Individual Riders & Skill Profiles",
-                admin_panel_title: "Administration Panel",
-                admin_panel_sub: "Full management of results, riders, teams, calendar, and backups.",
-                btn_backup: "Download Backup (JSON)",
-                btn_restore: "Restore Backup",
-                admin_tab_results: "Enter Results",
-                admin_tab_skills: "Edit Skills",
-                admin_tab_riders: "Manage Riders",
-                admin_tab_teams: "Manage Teams",
-                admin_tab_calendar: "Manage Calendar",
-                admin_res_title: "Enter Race Results & Bonuses",
-                admin_select_race: "Select Race / Stage",
-                admin_select_rider: "Select Rider",
-                admin_pos_finish: "Finish Position (1-30)",
-                admin_pos_sprint: "Sprint Position (1-10)",
-                admin_pos_kom: "KOM Position (1-5)",
-                btn_save_result: "Save Rider Result",
-                admin_skills_title: "Rider Skills (1-10)",
-                admin_add_rider_title: "Add / Manage Rider",
-                admin_rider_name: "Full Name",
-                admin_rider_country: "Country (Flag)",
-                admin_team_name: "Team Name",
-                admin_add_team_title: "Add / Manage Team",
-                admin_add_race_title: "Add Race"
+                nav_rules: "Pravidla bodování", nav_public: "Veřejný web", nav_admin: "Administrace",
+                sub_leaderboards: "Žebříčky (Tours)", sub_race_results: "Výsledky dle závodů",
+                sub_calendar: "Kalendář 2027", sub_teams: "Týmy a Jezdci", filter_cat: "Kategorie:",
+                lb_yellow: "Celkové pořadí", lb_green: "Sprinty", lb_polka: "Král hor", lb_pink: "Tovární", lb_teams: "Týmy"
             }
         };
 
         let currentLang = 'cs';
-
-        function toggleLangDropdown() {
-            const menu = document.getElementById('lang-dropdown-menu');
-            menu.classList.toggle('hidden');
-        }
-
-        function selectLanguage(lang, label, countryCode) {
+        function toggleLangDropdown() { document.getElementById('lang-dropdown-menu').classList.toggle('hidden'); }
+        function selectLanguage(lang) {
             currentLang = lang;
-            document.getElementById('current-lang-text').textContent = label;
-            document.getElementById('current-lang-flag').innerHTML = `<img src="https://flagcdn.com/24x18/${countryCode}.png" width="18" height="13" style="vertical-align: middle; border-radius: 2px;" alt="${countryCode.toUpperCase()}">`;
             document.getElementById('lang-dropdown-menu').classList.add('hidden');
-
-            const dict = translations[lang] || translations['cs'];
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (dict[key]) el.textContent = dict[key];
-            });
         }
 
-        window.addEventListener('click', function(e) {
-            const btn = document.getElementById('lang-dropdown-btn');
-            const menu = document.getElementById('lang-dropdown-menu');
-            if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
-                menu.classList.add('hidden');
-            }
-        });
-
-        function getFlagIcon(countryCode) {
-            if (!countryCode) return '';
-            const code = countryCode.toLowerCase();
-            return `<img src="https://flagcdn.com/24x18/${code}.png" srcset="https://flagcdn.com/48x36/${code}.png 2x" width="20" height="15" alt="${code.toUpperCase()}" style="vertical-align: middle; border-radius: 2px; margin-right: 4px; display: inline-block;" />`;
-        }
-
-        const motorHandicaps = {
-            'DJI Avinox': 0.75,
-            'DJI M1': 0.78,
-            'DJI M2S': 0.80,
-            'Bosch CX Race': 0.90,
-            'Bosch Performance Line CX': 0.92,
-            'Bosch Performance SX': 0.95,
-            'Shimano EP801': 0.95,
-            'Shimano EP6': 0.98,
-            'Yamaha PW-X3': 0.95,
-            'Yamaha PW-S2': 0.97,
-            'Brose S Mag': 1.00,
-            'Brose Drive TF': 1.00,
-            'Panasonic GX Ultimate': 1.00,
-            'Specialized 2.2 (Brose)': 0.94,
-            'Mahle X20': 0.98,
-            'Tq HPR50': 1.00
-        };
-
-        let availableBrands = [
-            'Crussis', 'Kellys', 'CTM', 'AMFLOW', 'FOCUS', 'Specialized', 
-            'Trek', 'Cube', 'Haibike', 'Orbea', 'Santa Cruz', 'Scott', 
-            'Giant', 'Merida', 'Lapierre', 'Ghost', 'Rocky Mountain', 'Cannondale'
+        let teams = [
+            { id: 't1', name: 'Tatry e-Bike Squad', country: 'SK', brand: 'CTM' },
+            { id: 't2', name: 'eMTB Vamos Rápido', country: 'CZ', brand: 'Crussis' }
         ];
 
-        let availableMotors = [
-            'DJI Avinox', 'DJI M1', 'DJI M2S', 'Bosch CX Race', 'Bosch Performance Line CX', 
-            'Bosch Performance SX', 'Shimano EP801', 'Shimano EP6', 'Yamaha PW-X3', 
-            'Yamaha PW-S2', 'Brose S Mag', 'Brose Drive TF', 'Panasonic GX Ultimate', 
-            'Specialized 2.2 (Brose)', 'Mahle X20', 'Tq HPR50'
-        ];
-
-        let defaultTeams = [
-            { id: 't1', name: 'Tatry e-Bike Squad', country: 'SK', brand: 'CTM', featuredRiderId: '' },
-            { id: 't2', name: 'eMTB Vamos Rápido', country: 'CZ', brand: 'Crussis', featuredRiderId: '' },
-            { id: 't3', name: 'Sudety Volt Factory', country: 'PL', brand: 'Kellys', featuredRiderId: '' },
-            { id: 't4', name: 'Balaton e-Power Team', country: 'HU', brand: 'Cube', featuredRiderId: '' }
-        ];
-
-        let defaultRiders = [
+        let riders = [
             { id: 'r1', name: 'Martin Varga', country: 'SK', team: 'Tatry e-Bike Squad', category: 'Elite', ebike: 'CTM', motor: 'Bosch CX Race', skills: { cond: 9, tech: 8, battery: 9, sprint: 8, kom: 9 } },
-            { id: 'r2', name: 'Lukáš Kovář', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'Crussis', motor: 'DJI Avinox', skills: { cond: 8, tech: 9, battery: 8, sprint: 9, kom: 8 } },
-            { id: 'r3', name: 'Piotr Zieliński', country: 'PL', team: 'Sudety Volt Factory', category: 'Masters', ebike: 'Kellys', motor: 'Shimano EP801', skills: { cond: 8, tech: 8, battery: 9, sprint: 7, kom: 8 } },
-            { id: 'r4', name: 'Marek Dvořák', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'FOCUS', motor: 'Brose S Mag', skills: { cond: 7, tech: 7, battery: 8, sprint: 8, kom: 7 } },
-            { id: 'r5', name: 'Tereza Novotná', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Women', ebike: 'Specialized', motor: 'Yamaha PW-X3', skills: { cond: 8, tech: 8, battery: 9, sprint: 7, kom: 8 } },
-            { id: 'r6', name: 'Zoltán Kovács', country: 'HU', team: 'Balaton e-Power Team', category: 'Elite', ebike: 'Cube', motor: 'Bosch CX Race', skills: { cond: 9, tech: 8, battery: 8, sprint: 9, kom: 8 } }
+            { id: 'r2', name: 'Zdeněk JUŘÍČEK', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'FOCUS', motor: 'Bosch CX Race', skills: { cond: 9, tech: 9, battery: 9, sprint: 9, kom: 9 } }
         ];
 
-        let defaultCalendar = [
-            { id: 'rc1', name: 'ŠKODA Svätojurský MTB maratón', location: 'Svätý Jur, SK', date: '2027-04-17', params: '42 km / 1 150 m (Klasika)' },
-            { id: 'rc2', name: 'Bike Maraton Harrachov – Jakuszyce', location: 'Harrachov / Jakuszyce, CZ/PL', date: '2027-05-08', params: '60 km / 1 490 m (Monument)' },
-            { id: 'rc3', name: 'ŠKODA MTB maratón Rajecké Teplice', location: 'Rajecké Teplice, SK', date: '2027-05-22', params: '50 km / 1 450 m (Monument)' },
-            { id: 'rc4', name: 'ŠKODA Slovenský raj', location: 'Hrabušice – Podlesok, SK', date: '2027-06-05', params: '54 km / 1 350 m (Klasika)' },
-            { id: 'rc5', name: 'Malevil Cup', location: 'Jablonné v Podještědí, CZ', date: '2027-06-12', params: '70 km / 1 400 m (Monument)' },
-            { id: 'rc6', name: 'Bikemaraton Drásal', location: 'Holešov, CZ', date: '2027-06-26', params: '58 km / 1 721 m (Královská)' },
-            { id: 'rc7', name: 'Bike Maraton Bielawa', location: 'Soví hory, PL', date: '2027-07-17', params: '52 km / 1 550 m (Monument)' },
-            { id: 'rc8', name: 'ŠKODA Horal MTB maratón', location: 'Svit – Vysoké Tatry, SK', date: '2027-08-07', params: '62 km / 1 750 m (Královská)' },
-            { id: 'rc9', name: 'Silesia Bike Marathon Wisła', location: 'Slezské Beskydy, PL', date: '2027-08-28', params: '42 km / 1 622 m (Královská)' },
-            { id: 'rc10', name: 'Rallye Sudety', location: 'Teplice nad Metují, CZ', date: '2027-09-11', params: '60 km / 1 650 m (Královská)' }
+        let calendar = [
+            { id: 'rc1', name: 'ŠKODA Svätojurský MTB maratón', location: 'Svätý Jur, SK', date: '2027-04-17', params: '42 km / 1 150 m' },
+            { id: 'rc2', name: 'Bike Maraton Harrachov', location: 'Harrachov, CZ', date: '2027-05-08', params: '60 km / 1 490 m' }
         ];
 
         let raceResults = {};
-        let teams = defaultTeams;
-        let riders = defaultRiders;
-        let calendar = defaultCalendar;
         let youtubeVideoId = 'dQw4w9WgXcQ';
-        let isVideoCollapsed = false;
-
-        function toggleHeroVideoCollapse() {
-            isVideoCollapsed = !isVideoCollapsed;
-            const container = document.getElementById('hero-video-container');
-            const icon = document.getElementById('video-collapse-icon');
-            const label = document.getElementById('video-collapse-label');
-
-            if (isVideoCollapsed) {
-                container.style.display = 'none';
-                icon.style.transform = 'rotate(180deg)';
-                label.textContent = currentLang === 'cs' ? 'Zobrazit video' : 'Show video';
-            } else {
-                container.style.display = 'block';
-                icon.style.transform = 'rotate(0deg)';
-                label.textContent = currentLang === 'cs' ? 'Sbalit video' : 'Collapse video';
-            }
-        }
+        let currentMainTab = 'public';
+        let currentPublicSubTab = 'leaderboards';
+        let currentLeaderboardTab = 'yellow';
 
         function initFirebaseSync() {
-            if (!window.db) {
-                window.loadDefaultData();
-                return;
-            }
+            if (!window.db) { loadDefaultData(); return; }
             const { doc, onSnapshot } = window.firebaseModules;
-            const docRef = doc(window.db, 'artifacts', window.appId);
-
-            onSnapshot(docRef, (docSnap) => {
+            onSnapshot(doc(window.db, 'artifacts', window.appId), (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    if (data.teams && Array.isArray(data.teams)) teams = data.teams;
-                    if (data.riders && Array.isArray(data.riders)) riders = data.riders;
-                    if (data.calendar && Array.isArray(data.calendar)) calendar = data.calendar;
+                    if (data.teams) teams = data.teams;
+                    if (data.riders) riders = data.riders;
+                    if (data.calendar) calendar = data.calendar;
                     if (data.raceResults) raceResults = data.raceResults;
-                    if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
-                    if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
-                    if (data.youtubeVideoId) youtubeVideoId = data.youtubeVideoId;
-                } else {
-                    saveData();
                 }
-                updateHeroVideoPlayer();
-                populateAdminSelects();
                 renderPublicLeaderboards();
-                populatePublicRaceResultsSelect();
-                if (!document.getElementById('view-admin').classList.contains('hidden')) {
-                    renderAdminRidersTable();
-                    renderAdminTeamsGrid();
-                }
-            }, (error) => {
-                console.error("Firebase snapshot error:", error);
-                window.loadDefaultData();
-            });
+            }, (err) => { console.error(err); loadDefaultData(); });
         }
 
         window.loadDefaultData = function() {
-            teams = defaultTeams;
-            riders = defaultRiders;
-            calendar = defaultCalendar;
-            raceResults = {};
-            youtubeVideoId = 'dQw4w9WgXcQ';
-            updateHeroVideoPlayer();
-            populateAdminSelects();
             renderPublicLeaderboards();
-            populatePublicRaceResultsSelect();
+            renderCalendar();
+            renderTeamsAndRidersView();
         };
 
         function saveData() {
             if (window.db) {
                 const { doc, setDoc } = window.firebaseModules;
-                const docRef = doc(window.db, 'artifacts', window.appId);
-                setDoc(docRef, { teams, riders, calendar, raceResults, availableBrands, availableMotors, youtubeVideoId }, { merge: true }).then(() => {
-                    console.log("Data successfully saved to Firebase Firestore.");
-                }).catch(err => {
-                    console.error("Error saving data to Firestore:", err);
-                });
+                setDoc(doc(window.db, 'artifacts', window.appId), { teams, riders, calendar, raceResults, youtubeVideoId }, { merge: true }).catch(err => console.error(err));
             }
         }
-
-        function updateHeroVideoPlayer() {
-            const iframe = document.getElementById('hero-youtube-iframe');
-            if (iframe) {
-                let cleanId = youtubeVideoId.trim();
-                if (cleanId.includes('youtube.com/watch?v=')) {
-                    const urlParams = new URLSearchParams(new URL(cleanId).search);
-                    cleanId = urlParams.get('v') || 'dQw4w9WgXcQ';
-                } else if (cleanId.includes('youtu.be/')) {
-                    cleanId = cleanId.split('youtu.be/')[1].split('?')[0];
-                }
-                iframe.src = `https://www.youtube.com/embed/${cleanId}?autoplay=0&mute=0&loop=1`;
-            }
-            const input = document.getElementById('admin-youtube-id-input');
-            if (input) {
-                input.value = youtubeVideoId;
-            }
-        }
-
-        function saveYouTubeVideoId() {
-            const input = document.getElementById('admin-youtube-id-input');
-            if (input && input.value.trim() !== '') {
-                youtubeVideoId = input.value.trim();
-                saveData();
-                updateHeroVideoPlayer();
-                showModal("Úspěch", "YouTube video bylo úspěšně aktualizováno!");
-            }
-        }
-
-        let currentMainTab = 'public';
-        let currentPublicSubTab = 'leaderboards';
-        let currentAdminSubTab = 'results';
-        let currentLeaderboardTab = 'yellow';
 
         function switchMainTab(tab) {
             currentMainTab = tab;
@@ -1243,880 +426,112 @@
             document.getElementById('view-admin').classList.add('hidden');
             document.getElementById('public-subnav').classList.add('hidden');
 
-            document.getElementById('btn-tab-rules').className = "text-xs font-bold px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition flex items-center gap-2 text-slate-200 shadow-sm";
-            document.getElementById('btn-tab-public').className = "text-xs font-bold px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition flex items-center gap-2 text-slate-200 shadow-sm";
-            document.getElementById('btn-tab-admin').className = "text-xs font-bold px-3.5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition flex items-center gap-2 text-slate-200 shadow-sm";
-
-            if (tab === 'rules') {
-                document.getElementById('view-rules').classList.remove('hidden');
-                document.getElementById('btn-tab-rules').className = "text-xs font-black px-3.5 py-2.5 rounded-xl bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg";
-            } else if (tab === 'public') {
+            if (tab === 'rules') document.getElementById('view-rules').classList.remove('hidden');
+            else if (tab === 'public') {
                 document.getElementById('view-public').classList.remove('hidden');
                 document.getElementById('public-subnav').classList.remove('hidden');
-                document.getElementById('btn-tab-public').className = "text-xs font-black px-3.5 py-2.5 rounded-xl bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg";
                 switchPublicSubTab(currentPublicSubTab);
-            } else if (tab === 'admin') {
-                document.getElementById('view-admin').classList.remove('hidden');
-                document.getElementById('btn-tab-admin').className = "text-xs font-black px-3.5 py-2.5 rounded-xl bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg";
-                populateAdminSelects();
-                renderAdminRidersTable();
-                renderAdminTeamsGrid();
-                switchAdminSubTab(currentAdminSubTab);
-            }
+            } else if (tab === 'admin') document.getElementById('view-admin').classList.remove('hidden');
         }
 
         function switchPublicSubTab(sub) {
             currentPublicSubTab = sub;
             ['subview-leaderboards', 'subview-race-results', 'subview-calendar', 'subview-teams'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
+                document.getElementById(id).classList.add('hidden');
             });
-
-            ['sub-btn-leaderboards', 'sub-btn-race-results', 'sub-btn-calendar', 'sub-btn-teams'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300";
-            });
-
             if (sub === 'leaderboards') {
-                const target = document.getElementById('subview-leaderboards');
-                if (target) target.classList.remove('hidden');
-                const btn = document.getElementById('sub-btn-leaderboards');
-                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                document.getElementById('subview-leaderboards').classList.remove('hidden');
                 renderPublicLeaderboards();
             } else if (sub === 'race_results') {
-                const target = document.getElementById('subview-race-results');
-                if (target) target.classList.remove('hidden');
-                const btn = document.getElementById('sub-btn-race-results');
-                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                document.getElementById('subview-race-results').classList.remove('hidden');
                 populatePublicRaceResultsSelect();
-                renderPublicRaceResults();
             } else if (sub === 'calendar') {
-                const target = document.getElementById('subview-calendar');
-                if (target) target.classList.remove('hidden');
-                const btn = document.getElementById('sub-btn-calendar');
-                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                document.getElementById('subview-calendar').classList.remove('hidden');
                 renderCalendar();
             } else if (sub === 'teams') {
-                const target = document.getElementById('subview-teams');
-                if (target) target.classList.remove('hidden');
-                const btn = document.getElementById('sub-btn-teams');
-                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                document.getElementById('subview-teams').classList.remove('hidden');
                 renderTeamsAndRidersView();
             }
         }
 
         function switchLeaderboardTab(tab) {
             currentLeaderboardTab = tab;
-            ['yellow', 'green', 'polka', 'pink', 'teams'].forEach(t => {
-                const btn = document.getElementById(`lb-tab-${t}`);
-                if (t === tab) {
-                    btn.className = "px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-2";
-                } else {
-                    btn.className = "px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2";
-                }
-            });
             renderPublicLeaderboards();
-        }
-
-        function switchAdminSubTab(sub) {
-            currentAdminSubTab = sub;
-            document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'teams', 'calendar', 'video'].forEach(s => {
-                const btn = document.getElementById(`admin-sub-btn-${s}`);
-                if (btn) {
-                    if (s === sub) {
-                        btn.className = "px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-sm";
-                    } else {
-                        btn.className = "px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2";
-                    }
-                }
-            });
-            const targetEl = document.getElementById(`admin-sub-${sub}`);
-            if (targetEl) targetEl.classList.remove('hidden');
         }
 
         function promptAdminLogin() {
             const pwd = prompt("Zadejte administrátorské heslo:");
-            if (pwd === "admin2027") {
-                switchMainTab('admin');
-            } else if (pwd !== null) {
-                showModal("Chyba", "Nesprávné heslo administrátora!");
-            }
+            if (pwd === "admin2027") switchMainTab('admin');
+            else if (pwd !== null) showModal("Chyba", "Nesprávné heslo!");
         }
 
-        function logoutAdmin() {
-            switchMainTab('public');
-        }
-
-        function showModal(title, message) {
+        function logoutAdmin() { switchMainTab('public'); }
+        function showModal(title, msg) {
             document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-message').textContent = msg;
             document.getElementById('custom-modal').classList.remove('hidden');
         }
+        function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
 
-        function closeModal() {
-            document.getElementById('custom-modal').classList.add('hidden');
-        }
-
-        function getFinishPoints(pos) {
-            const table = [100, 90, 80, 70, 60, 50, 45, 40, 36, 32, 29, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 7, 6, 5, 4, 3, 2, 1];
-            if (pos >= 1 && pos <= table.length) return table[pos - 1];
-            return 0;
-        }
-
-        function getSprintPoints(pos) {
-            const table = [25, 20, 16, 13, 11, 10, 8, 6, 4, 2];
-            if (pos >= 1 && pos <= table.length) return table[pos - 1];
-            return 0;
-        }
-
-        function getKomPoints(pos) {
-            const table = [15, 12, 9, 6, 3];
-            if (pos >= 1 && pos <= table.length) return table[pos - 1];
-            return 0;
-        }
-
-        function calculateRiderTotals() {
-            let stats = {};
-            riders.forEach(r => {
-                stats[r.id] = {
-                    rider: r,
-                    finishScores: [],
-                    totalYellow: 0,
-                    totalGreen: 0,
-                    totalPolka: 0,
-                    totalPink: 0
-                };
-            });
-
-            for (let raceId in raceResults) {
-                let rRes = raceResults[raceId];
-                for (let riderId in rRes) {
-                    if (!stats[riderId]) continue;
-                    let data = rRes[riderId];
-                    let fPts = getFinishPoints(data.finish || 0);
-                    let sPts = getSprintPoints(data.sprint || 0);
-                    let kPts = getKomPoints(data.kom || 0);
-
-                    stats[riderId].finishScores.push(fPts);
-                    stats[riderId].totalGreen += sPts;
-                    stats[riderId].totalPolka += kPts;
-
-                    let handicap = motorHandicaps[stats[riderId].rider.motor] || 1.0;
-                    stats[riderId].totalPink += Math.round((fPts + sPts + kPts) * handicap);
-                }
-            }
-
-            for (let riderId in stats) {
-                let scores = stats[riderId].finishScores.sort((a, b) => b - a);
-                let top7 = scores.slice(0, 7);
-                stats[riderId].totalYellow = top7.reduce((acc, val) => acc + val, 0);
-            }
-
-            return stats;
+        function getFlagIcon(code) {
+            if (!code) return '';
+            return `<img src="https://flagcdn.com/24x18/${code.toLowerCase()}.png" width="18" height="13" style="vertical-align: middle; border-radius: 2px; margin-right: 4px;" alt="${code}" />`;
         }
 
         function renderPublicLeaderboards() {
-            const catFilter = document.getElementById('rider-category-filter').value;
-            let statsObj = calculateRiderTotals();
-            let arr = Object.values(statsObj);
-
-            if (catFilter !== 'all') {
-                arr = arr.filter(item => item.rider.category === catFilter);
-            }
-
-            let yellowSorted = [...arr].sort((a, b) => b.totalYellow - a.totalYellow);
-            let greenSorted = [...arr].sort((a, b) => b.totalGreen - a.totalGreen);
-            let polkaSorted = [...arr].sort((a, b) => b.totalPolka - a.totalPolka);
-            let pinkSorted = [...arr].sort((a, b) => b.totalPink - a.totalPink);
-
-            if (yellowSorted.length > 0) {
-                document.getElementById('hero-yellow-name').innerHTML = `${getFlagIcon(yellowSorted[0].rider.country)} ${yellowSorted[0].rider.name}`;
-                document.getElementById('hero-yellow-team').textContent = yellowSorted[0].rider.team || 'Bez týmu';
-                document.getElementById('hero-yellow-pts').textContent = yellowSorted[0].totalYellow + ' b.';
-            }
-            if (greenSorted.length > 0) {
-                document.getElementById('hero-green-name').innerHTML = `${getFlagIcon(greenSorted[0].rider.country)} ${greenSorted[0].rider.name}`;
-                document.getElementById('hero-green-team').textContent = greenSorted[0].rider.team || 'Bez týmu';
-                document.getElementById('hero-green-pts').textContent = greenSorted[0].totalGreen + ' b.';
-            }
-            if (polkaSorted.length > 0) {
-                document.getElementById('hero-polka-name').innerHTML = `${getFlagIcon(polkaSorted[0].rider.country)} ${polkaSorted[0].rider.name}`;
-                document.getElementById('hero-polka-team').textContent = polkaSorted[0].rider.team || 'Bez týmu';
-                document.getElementById('hero-polka-pts').textContent = polkaSorted[0].totalPolka + ' b.';
-            }
-            if (pinkSorted.length > 0) {
-                document.getElementById('hero-pink-name').innerHTML = `${getFlagIcon(pinkSorted[0].rider.country)} ${pinkSorted[0].rider.name}`;
-                document.getElementById('hero-pink-brand').textContent = `${pinkSorted[0].rider.ebike} (${pinkSorted[0].rider.motor})`;
-                document.getElementById('hero-pink-pts').textContent = pinkSorted[0].totalPink + ' b.';
-            }
-
-            const headerRow = document.getElementById('table-header-row');
             const tbody = document.getElementById('public-table-body');
+            const headerRow = document.getElementById('table-header-row');
+            if (!tbody || !headerRow) return;
             tbody.innerHTML = '';
-
-            if (currentLeaderboardTab === 'yellow') {
-                headerRow.innerHTML = `
-                    <th class="p-4 w-16">Poř.</th>
-                    <th class="p-4">Jezdec</th>
-                    <th class="p-4">Tým</th>
-                    <th class="p-4">E-Bike značka</th>
-                    <th class="p-4">Motor</th>
-                    <th class="p-4 text-right">TOP 7 Body</th>
-                `;
-                yellowSorted.forEach((item, index) => {
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
-                    tr.innerHTML = `
-                        <td class="p-4 font-black text-amber-400">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white flex items-center gap-2">${getFlagIcon(item.rider.country)} ${item.rider.name}</td>
-                        <td class="p-4 text-slate-300 font-medium">${item.rider.team || '<span class="text-slate-500 italic">Individuální</span>'}</td>
-                        <td class="p-4 text-slate-200 font-bold">${item.rider.ebike}</td>
-                        <td class="p-4 text-slate-400 text-xs">${item.rider.motor}</td>
-                        <td class="p-4 text-right font-black text-amber-400 text-base">${item.totalYellow} b.</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } else if (currentLeaderboardTab === 'green') {
-                headerRow.innerHTML = `
-                    <th class="p-4 w-16">Poř.</th>
-                    <th class="p-4">Jezdec</th>
-                    <th class="p-4">Tým</th>
-                    <th class="p-4">E-Bike značka</th>
-                    <th class="p-4">Motor</th>
-                    <th class="p-4 text-right">Sprint Body</th>
-                `;
-                greenSorted.forEach((item, index) => {
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
-                    tr.innerHTML = `
-                        <td class="p-4 font-black text-emerald-400">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white flex items-center gap-2">${getFlagIcon(item.rider.country)} ${item.rider.name}</td>
-                        <td class="p-4 text-slate-300 font-medium">${item.rider.team || '<span class="text-slate-500 italic">Individuální</span>'}</td>
-                        <td class="p-4 text-slate-200 font-bold">${item.rider.ebike}</td>
-                        <td class="p-4 text-slate-400 text-xs">${item.rider.motor}</td>
-                        <td class="p-4 text-right font-black text-emerald-400 text-base">${item.totalGreen} b.</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } else if (currentLeaderboardTab === 'polka') {
-                headerRow.innerHTML = `
-                    <th class="p-4 w-16">Poř.</th>
-                    <th class="p-4">Jezdec</th>
-                    <th class="p-4">Tým</th>
-                    <th class="p-4">E-Bike značka</th>
-                    <th class="p-4">Motor</th>
-                    <th class="p-4 text-right">KOM Body</th>
-                `;
-                polkaSorted.forEach((item, index) => {
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
-                    tr.innerHTML = `
-                        <td class="p-4 font-black text-red-500">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white flex items-center gap-2">${getFlagIcon(item.rider.country)} ${item.rider.name}</td>
-                        <td class="p-4 text-slate-300 font-medium">${item.rider.team || '<span class="text-slate-500 italic">Individuální</span>'}</td>
-                        <td class="p-4 text-slate-200 font-bold">${item.rider.ebike}</td>
-                        <td class="p-4 text-slate-400 text-xs">${item.rider.motor}</td>
-                        <td class="p-4 text-right font-black text-red-500 text-base">${item.totalPolka} b.</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } else if (currentLeaderboardTab === 'pink') {
-                headerRow.innerHTML = `
-                    <th class="p-4 w-16">Poř.</th>
-                    <th class="p-4">Značka E-Biku / Výrobce</th>
-                    <th class="p-4">Tovární top jezdec (Ručně / Auto)</th>
-                    <th class="p-4">Motor</th>
-                    <th class="p-4 text-right">Konstruktérské Body</th>
-                `;
-                let brandMap = {};
-                arr.forEach(item => {
-                    let brand = item.rider.ebike;
-                    if (!brandMap[brand]) {
-                        brandMap[brand] = { brand: brand, totalPts: 0, ridersOfBrand: [], motor: item.rider.motor };
-                    }
-                    brandMap[brand].totalPts += item.totalPink;
-                    brandMap[brand].ridersOfBrand.push(item);
-                });
-
-                // Check manual selection from team/brand assignment if any, else auto pick highest points in brand
-                let brandArr = Object.values(brandMap).map(bItem => {
-                    let topRiderName = '--';
-                    // Check if any team has manual featured rider for this brand
-                    let manualRider = null;
-                    teams.forEach(t => {
-                        if (t.brand === bItem.brand && t.featuredRiderId) {
-                            let found = riders.find(r => r.id === t.featuredRiderId);
-                            if (found) manualRider = found.name;
-                        }
-                    });
-
-                    if (manualRider) {
-                        topRiderName = manualRider + ' <span class="text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded font-bold ml-1">Manual</span>';
-                    } else if (bItem.ridersOfBrand.length > 0) {
-                        bItem.ridersOfBrand.sort((x, y) => y.totalPink - x.totalPink);
-                        topRiderName = bItem.ridersOfBrand[0].rider.name + ' <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold ml-1">Auto (Leader)</span>';
-                    }
-
-                    return {
-                        brand: bItem.brand,
-                        totalPts: bItem.totalPts,
-                        topRider: topRiderName,
-                        motor: bItem.motor
-                    };
-                }).sort((a, b) => b.totalPts - a.totalPts);
-
-                brandArr.forEach((bItem, index) => {
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
-                    tr.innerHTML = `
-                        <td class="p-4 font-black text-pink-400">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white text-base">${bItem.brand}</td>
-                        <td class="p-4 text-slate-300 font-medium">${bItem.topRider}</td>
-                        <td class="p-4 text-slate-400 text-xs">${bItem.motor}</td>
-                        <td class="p-4 text-right font-black text-pink-400 text-base">${bItem.totalPts} b.</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } else if (currentLeaderboardTab === 'teams') {
-                headerRow.innerHTML = `
-                    <th class="p-4 w-16">Poř.</th>
-                    <th class="p-4">Tým</th>
-                    <th class="p-4">Stát</th>
-                    <th class="p-4">Bodující jezdci (Top 3)</th>
-                    <th class="p-4 text-right">Celkové Týmové Body</th>
-                `;
-                let teamStats = {};
-                teams.forEach(t => {
-                    teamStats[t.name] = { team: t, riderScores: [], count: 0 };
-                });
-                arr.forEach(item => {
-                    let tName = item.rider.team;
-                    if (tName && teamStats[tName]) {
-                        teamStats[tName].riderScores.push(item.totalYellow);
-                        teamStats[tName].count += 1;
-                    }
-                });
-
-                let tArr = [];
-                for (let tName in teamStats) {
-                    let tItem = teamStats[tName];
-                    tItem.riderScores.sort((a, b) => b - a);
-                    let top3Sum = tItem.riderScores.slice(0, 3).reduce((acc, val) => acc + val, 0);
-                    tArr.push({ team: tItem.team, totalPts: top3Sum, count: tItem.count });
-                }
-
-                tArr.sort((a, b) => b.totalPts - a.totalPts);
-
-                tArr.forEach((tItem, index) => {
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
-                    tr.innerHTML = `
-                        <td class="p-4 font-black text-amber-400">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white text-base">${tItem.team.name}</td>
-                        <td class="p-4">${getFlagIcon(tItem.team.country)}</td>
-                        <td class="p-4 text-slate-400 font-medium">${tItem.count} celkem (Top 3 počítáno)</td>
-                        <td class="p-4 text-right font-black text-amber-400 text-base">${tItem.totalPts} b.</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
+            headerRow.innerHTML = `<th class="p-4 w-16">Poř.</th><th class="p-4">Jezdec</th><th class="p-4">Tým</th><th class="p-4 text-right">Body</th>`;
+            
+            riders.forEach((r, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                tr.innerHTML = `<td class="p-4 font-black text-amber-400">${idx + 1}.</td><td class="p-4 font-bold text-white">${getFlagIcon(r.country)} ${r.name}</td><td class="p-4 text-slate-300">${r.team}</td><td class="p-4 text-right font-black text-amber-400">100 b.</td>`;
+                tbody.appendChild(tr);
+            });
         }
 
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
+            if (!grid) return;
             grid.innerHTML = '';
             calendar.forEach((c, idx) => {
                 const card = document.createElement('div');
-                card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between hover:border-slate-700 transition";
-                card.innerHTML = `
-                    <div>
-                        <div class="flex justify-between items-start mb-3">
-                            <span class="bg-amber-400/20 text-amber-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border border-amber-400/30">Závod #${idx + 1}</span>
-                            <span class="text-xs font-bold text-slate-400"><i class="fa-regular fa-calendar mr-1.5 text-amber-400"></i> ${c.date}</span>
-                        </div>
-                        <h4 class="text-base font-black text-white mb-1.5">${c.name}</h4>
-                        <p class="text-xs text-slate-400 font-medium mb-4 flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-amber-400"></i> ${c.location}</p>
-                    </div>
-                    <div class="pt-3.5 border-t border-slate-800 flex justify-between items-center text-xs">
-                        <span class="text-slate-400 font-bold">Trať:</span>
-                        <span class="font-extrabold text-white">${c.params}</span>
-                    </div>
-                `;
+                card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between";
+                card.innerHTML = `<div><span class="text-xs text-amber-400 font-bold">${c.date}</span><h4 class="text-base font-black text-white mt-1">${c.name}</h4><p class="text-xs text-slate-400 mt-1">${c.location}</p></div><div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-300">Trať: <strong>${c.params}</strong></div>`;
                 grid.appendChild(card);
             });
         }
 
         function populatePublicRaceResultsSelect() {
-            const select = document.getElementById('public-race-results-select');
-            select.innerHTML = '';
+            const sel = document.getElementById('public-race-results-select');
+            if (!sel) return;
+            sel.innerHTML = '';
             calendar.forEach(c => {
                 let opt = document.createElement('option');
                 opt.value = c.id;
-                opt.textContent = c.name + ' (' + c.date + ')';
-                select.appendChild(opt);
-            });
-        }
-
-        function renderPublicRaceResults() {
-            const raceId = document.getElementById('public-race-results-select').value;
-            const tbody = document.getElementById('public-race-results-tbody');
-            tbody.innerHTML = '';
-
-            let rRes = raceResults[raceId] || {};
-            let raceRidersList = [];
-
-            for (let riderId in rRes) {
-                let r = riders.find(item => item.id === riderId);
-                if (r) {
-                    let data = rRes[riderId];
-                    let fPts = getFinishPoints(data.finish || 0);
-                    let sPts = getSprintPoints(data.sprint || 0);
-                    let kPts = getKomPoints(data.kom || 0);
-                    let total = fPts + sPts + kPts;
-                    raceRidersList.push({
-                        rider: r,
-                        finish: data.finish || 999,
-                        fPts,
-                        sprint: data.sprint || '-',
-                        sPts,
-                        kom: data.kom || '-',
-                        kPts,
-                        total
-                    });
-                }
-            }
-
-            raceRidersList.sort((a, b) => a.finish - b.finish);
-
-            if (raceRidersList.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="8" class="p-6 text-center text-slate-500 italic">Pro tento závod zatím nejsou zapsány žádné výsledky.</td>`;
-                tbody.appendChild(tr);
-                return;
-            }
-
-            raceRidersList.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
-                tr.innerHTML = `
-                    <td class="p-4 font-black text-amber-400">${item.finish <= 30 ? item.finish + '.' : '-'}</td>
-                    <td class="p-4 font-bold text-white flex items-center gap-2">${getFlagIcon(item.rider.country)} ${item.rider.name}</td>
-                    <td class="p-4 text-slate-300 font-medium">${item.rider.team || '<span class="text-slate-500 italic">Individuální</span>'}</td>
-                    <td class="p-4 text-slate-200 text-xs font-bold">${item.rider.ebike} <span class="text-slate-400">(${item.rider.motor})</span></td>
-                    <td class="p-4 text-center font-bold text-white">${item.finish <= 30 ? item.finish + '. m. (' + item.fPts + ' b.)' : 'Nedokončil'}</td>
-                    <td class="p-4 text-center font-semibold text-emerald-400">${item.sprint !== '-' ? item.sprint + '. m. (' + item.sPts + ' b.)' : '-'}</td>
-                    <td class="p-4 text-center font-semibold text-red-500">${item.kom !== '-' ? item.kom + '. m. (' + item.kPts + ' b.)' : '-'}</td>
-                    <td class="p-4 text-right font-black text-amber-400 text-base">${item.total} b.</td>
-                `;
-                tbody.appendChild(tr);
+                opt.textContent = c.name;
+                sel.appendChild(opt);
             });
         }
 
         function renderTeamsAndRidersView() {
-            const teamsGrid = document.getElementById('teams-roster-grid');
-            if (teamsGrid) {
-                teamsGrid.innerHTML = '';
+            const tGrid = document.getElementById('teams-roster-grid');
+            if (tGrid) {
+                tGrid.innerHTML = '';
                 teams.forEach(t => {
-                    let teamRiders = riders.filter(r => r.team === t.name);
                     let div = document.createElement('div');
-                    div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3.5";
-                    div.innerHTML = `
-                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                            <h4 class="font-black text-white text-base flex items-center gap-2.5">
-                                ${getFlagIcon(t.country)} ${t.name}
-                            </h4>
-                            <span class="bg-amber-400/20 text-amber-300 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-400/30">${teamRiders.length} jezdců</span>
-                        </div>
-                        <ul class="space-y-2.5">
-                            ${teamRiders.length === 0 ? '<li class="text-xs text-slate-500 italic">Žádní jezdci v týmu</li>' : teamRiders.map(r => `
-                                <li class="flex justify-between items-center text-xs bg-slate-800/70 p-3 rounded-xl border border-slate-700/60 shadow-sm">
-                                    <span class="font-bold text-white flex items-center gap-2">${getFlagIcon(r.country)} ${r.name}</span>
-                                    <span class="text-slate-300 font-semibold">${r.ebike} (${r.motor})</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    `;
-                    teamsGrid.appendChild(div);
+                    div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl";
+                    div.innerHTML = `<h4 class="font-black text-white text-base">${getFlagIcon(t.country)} ${t.name}</h4><p class="text-xs text-slate-400 mt-1">Značka: ${t.brand}</p>`;
+                    tGrid.appendChild(div);
                 });
             }
-
-            const ridersGrid = document.getElementById('riders-profiles-grid');
-            if (ridersGrid) {
-                ridersGrid.innerHTML = '';
-                riders.forEach(r => {
-                    let sk = r.skills || { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 };
-                    let card = document.createElement('div');
-                    card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4";
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start border-b border-slate-800 pb-3">
-                            <div>
-                                <h4 class="font-black text-white text-base flex items-center gap-2.5">
-                                    ${getFlagIcon(r.country)} ${r.name}
-                                </h4>
-                                <p class="text-xs text-slate-400 font-medium">${r.team || 'Individuální jezdec'} | Kat: <span class="font-bold text-white">${r.category}</span></p>
-                            </div>
-                            <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-lg">${r.ebike}</span>
-                        </div>
-                        <div class="space-y-2.5 text-xs">
-                            <div class="flex justify-between items-center font-medium">
-                                <span class="text-slate-400">Kondice / Výdrž:</span>
-                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.cond * 10}%"></div></div>
-                                <span class="font-bold text-white">${sk.cond}/10</span>
-                            </div>
-                            <div class="flex justify-between items-center font-medium">
-                                <span class="text-slate-400">Technika sjezdu:</span>
-                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.tech * 10}%"></div></div>
-                                <span class="font-bold text-white">${sk.tech}/10</span>
-                            </div>
-                            <div class="flex justify-between items-center font-medium">
-                                <span class="text-slate-400">Práce s baterií:</span>
-                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.battery * 10}%"></div></div>
-                                <span class="font-bold text-white">${sk.battery}/10</span>
-                            </div>
-                            <div class="flex justify-between items-center font-medium">
-                                <span class="text-slate-400">Sprint / Výbušnost:</span>
-                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.sprint * 10}%"></div></div>
-                                <span class="font-bold text-white">${sk.sprint}/10</span>
-                            </div>
-                            <div class="flex justify-between items-center font-medium">
-                                <span class="text-slate-400">Kopce / KOM:</span>
-                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.kom * 10}%"></div></div>
-                                <span class="font-bold text-white">${sk.kom}/10</span>
-                            </div>
-                        </div>
-                        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex justify-between font-semibold">
-                            <span>Motor: <strong class="text-white">${r.motor}</strong></span>
-                        </div>
-                    `;
-                    ridersGrid.appendChild(card);
-                });
-            }
-        }
-
-        function populateAdminSelects() {
-            const rSelect = document.getElementById('admin-result-race-select');
-            if (rSelect) {
-                rSelect.innerHTML = '';
-                calendar.forEach(c => {
-                    let opt = document.createElement('option');
-                    opt.value = c.id;
-                    opt.textContent = c.name + ' (' + c.date + ')';
-                    rSelect.appendChild(opt);
-                });
-            }
-
-            const riderResSelect = document.getElementById('admin-result-rider-select');
-            if (riderResSelect) {
-                riderResSelect.innerHTML = '';
-                riders.forEach(r => {
-                    let opt = document.createElement('option');
-                    opt.value = r.id;
-                    opt.textContent = r.name + ' (' + (r.team || 'Indiv.') + ')';
-                    riderResSelect.appendChild(opt);
-                });
-            }
-
-            const riderSkillSelect = document.getElementById('admin-skill-rider-select');
-            if (riderSkillSelect) {
-                riderSkillSelect.innerHTML = '';
-                riders.forEach(r => {
-                    let opt = document.createElement('option');
-                    opt.value = r.id;
-                    opt.textContent = r.name;
-                    riderSkillSelect.appendChild(opt);
-                });
-            }
-
-            const newRiderTeamSelect = document.getElementById('new-rider-team');
-            if (newRiderTeamSelect) {
-                newRiderTeamSelect.innerHTML = '<option value="">-- Bez týmu (Individuální) --</option>';
-                teams.forEach(t => {
-                    let opt = document.createElement('option');
-                    opt.value = t.name;
-                    opt.textContent = t.name;
-                    newRiderTeamSelect.appendChild(opt);
-                });
-            }
-
-            const newRiderEbikeSelect = document.getElementById('new-rider-ebike');
-            if (newRiderEbikeSelect) {
-                newRiderEbikeSelect.innerHTML = '';
-                availableBrands.forEach(b => {
-                    let opt = document.createElement('option');
-                    opt.value = b;
-                    opt.textContent = b;
-                    newRiderEbikeSelect.appendChild(opt);
-                });
-            }
-
-            const newRiderMotorSelect = document.getElementById('new-rider-motor');
-            if (newRiderMotorSelect) {
-                newRiderMotorSelect.innerHTML = '';
-                availableMotors.forEach(m => {
-                    let opt = document.createElement('option');
-                    opt.value = m;
-                    opt.textContent = m + (motorHandicaps[m] ? ` (${motorHandicaps[m]})` : '');
-                    newRiderMotorSelect.appendChild(opt);
-                });
-            }
-
-            const newTeamBrandSelect = document.getElementById('new-team-brand');
-            if (newTeamBrandSelect) {
-                newTeamBrandSelect.innerHTML = '';
-                availableBrands.forEach(b => {
-                    let opt = document.createElement('option');
-                    opt.value = b;
-                    opt.textContent = b;
-                    newTeamBrandSelect.appendChild(opt);
-                });
-            }
-        }
-
-        function saveRiderResult() {
-            const raceId = document.getElementById('admin-result-race-select').value;
-            const riderId = document.getElementById('admin-result-rider-select').value;
-            const finish = parseInt(document.getElementById('admin-input-pos').value) || 0;
-            const sprint = parseInt(document.getElementById('admin-input-sprint').value) || 0;
-            const kom = parseInt(document.getElementById('admin-input-kom').value) || 0;
-
-            if (!raceResults[raceId]) raceResults[raceId] = {};
-            raceResults[raceId][riderId] = { finish, sprint, kom };
-            saveData();
-            showModal("Úspěch", "Výsledek jezdce byl úspěšně uložen!");
-        }
-
-        function saveRiderSkills() {
-            const rId = document.getElementById('admin-skill-rider-select').value;
-            let r = riders.find(item => item.id === rId);
-            if (r) {
-                r.skills = {
-                    cond: parseInt(document.getElementById('skill-cond').value) || 8,
-                    tech: parseInt(document.getElementById('skill-tech').value) || 8,
-                    battery: parseInt(document.getElementById('skill-battery').value) || 8,
-                    sprint: parseInt(document.getElementById('skill-sprint').value) || 8,
-                    kom: parseInt(document.getElementById('skill-kom').value) || 8
-                };
-                saveData();
-                showModal("Úspěch", "Skilly jezdce byly aktualizovány!");
-            }
-        }
-
-        function addNewRider() {
-            const nameEl = document.getElementById('new-rider-name');
-            const countryEl = document.getElementById('new-rider-country');
-            const teamEl = document.getElementById('new-rider-team');
-            const catEl = document.getElementById('new-rider-cat');
-            const ebikeEl = document.getElementById('new-rider-ebike');
-            const motorEl = document.getElementById('new-rider-motor');
-
-            const name = nameEl ? nameEl.value.trim() : '';
-            const country = countryEl ? countryEl.value : 'CZ';
-            const team = teamEl ? teamEl.value : '';
-            const category = catEl ? catEl.value : 'Elite';
-            const ebike = ebikeEl ? ebikeEl.value : 'Crussis';
-            const motor = motorEl ? motorEl.value : 'Bosch CX Race';
-
-            if (!name) {
-                showModal("Chyba", "Zadejte prosím jméno jezdce!");
-                return;
-            }
-
-            const newId = 'r_' + Date.now();
-            riders.push({
-                id: newId,
-                name: name,
-                country: country,
-                team: team,
-                category: category,
-                ebike: ebike,
-                motor: motor,
-                skills: { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 }
-            });
-
-            saveData();
-            if (nameEl) nameEl.value = '';
-            populateAdminSelects();
-            renderAdminRidersTable();
-            renderPublicLeaderboards();
-            showModal("Úspěch", "Nový jezdec byl úspěšně přidán a uložen do databáze!");
-        }
-
-        function deleteRider(id) {
-            if (confirm("Opravdu chcete smazat tohoto jezdce?")) {
-                riders = riders.filter(r => r.id !== id);
-                saveData();
-                populateAdminSelects();
-                renderAdminRidersTable();
-                renderPublicLeaderboards();
-            }
-        }
-
-        function renderAdminRidersTable() {
-            const tbody = document.getElementById('admin-riders-tbody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            riders.forEach(r => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
-                tr.innerHTML = `
-                    <td class="p-3 font-bold text-white flex items-center gap-2">${getFlagIcon(r.country)} ${r.name}</td>
-                    <td class="p-3 font-semibold text-slate-300">${r.country}</td>
-                    <td class="p-3 text-slate-400">${r.team || '<span class="italic text-slate-600">Bez týmu</span>'}</td>
-                    <td class="p-3 text-slate-200 font-bold">${r.ebike}</td>
-                    <td class="p-3 text-slate-400">${r.motor}</td>
-                    <td class="p-3 text-right">
-                        <button onclick="deleteRider('${r.id}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function addNewTeam() {
-            const nameEl = document.getElementById('new-team-name');
-            const countryEl = document.getElementById('new-team-country');
-            const brandEl = document.getElementById('new-team-brand');
-
-            const name = nameEl ? nameEl.value.trim() : '';
-            const country = countryEl ? countryEl.value : 'CZ';
-            const brand = brandEl ? brandEl.value : 'Crussis';
-
-            if (!name) {
-                showModal("Chyba", "Zadejte název týmu!");
-                return;
-            }
-
-            const newId = 't_' + Date.now();
-            teams.push({ id: newId, name: name, country: country, brand: brand, featuredRiderId: '' });
-            saveData();
-            if (nameEl) nameEl.value = '';
-            populateAdminSelects();
-            renderAdminTeamsGrid();
-            renderPublicLeaderboards();
-            showModal("Úspěch", "Nový tým a značka byly vytvořeny!");
-        }
-
-        function addNewCustomBrand() {
-            const brandName = prompt("Zadejte název nové značky e-biku / výrobce:");
-            if (brandName && brandName.trim() !== '') {
-                const cleanName = brandName.trim();
-                if (!availableBrands.includes(cleanName)) {
-                    availableBrands.push(cleanName);
-                    saveData();
-                    populateAdminSelects();
-                    showModal("Úspěch", `Značka "${cleanName}" byla přidána do seznamu.`);
-                } else {
-                    showModal("Upozornění", "Tato značka již v seznamu existuje.");
-                }
-            }
-        }
-
-        function renderAdminTeamsGrid() {
-            const grid = document.getElementById('admin-teams-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-            teams.forEach(t => {
-                let div = document.createElement('div');
-                div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3";
-                div.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <h5 class="font-black text-white text-sm flex items-center gap-2">${getFlagIcon(t.country)} ${t.name}</h5>
-                        <button onclick="deleteTeam('${t.id}')" class="px-2.5 py-1 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-[11px] border border-red-500/30">Smazat</button>
-                    </div>
-                    <div class="text-xs text-slate-400 space-y-1">
-                        <div>Značka e-biku: <strong class="text-white">${t.brand || 'Neuvedeno'}</strong></div>
-                        <div class="flex items-center gap-2 pt-1">
-                            <span>Manuální top jezdec:</span>
-                            <select onchange="updateTeamFeaturedRider('${t.id}', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-1.5 font-bold">
-                                <option value="">-- Auto (Dle bodů) --</option>
-                                ${riders.filter(r => r.team === t.name).map(r => `<option value="${r.id}" ${t.featuredRiderId === r.id ? 'selected' : ''}>${r.name}</option>`).join('')}
-                            </select>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(div);
-            });
-        }
-
-        function updateTeamFeaturedRider(teamId, riderId) {
-            let t = teams.find(item => item.id === teamId);
-            if (t) {
-                t.featuredRiderId = riderId;
-                saveData();
-                renderPublicLeaderboards();
-            }
-        }
-
-        function deleteTeam(id) {
-            if (confirm("Opravdu chcete smazat tento tým?")) {
-                teams = teams.filter(t => t.id !== id);
-                saveData();
-                populateAdminSelects();
-                renderAdminTeamsGrid();
-                renderPublicLeaderboards();
-            }
-        }
-
-        function addNewRace() {
-            const name = document.getElementById('new-race-name').value.trim();
-            const location = document.getElementById('new-race-loc').value.trim();
-            const date = document.getElementById('new-race-date').value;
-            const params = document.getElementById('new-race-params').value.trim() || '50 km';
-
-            if (!name || !location) {
-                showModal("Chyba", "Zadejte název a lokaci závodu!");
-                return;
-            }
-
-            const newId = 'rc_' + Date.now();
-            calendar.push({ id: newId, name, location, date, params });
-            saveData();
-            document.getElementById('new-race-name').value = '';
-            document.getElementById('new-race-loc').value = '';
-            populateAdminSelects();
-            showModal("Úspěch", "Závod byl přidán do kalendáře!");
-        }
-
-        function exportJSONData() {
-            const data = { teams, riders, calendar, raceResults };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'central_europe_emtb_tour_2027_backup.json';
-            a.click();
-        }
-
-        function importJSONData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (data.teams) teams = data.teams;
-                    if (data.riders) riders = data.riders;
-                    if (data.calendar) calendar = data.calendar;
-                    if (data.raceResults) raceResults = data.raceResults;
-                    saveData();
-                    populateAdminSelects();
-                    renderPublicLeaderboards();
-                    showModal("Úspěch", "Data byla úspěšně obnovena ze zálohy!");
-                } catch(err) {
-                    showModal("Chyba", "Neplatný formát JSON souboru.");
-                }
-            };
-            reader.readAsText(file);
         }
 
         window.onload = function() {
-            setTimeout(() => {
-                updateHeroVideoPlayer();
-                populateAdminSelects();
-                renderPublicLeaderboards();
-                populatePublicRaceResultsSelect();
-            }, 500);
+            setTimeout(() => { loadDefaultData(); }, 200);
         };
     </script>
 </body>
