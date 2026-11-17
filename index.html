@@ -12,6 +12,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC5TZAwRTKDxaveK1Fk85wK0MnLlj--07Y",
@@ -24,15 +25,19 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
         const rawAppId = typeof __app_id !== 'undefined' ? __app_id : 'central-europe-emtb-tour-2027';
         const appId = rawAppId.replace(/[^a-zA-Z0-9_-]/g, '_');
 
         window.db = db;
+        window.auth = auth;
         window.appId = appId;
         window.firebaseModules = { doc, setDoc, onSnapshot, collection };
+        window.firebaseAuthModules = { signInWithEmailAndPassword, signOut, onAuthStateChanged };
 
-        console.log("Firebase initialized successfully.");
+        console.log("Firebase initialized successfully with Auth.");
         initFirebaseSync();
+        initAuthListener();
     </script>
 
     <style>
@@ -411,56 +416,56 @@
 
         <!-- ==================== VIEW: ADMIN ==================== -->
         <section id="view-admin" class="hidden space-y-6">
-            <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <h2 class="text-xl sm:text-2xl font-black text-white flex items-center gap-3">
-                        <i class="fa-solid fa-gears text-amber-400"></i> <span data-i18n="admin_panel_title">Administrátorský panel</span>
-                    </h2>
-                    <p class="text-xs sm:text-sm text-slate-400 mt-1" data-i18n="admin_panel_sub">Plná správa výsledků, jezdců, týmů, kalendáře a zálohování dat.</p>
+            <!-- Firebase Email/Password Admin Login Screen -->
+            <div id="admin-login-wrapper" class="max-w-md mx-auto bg-[#111827] border border-slate-800 p-8 rounded-3xl shadow-2xl space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="w-12 h-12 bg-amber-400/20 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl font-black">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h2 class="text-xl font-black text-white">Zabezpečená administrace</h2>
+                    <p class="text-xs text-slate-400">Přihlaste se svým e-mailem a heslem pro správu seriálu</p>
                 </div>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <button onclick="exportJSONData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-download text-amber-400"></i> <span data-i18n="btn_backup">Stáhnout zálohu (JSON)</span>
-                    </button>
-                    <label class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
-                        <i class="fa-solid fa-upload text-amber-400"></i> <span data-i18n="btn_restore">Načíst zálohu</span>
-                        <input type="file" accept=".json" onchange="importJSONData(event)" class="hidden">
-                    </label>
-                    <button onclick="logoutAdmin()" class="px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold rounded-xl text-xs transition flex items-center gap-2">
-                        <i class="fa-solid fa-right-from-bracket"></i> Odhlásit
-                    </button>
-                </div>
-            </div>
-
-            <!-- Admin Sub Navigation Tabs -->
-            <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none">
-                <button onclick="switchAdminSubTab('results')" id="admin-sub-btn-results" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-sm whitespace-nowrap">
-                    <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="admin_tab_results">Zápis výsledků</span>
-                </button>
-                <button onclick="switchAdminSubTab('skills')" id="admin-sub-btn-skills" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-sliders"></i> <span data-i18n="admin_tab_skills">Nastavení skillů</span>
-                </button>
-                <button onclick="switchAdminSubTab('riders')" id="admin-sub-btn-riders" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-user-plus"></i> <span data-i18n="admin_tab_riders">Správa jezdců</span>
-                </button>
-                <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-shield"></i> <span data-i18n="admin_tab_teams">Správa týmů</span>
-                </button>
-                <button onclick="switchAdminSubTab('calendar')" id="admin-sub-btn-calendar" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-calendar-days"></i> <span data-i18n="admin_tab_calendar">Správa kalendáře</span>
-                </button>
-                <button onclick="switchAdminSubTab('video')" id="admin-sub-btn-video" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-brands fa-youtube"></i> <span data-i18n="admin_tab_video">Nastavení videa</span>
-                </button>
-            </div>
-
-            <!-- Admin Sub-Content: Results Entry -->
-            <div id="admin-sub-results" class="admin-sub-content bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-trophy mr-2 text-amber-400"></i> <span data-i18n="admin_res_title">Zápis umístění a prémií pro závod</span></h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+                <div class="space-y-4">
                     <div>
-                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_race">Závod / Etapa</label>
-                        <select id="admin-result-race-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">E-mailová adresa</label>
+                        <input type="email" id="admin-login-email" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="zdenek@fragcze.cz">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Heslo</label>
+                        <input type="password" id="admin-login-password" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="••••••••">
+                    </div>
+                    <p id="admin-login-error" class="text-red-400 text-xs font-semibold text-center hidden"></p>
+                    <button onclick="handleAdminLogin()" class="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                        Přihlásit se do administrace
+                    </button>
+                </div>
+            </div>
+
+            <!-- Actual Admin Dashboard (Visible only when authenticated) -->
+            <div id="admin-dashboard-content" class="hidden space-y-6">
+                <div class="bg-[#111827] border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-white flex items-center gap-3">
+                            <i class="fa-solid fa-gears text-amber-400"></i> <span data-i18n="admin_panel_title">Administrátorský panel</span>
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-1" data-i18n="admin_panel_sub">Plná správa výsledků, jezdců, týmů, kalendáře a zálohování dat.</p>
+                    </div>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <button onclick="exportJSONData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-download text-amber-400"></i> <span data-i18n="btn_backup">Stáhnout zálohu (JSON)</span>
+                        </button>
+                        <label class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
+                            <i class="fa-solid fa-upload text-amber-400"></i> <span data-i18n="btn_restore">Načíst zálohu</span>
+                            <input type="file" accept=".json" onchange="importJSONData(event)" class="hidden">
+                        </label>
+                        <button onclick="logoutAdmin()" class="px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold rounded-xl text-xs transition flex items-center gap-2">
+                            <i class="fa-solid fa-right-from-bracket"></i> Odhlásit (<span id="admin-user-email-label" class="underline"></span>)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Sub Navigation Tabs -->
+                <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-none">
                     </div>
                     <div>
                         <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_rider">Jezdec</label>
@@ -680,6 +685,7 @@
                     </button>
                 </div>
             </div>
+            </div> <!-- End of admin-dashboard-content -->
         </section>
 
         <!-- Universal Footer present on every view and tab -->
@@ -1126,6 +1132,51 @@
         let calendar = defaultCalendar;
         let youtubeVideoId = 'dQw4w9WgXcQ';
         let isVideoCollapsed = false;
+        let isAuthenticatedAdmin = false;
+
+        function initAuthListener() {
+            if (window.auth && window.firebaseAuthModules) {
+                window.firebaseAuthModules.onAuthStateChanged(window.auth, (user) => {
+                    const loginWrapper = document.getElementById('admin-login-wrapper');
+                    const dashboardContent = document.getElementById('admin-dashboard-content');
+                    const emailLabel = document.getElementById('admin-user-email-label');
+
+                    if (user) {
+                        isAuthenticatedAdmin = true;
+                        if (loginWrapper) loginWrapper.classList.add('hidden');
+                        if (dashboardContent) dashboardContent.classList.remove('hidden');
+                        if (emailLabel) emailLabel.textContent = user.email || 'Admin';
+                    } else {
+                        isAuthenticatedAdmin = false;
+                        if (loginWrapper) loginWrapper.classList.remove('hidden');
+                        if (dashboardContent) dashboardContent.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        async function handleAdminLogin() {
+            const emailInput = document.getElementById('admin-login-email').value.trim();
+            const passwordInput = document.getElementById('admin-login-password').value;
+            const errEl = document.getElementById('admin-login-error');
+            errEl.classList.add('hidden');
+            errEl.textContent = '';
+
+            if (!emailInput || !passwordInput) {
+                errEl.textContent = 'Zadejte prosím e-mail i heslo.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                await window.firebaseAuthModules.signInWithEmailAndPassword(window.auth, emailInput, passwordInput);
+                // Success handled by onAuthStateChanged listener
+            } catch (err) {
+                console.error("Auth error:", err);
+                errEl.textContent = 'Chyba přihlášení: Neplatný e-mail nebo heslo.';
+                errEl.classList.remove('hidden');
+            }
+        }
 
         function toggleHeroVideoCollapse() {
             isVideoCollapsed = !isVideoCollapsed;
@@ -1256,17 +1307,14 @@
                 document.getElementById('btn-tab-public').className = "text-xs font-black px-3.5 py-2.5 rounded-xl bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg";
                 switchPublicSubTab(currentPublicSubTab);
             } else if (tab === 'admin') {
-                // Security check before opening admin
-                if (!sessionStorage.getItem('ce_admin_auth')) {
-                    promptAdminLogin();
-                    return;
-                }
                 document.getElementById('view-admin').classList.remove('hidden');
                 document.getElementById('btn-tab-admin').className = "text-xs font-black px-3.5 py-2.5 rounded-xl bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg";
-                populateAdminSelects();
-                renderAdminRidersTable();
-                renderAdminTeamsGrid();
-                switchAdminSubTab(currentAdminSubTab);
+                if (isAuthenticatedAdmin) {
+                    populateAdminSelects();
+                    renderAdminRidersTable();
+                    renderAdminTeamsGrid();
+                    switchAdminSubTab(currentAdminSubTab);
+                }
             }
         }
 
@@ -1341,18 +1389,17 @@
         }
 
         function promptAdminLogin() {
-            const pwd = prompt("Zadejte administrátorské heslo:");
-            // Enhanced secure password check
-            if (pwd === "CE_eMTB_2027_Admin_Secure!#") {
-                sessionStorage.setItem('ce_admin_auth', 'true');
-                switchMainTab('admin');
-            } else if (pwd !== null) {
-                showModal("Chyba zabezpečení", "Nesprávné heslo administrátora! Pokus byl zaznamenán.");
-            }
+            switchMainTab('admin');
         }
 
-        function logoutAdmin() {
-            sessionStorage.removeItem('ce_admin_auth');
+        async function logoutAdmin() {
+            if (window.auth && window.firebaseAuthModules) {
+                try {
+                    await window.firebaseAuthModules.signOut(window.auth);
+                } catch (e) {
+                    console.error("Signout error:", e);
+                }
+            }
             switchMainTab('public');
         }
 
