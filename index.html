@@ -306,13 +306,21 @@
             <!-- Race Results Subview -->
             <div id="subview-race-results" class="hidden space-y-6">
                 <div class="bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                         <h3 class="text-xl font-black text-white flex items-center gap-3">
                             <i class="fa-solid fa-list-check text-amber-400"></i> <span data-i18n="race_results_title">Výsledkové listiny jednotlivých závodů</span>
                         </h3>
-                        <div class="flex items-center gap-3 w-full sm:w-auto">
-                            <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="select_race_label">Vyberte závod:</span>
-                            <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-amber-400 transition shadow-sm w-full sm:w-72"></select>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="filter_cat">Kategorie:</span>
+                                <select id="public-race-results-category-filter" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-amber-400 transition shadow-sm w-full sm:w-52">
+                                    <option value="all">Všechny kategorie</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="select_race_label">Vyberte závod:</span>
+                                <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-amber-400 transition shadow-sm w-full sm:w-64"></select>
+                            </div>
                         </div>
                     </div>
                     <div class="overflow-x-auto rounded-2xl border border-slate-800 shadow-xl">
@@ -419,6 +427,9 @@
                     <button onclick="switchAdminSubTab('riders')" id="admin-sub-btn-riders" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-user-plus"></i> <span data-i18n="admin_tab_riders">Správa jezdců</span>
                     </button>
+                    <button onclick="switchAdminSubTab('categories')" id="admin-sub-btn-categories" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-layer-group"></i> <span data-i18n="admin_tab_categories">Věkové kategorie</span>
+                    </button>
                     <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-shield"></i> <span data-i18n="admin_tab_teams">Správa týmů</span>
                     </button>
@@ -503,7 +514,7 @@
                 <!-- Admin Sub-Content: Manage Riders -->
                 <div id="admin-sub-riders" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
                     <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-user-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_rider_title">Přidat / Spravovat jezdce</span></h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_rider_name">Jméno a příjmení</label>
                             <input type="text" id="new-rider-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Jan Novák">
@@ -524,18 +535,18 @@
                             <select id="new-rider-team" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
                         </div>
                         <div>
-                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Kategorie</label>
-                            <select id="new-rider-cat" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
-                                <option value="Elite">Elite</option>
-                                <option value="Masters">Masters (35+)</option>
-                                <option value="Women">Ženy</option>
-                            </select>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Rok narození <span id="new-rider-age-hint" class="text-amber-400 font-semibold normal-case"></span></label>
+                            <input type="number" id="new-rider-birthyear" min="1930" max="2020" oninput="autoSelectCategoryByBirthYear()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. 1988">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Věková kategorie</label>
+                            <select id="new-rider-cat" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
                         </div>
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Značka E-Biku</label>
                             <select id="new-rider-ebike" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
                         </div>
-                        <div>
+                        <div class="sm:col-span-2">
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Motor & Pohon</label>
                             <select id="new-rider-motor" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
                         </div>
@@ -553,12 +564,67 @@
                                     <th class="p-3">Jméno</th>
                                     <th class="p-3">Stát</th>
                                     <th class="p-3">Tým</th>
+                                    <th class="p-3">Věková kategorie</th>
                                     <th class="p-3">E-Bike</th>
                                     <th class="p-3">Motor</th>
                                     <th class="p-3 text-right">Akce</th>
                                 </tr>
                             </thead>
                             <tbody id="admin-riders-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Admin Sub-Content: Manage Age Categories -->
+                <div id="admin-sub-categories" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h3 class="text-base sm:text-lg font-black text-white">
+                            <i class="fa-solid fa-layer-group mr-2 text-amber-400"></i>
+                            <span id="cat-form-heading" data-i18n="admin_categories_title">Správa věkových kategorií e-bikerů</span>
+                        </h3>
+                        <span id="cat-edit-badge" class="hidden text-xs font-black bg-amber-400/20 text-amber-300 border border-amber-400/40 px-3 py-1 rounded-full">
+                            Režim úpravy kategorie
+                        </span>
+                    </div>
+
+                    <input type="hidden" id="edit-category-id" value="">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název kategorie</label>
+                            <input type="text" id="cat-name-input" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. Masters 40+ nebo Junioři">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Věk od (let)</label>
+                            <input type="number" id="cat-age-from-input" min="0" max="120" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. 18">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Věk do (let) <span class="text-slate-500 font-normal normal-case">(prázdné = bez limitu)</span></label>
+                            <input type="number" id="cat-age-to-input" min="0" max="120" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. 34 (nebo prázdné pro 35+)">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="saveAgeCategory()" id="btn-save-category" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                            Přidat věkovou kategorii
+                        </button>
+                        <button onclick="cancelEditAgeCategory()" id="btn-cancel-edit-category" class="hidden w-full sm:w-auto px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs uppercase tracking-wider transition">
+                            Zrušit úpravu
+                        </button>
+                    </div>
+
+                    <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
+                                    <th class="p-3">Název kategorie</th>
+                                    <th class="p-3">Věkové rozmezí</th>
+                                    <th class="p-3">Zobrazení ve filtru</th>
+                                    <th class="p-3 text-center">Jezdců</th>
+                                    <th class="p-3 text-right">Akce</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-categories-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
                         </table>
                     </div>
                 </div>
@@ -751,6 +817,8 @@
                 admin_team_name: "Název týmu",
                 admin_add_team_title: "Přidat / Spravovat týmy",
                 admin_add_race_title: "Přidat / Spravovat závod",
+                admin_tab_categories: "Věkové kategorie",
+                admin_categories_title: "Správa věkových kategorií e-bikerů",
                 admin_tab_video: "Nastavení videa",
                 admin_video_title: "Nastavení prezentačního YouTube videa",
                 video_section_title: "Oficiální prezentační video"
@@ -814,6 +882,8 @@
                 admin_team_name: "Názov tímu",
                 admin_add_team_title: "Pridať / Spravovať tímy",
                 admin_add_race_title: "Pridať / Spravovať preteky",
+                admin_tab_categories: "Vekové kategórie",
+                admin_categories_title: "Správa vekových kategórií e-bikerov",
                 admin_tab_video: "Nastavenie videa",
                 admin_video_title: "Nastavenie prezentačného YouTube videa",
                 video_section_title: "Oficiálne prezentačné video"
@@ -877,6 +947,8 @@
                 admin_team_name: "Nazwa zespołu",
                 admin_add_team_title: "Dodaj / Edytuj zespół",
                 admin_add_race_title: "Dodaj wyścig",
+                admin_tab_categories: "Kategorie wiekowe",
+                admin_categories_title: "Zarządzanie kategoriami wiekowymi e-bikerów",
                 admin_tab_video: "Ustawienia wideo",
                 admin_video_title: "Ustawienia promocyjnego wideo YouTube",
                 video_section_title: "Oficjalne wideo promocyjne"
@@ -940,6 +1012,8 @@
                 admin_team_name: "Teamname",
                 admin_add_team_title: "Team hinzufügen",
                 admin_add_race_title: "Rennen hinzufügen",
+                admin_tab_categories: "Altersklassen",
+                admin_categories_title: "Verwaltung der E-Biker-Altersklassen",
                 admin_tab_video: "Video-Einstellungen",
                 admin_video_title: "YouTube-Präsentationsvideo einstellen",
                 video_section_title: "Offizielles Präsentationsvideo"
@@ -1003,6 +1077,8 @@
                 admin_team_name: "Team Name",
                 admin_add_team_title: "Add / Manage Team",
                 admin_add_race_title: "Add Race",
+                admin_tab_categories: "Age Categories",
+                admin_categories_title: "Manage E-Biker Age Categories",
                 admin_tab_video: "Video Settings",
                 admin_video_title: "YouTube Presentation Video Settings",
                 video_section_title: "Official Presentation Video"
@@ -1115,12 +1191,126 @@
             { id: 'rc10', name: 'Rallye Sudety', location: 'Teplice nad Metují, CZ', date: '2027-09-11', params: '60 km / 1 650 m (Královská)' }
         ];
 
+        let defaultAgeCategories = [
+            { id: 'Elite', name: 'Elite', ageFrom: 19, ageTo: 34 },
+            { id: 'Masters', name: 'Masters', ageFrom: 35, ageTo: null },
+            { id: 'Women', name: 'Ženy', ageFrom: 18, ageTo: null }
+        ];
+
         let raceResults = {};
         let teams = defaultTeams;
         let riders = defaultRiders;
         let calendar = defaultCalendar;
+        let ageCategories = defaultAgeCategories.map(c => ({ ...c }));
         let youtubeVideoId = 'dQw4w9WgXcQ';
         let isVideoCollapsed = false;
+
+        function formatAgeCategoryRange(cat) {
+            if (!cat) return '';
+            const hasFrom = cat.ageFrom !== null && cat.ageFrom !== undefined && cat.ageFrom !== '';
+            const hasTo = cat.ageTo !== null && cat.ageTo !== undefined && cat.ageTo !== '';
+            if (hasFrom && hasTo) return `${cat.ageFrom}–${cat.ageTo} let`;
+            if (hasFrom) return `${cat.ageFrom}+ let`;
+            if (hasTo) return `do ${cat.ageTo} let`;
+            return 'Bez věkového omezení';
+        }
+
+        function formatAgeCategoryLabel(cat) {
+            if (!cat) return '';
+            const range = formatAgeCategoryRange(cat);
+            return range ? `${cat.name} (${range})` : cat.name;
+        }
+
+        function getCategoryByIdOrName(catId) {
+            if (!catId) return null;
+            return ageCategories.find(c => c.id === catId || c.name === catId) || null;
+        }
+
+        function getCategoryLabelById(catId) {
+            const found = getCategoryByIdOrName(catId);
+            return found ? formatAgeCategoryLabel(found) : (catId || 'Nezařazeno');
+        }
+
+        function riderMatchesCategory(rider, catFilter) {
+            if (!catFilter || catFilter === 'all') return true;
+            const cat = ageCategories.find(c => c.id === catFilter);
+            if (rider.category === catFilter) return true;
+            if (cat && rider.category === cat.name) return true;
+            if (!rider.category && cat && rider.birthYear) {
+                const age = 2027 - parseInt(rider.birthYear, 10);
+                const fromOk = cat.ageFrom === null || cat.ageFrom === undefined || cat.ageFrom === '' || age >= cat.ageFrom;
+                const toOk = cat.ageTo === null || cat.ageTo === undefined || cat.ageTo === '' || age <= cat.ageTo;
+                return fromOk && toOk;
+            }
+            return false;
+        }
+
+        function populateCategorySelects() {
+            const publicFilter = document.getElementById('rider-category-filter');
+            if (publicFilter) {
+                const prev = publicFilter.value || 'all';
+                publicFilter.innerHTML = '<option value="all">Všechny kategorie</option>';
+                ageCategories.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = formatAgeCategoryLabel(c);
+                    publicFilter.appendChild(opt);
+                });
+                publicFilter.value = (prev === 'all' || ageCategories.some(c => c.id === prev)) ? prev : 'all';
+            }
+
+            const raceCatFilter = document.getElementById('public-race-results-category-filter');
+            if (raceCatFilter) {
+                const prev = raceCatFilter.value || 'all';
+                raceCatFilter.innerHTML = '<option value="all">Všechny kategorie</option>';
+                ageCategories.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = formatAgeCategoryLabel(c);
+                    raceCatFilter.appendChild(opt);
+                });
+                raceCatFilter.value = (prev === 'all' || ageCategories.some(c => c.id === prev)) ? prev : 'all';
+            }
+
+            const newRiderCat = document.getElementById('new-rider-cat');
+            if (newRiderCat) {
+                const prev = newRiderCat.value;
+                newRiderCat.innerHTML = '';
+                ageCategories.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = formatAgeCategoryLabel(c);
+                    newRiderCat.appendChild(opt);
+                });
+                if (prev && ageCategories.some(c => c.id === prev)) {
+                    newRiderCat.value = prev;
+                }
+            }
+        }
+
+        function autoSelectCategoryByBirthYear() {
+            const yearEl = document.getElementById('new-rider-birthyear');
+            const hintEl = document.getElementById('new-rider-age-hint');
+            const catEl = document.getElementById('new-rider-cat');
+            if (!yearEl || !hintEl || !catEl) return;
+
+            const year = parseInt(yearEl.value, 10);
+            if (!year || year < 1930 || year > 2026) {
+                hintEl.textContent = '';
+                return;
+            }
+            const age = 2027 - year;
+            hintEl.textContent = `(věk v 2027: ${age} let)`;
+
+            const matched = ageCategories.find(c => {
+                const fromOk = c.ageFrom === null || c.ageFrom === undefined || c.ageFrom === '' || age >= c.ageFrom;
+                const toOk = c.ageTo === null || c.ageTo === undefined || c.ageTo === '' || age <= c.ageTo;
+                return fromOk && toOk;
+            });
+            if (matched) {
+                catEl.value = matched.id;
+            }
+        }
 
         function toggleHeroVideoCollapse() {
             isVideoCollapsed = !isVideoCollapsed;
@@ -1208,6 +1398,7 @@
                     if (data.teams && Array.isArray(data.teams)) teams = data.teams;
                     if (data.riders && Array.isArray(data.riders)) riders = data.riders;
                     if (data.calendar && Array.isArray(data.calendar)) calendar = data.calendar;
+                    if (data.ageCategories && Array.isArray(data.ageCategories) && data.ageCategories.length > 0) ageCategories = data.ageCategories;
                     if (data.raceResults) raceResults = data.raceResults;
                     if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
@@ -1216,11 +1407,13 @@
                     saveData();
                 }
                 updateHeroVideoPlayer();
+                populateCategorySelects();
                 populateAdminSelects();
                 renderPublicLeaderboards();
                 populatePublicRaceResultsSelect();
                 if (!document.getElementById('view-admin').classList.contains('hidden')) {
                     renderAdminRidersTable();
+                    renderAdminCategoriesTable();
                     renderAdminTeamsGrid();
                 }
             }, (error) => {
@@ -1233,9 +1426,11 @@
             teams = defaultTeams;
             riders = defaultRiders;
             calendar = defaultCalendar;
+            ageCategories = defaultAgeCategories.map(c => ({ ...c }));
             raceResults = {};
             youtubeVideoId = 'dQw4w9WgXcQ';
             updateHeroVideoPlayer();
+            populateCategorySelects();
             populateAdminSelects();
             renderPublicLeaderboards();
             populatePublicRaceResultsSelect();
@@ -1245,7 +1440,7 @@
             if (window.db) {
                 const { doc, setDoc } = window.firebaseModules;
                 const docRef = doc(window.db, 'artifacts', window.appId);
-                setDoc(docRef, { teams, riders, calendar, raceResults, availableBrands, availableMotors, youtubeVideoId }, { merge: true }).then(() => {
+                setDoc(docRef, { teams, riders, calendar, ageCategories, raceResults, availableBrands, availableMotors, youtubeVideoId }, { merge: true }).then(() => {
                     console.log("Data successfully saved to Firebase Firestore.");
                 }).catch(err => {
                     console.error("Error saving data to Firestore:", err);
@@ -1308,8 +1503,10 @@
             } else if (tab === 'admin') {
                 document.getElementById('view-admin').classList.remove('hidden');
                 document.getElementById('btn-tab-admin').className = "text-xs font-black px-3.5 py-2.5 rounded-xl bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg";
+                populateCategorySelects();
                 populateAdminSelects();
                 renderAdminRidersTable();
+                renderAdminCategoriesTable();
                 renderAdminTeamsGrid();
                 switchAdminSubTab(currentAdminSubTab);
             }
@@ -1338,6 +1535,7 @@
                 if (target) target.classList.remove('hidden');
                 const btn = document.getElementById('sub-btn-race-results');
                 if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                populateCategorySelects();
                 populatePublicRaceResultsSelect();
                 renderPublicRaceResults();
             } else if (sub === 'calendar') {
@@ -1371,7 +1569,7 @@
         function switchAdminSubTab(sub) {
             currentAdminSubTab = sub;
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'teams', 'calendar', 'video'].forEach(s => {
+            ['results', 'skills', 'riders', 'categories', 'teams', 'calendar', 'video'].forEach(s => {
                 const btn = document.getElementById(`admin-sub-btn-${s}`);
                 if (btn) {
                     if (s === sub) {
@@ -1384,6 +1582,7 @@
             const targetEl = document.getElementById(`admin-sub-${sub}`);
             if (targetEl) targetEl.classList.remove('hidden');
             if (sub === 'skills') loadRiderSkillsToForm();
+            if (sub === 'categories') renderAdminCategoriesTable();
         }
 
         function showModal(title, message) {
@@ -1455,12 +1654,13 @@
         }
 
         function renderPublicLeaderboards() {
-            const catFilter = document.getElementById('rider-category-filter').value;
+            const catFilterEl = document.getElementById('rider-category-filter');
+            const catFilter = catFilterEl ? catFilterEl.value : 'all';
             let statsObj = calculateRiderTotals();
             let arr = Object.values(statsObj);
 
             if (catFilter !== 'all') {
-                arr = arr.filter(item => item.rider.category === catFilter);
+                arr = arr.filter(item => riderMatchesCategory(item.rider, catFilter));
             }
 
             let yellowSorted = [...arr].sort((a, b) => b.totalYellow - a.totalYellow);
@@ -1472,21 +1672,37 @@
                 document.getElementById('hero-yellow-name').innerHTML = `${getFlagIcon(yellowSorted[0].rider.country)} ${yellowSorted[0].rider.name}`;
                 document.getElementById('hero-yellow-team').textContent = yellowSorted[0].rider.team || 'Bez týmu';
                 document.getElementById('hero-yellow-pts').textContent = yellowSorted[0].totalYellow + ' b.';
+            } else {
+                document.getElementById('hero-yellow-name').textContent = '--';
+                document.getElementById('hero-yellow-team').textContent = 'Žádný jezdec v kategorii';
+                document.getElementById('hero-yellow-pts').textContent = '0 b.';
             }
             if (greenSorted.length > 0) {
                 document.getElementById('hero-green-name').innerHTML = `${getFlagIcon(greenSorted[0].rider.country)} ${greenSorted[0].rider.name}`;
                 document.getElementById('hero-green-team').textContent = greenSorted[0].rider.team || 'Bez týmu';
                 document.getElementById('hero-green-pts').textContent = greenSorted[0].totalGreen + ' b.';
+            } else {
+                document.getElementById('hero-green-name').textContent = '--';
+                document.getElementById('hero-green-team').textContent = 'Žádný jezdec v kategorii';
+                document.getElementById('hero-green-pts').textContent = '0 b.';
             }
             if (polkaSorted.length > 0) {
                 document.getElementById('hero-polka-name').innerHTML = `${getFlagIcon(polkaSorted[0].rider.country)} ${polkaSorted[0].rider.name}`;
                 document.getElementById('hero-polka-team').textContent = polkaSorted[0].rider.team || 'Bez týmu';
                 document.getElementById('hero-polka-pts').textContent = polkaSorted[0].totalPolka + ' b.';
+            } else {
+                document.getElementById('hero-polka-name').textContent = '--';
+                document.getElementById('hero-polka-team').textContent = 'Žádný jezdec v kategorii';
+                document.getElementById('hero-polka-pts').textContent = '0 b.';
             }
             if (pinkSorted.length > 0) {
                 document.getElementById('hero-pink-name').innerHTML = `${getFlagIcon(pinkSorted[0].rider.country)} ${pinkSorted[0].rider.name}`;
                 document.getElementById('hero-pink-brand').textContent = `${pinkSorted[0].rider.ebike} (${pinkSorted[0].rider.motor})`;
                 document.getElementById('hero-pink-pts').textContent = pinkSorted[0].totalPink + ' b.';
+            } else {
+                document.getElementById('hero-pink-name').textContent = '--';
+                document.getElementById('hero-pink-brand').textContent = 'Žádný jezdec v kategorii';
+                document.getElementById('hero-pink-pts').textContent = '0 b.';
             }
 
             const headerRow = document.getElementById('table-header-row');
@@ -1657,6 +1873,13 @@
                     tbody.appendChild(tr);
                 });
             }
+
+            if (tbody.children.length === 0) {
+                const colCount = headerRow ? headerRow.querySelectorAll('th').length : 6;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="${colCount}" class="p-6 text-center text-slate-500 italic">Pro vybranou věkovou kategorii zatím nejsou žádní jezdci.</td>`;
+                tbody.appendChild(tr);
+            }
         }
 
         function renderCalendar() {
@@ -1685,6 +1908,8 @@
 
         function populatePublicRaceResultsSelect() {
             const select = document.getElementById('public-race-results-select');
+            if (!select) return;
+            const prevVal = select.value;
             select.innerHTML = '';
             calendar.forEach(c => {
                 let opt = document.createElement('option');
@@ -1692,10 +1917,16 @@
                 opt.textContent = c.name + ' (' + c.date + ')';
                 select.appendChild(opt);
             });
+            if (prevVal && calendar.some(c => c.id === prevVal)) {
+                select.value = prevVal;
+            }
         }
 
         function renderPublicRaceResults() {
-            const raceId = document.getElementById('public-race-results-select').value;
+            const raceSelect = document.getElementById('public-race-results-select');
+            const catFilterEl = document.getElementById('public-race-results-category-filter');
+            const raceId = raceSelect ? raceSelect.value : '';
+            const catFilter = catFilterEl ? catFilterEl.value : 'all';
             const tbody = document.getElementById('public-race-results-tbody');
             tbody.innerHTML = '';
 
@@ -1704,7 +1935,7 @@
 
             for (let riderId in rRes) {
                 let r = riders.find(item => item.id === riderId);
-                if (r) {
+                if (r && riderMatchesCategory(r, catFilter)) {
                     let data = rRes[riderId];
                     let fPts = getFinishPoints(data.finish || 0);
                     let sPts = getSprintPoints(data.sprint || 0);
@@ -1727,7 +1958,7 @@
 
             if (raceRidersList.length === 0) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="8" class="p-6 text-center text-slate-500 italic">Pro tento závod zatím nejsou zapsány žádné výsledky.</td>`;
+                tr.innerHTML = `<td colspan="8" class="p-6 text-center text-slate-500 italic">${catFilter === 'all' ? 'Pro tento závod zatím nejsou zapsány žádné výsledky.' : 'Pro vybranou věkovou kategorii v tomto závodě zatím nejsou výsledky.'}</td>`;
                 tbody.appendChild(tr);
                 return;
             }
@@ -1736,8 +1967,11 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
                 tr.innerHTML = `
-                    <td class="p-4 font-black text-amber-400">${item.finish <= 30 ? item.finish + '.' : '-'}</td>
-                    <td class="p-4 font-bold text-white flex items-center gap-2">${getFlagIcon(item.rider.country)} ${item.rider.name}</td>
+                    <td class="p-4 font-black text-amber-400">${catFilter === 'all' ? (item.finish <= 30 ? item.finish + '.' : '-') : (index + 1) + '.'}</td>
+                    <td class="p-4 font-bold text-white">
+                        <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${item.rider.name}</div>
+                        <div class="text-[11px] text-amber-300/80 font-semibold mt-0.5">${getCategoryLabelById(item.rider.category)}</div>
+                    </td>
                     <td class="p-4 text-slate-300 font-medium">${item.rider.team || '<span class="text-slate-500 italic">Individuální</span>'}</td>
                     <td class="p-4 text-slate-200 text-xs font-bold">${item.rider.ebike} <span class="text-slate-400">(${item.rider.motor})</span></td>
                     <td class="p-4 text-center font-bold text-white">${item.finish <= 30 ? item.finish + '. m. (' + item.fPts + ' b.)' : 'Nedokončil'}</td>
@@ -1790,7 +2024,7 @@
                                 <h4 class="font-black text-white text-base flex items-center gap-2.5">
                                     ${getFlagIcon(r.country)} ${r.name}
                                 </h4>
-                                <p class="text-xs text-slate-400 font-medium">${r.team || 'Individuální jezdec'} | Kat: <span class="font-bold text-white">${r.category}</span></p>
+                                <p class="text-xs text-slate-400 font-medium">${r.team || 'Individuální jezdec'} | Kat: <span class="font-bold text-white">${getCategoryLabelById(r.category)}</span>${r.birthYear ? ` | Ročník: <span class="font-bold text-slate-200">${r.birthYear}</span>` : ''}</p>
                             </div>
                             <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-lg">${r.ebike}</span>
                         </div>
@@ -1957,10 +2191,21 @@
             }
         }
 
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function addNewRider() {
             const nameEl = document.getElementById('new-rider-name');
             const countryEl = document.getElementById('new-rider-country');
             const teamEl = document.getElementById('new-rider-team');
+            const birthYearEl = document.getElementById('new-rider-birthyear');
+            const ageHintEl = document.getElementById('new-rider-age-hint');
             const catEl = document.getElementById('new-rider-cat');
             const ebikeEl = document.getElementById('new-rider-ebike');
             const motorEl = document.getElementById('new-rider-motor');
@@ -1968,7 +2213,9 @@
             const name = nameEl ? nameEl.value.trim() : '';
             const country = countryEl ? countryEl.value : 'CZ';
             const team = teamEl ? teamEl.value : '';
-            const category = catEl ? catEl.value : 'Elite';
+            const birthYearRaw = birthYearEl ? birthYearEl.value.trim() : '';
+            const birthYear = birthYearRaw ? parseInt(birthYearRaw, 10) : null;
+            const category = catEl && catEl.value ? catEl.value : (ageCategories[0] ? ageCategories[0].id : 'Elite');
             const ebike = ebikeEl ? ebikeEl.value : 'Crussis';
             const motor = motorEl ? motorEl.value : 'Bosch CX Race';
 
@@ -1978,7 +2225,7 @@
             }
 
             const newId = 'r_' + Date.now();
-            riders.push({
+            const riderObj = {
                 id: newId,
                 name: name,
                 country: country,
@@ -1987,14 +2234,33 @@
                 ebike: ebike,
                 motor: motor,
                 skills: { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 }
-            });
+            };
+            if (birthYear && !isNaN(birthYear)) {
+                riderObj.birthYear = birthYear;
+            }
+            riders.push(riderObj);
 
             saveData();
             if (nameEl) nameEl.value = '';
+            if (birthYearEl) birthYearEl.value = '';
+            if (ageHintEl) ageHintEl.textContent = '';
             populateAdminSelects();
             renderAdminRidersTable();
+            renderAdminCategoriesTable();
             renderPublicLeaderboards();
             showModal("Úspěch", "Nový jezdec byl úspěšně přidán a uložen do databáze!");
+        }
+
+        function updateRiderCategory(riderId, newCategoryId) {
+            const r = riders.find(item => item.id === riderId);
+            if (r) {
+                r.category = newCategoryId;
+                saveData();
+                renderAdminCategoriesTable();
+                renderPublicLeaderboards();
+                renderPublicRaceResults();
+                renderTeamsAndRidersView();
+            }
         }
 
         function deleteRider(id) {
@@ -2003,6 +2269,7 @@
                 saveData();
                 populateAdminSelects();
                 renderAdminRidersTable();
+                renderAdminCategoriesTable();
                 renderPublicLeaderboards();
             }
         }
@@ -2012,20 +2279,182 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             riders.forEach(r => {
+                const matchedCat = getCategoryByIdOrName(r.category);
+                const selectedCatId = matchedCat ? matchedCat.id : r.category;
+                const catOptions = ageCategories.map(c =>
+                    `<option value="${escapeHtml(c.id)}" ${selectedCatId === c.id ? 'selected' : ''}>${escapeHtml(formatAgeCategoryLabel(c))}</option>`
+                ).join('');
+                const extraOption = !matchedCat && r.category
+                    ? `<option value="${escapeHtml(r.category)}" selected>${escapeHtml(r.category)}</option>`
+                    : '';
+
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
                 tr.innerHTML = `
-                    <td class="p-3 font-bold text-white flex items-center gap-2">${getFlagIcon(r.country)} ${r.name}</td>
-                    <td class="p-3 font-semibold text-slate-300">${r.country}</td>
-                    <td class="p-3 text-slate-400">${r.team || '<span class="italic text-slate-600">Bez týmu</span>'}</td>
-                    <td class="p-3 text-slate-200 font-bold">${r.ebike}</td>
-                    <td class="p-3 text-slate-400">${r.motor}</td>
+                    <td class="p-3 font-bold text-white">
+                        <div class="flex items-center gap-2">${getFlagIcon(r.country)} ${escapeHtml(r.name)}</div>
+                        ${r.birthYear ? `<div class="text-[11px] text-slate-400 font-medium">Ročník ${r.birthYear} (${2027 - r.birthYear} let)</div>` : ''}
+                    </td>
+                    <td class="p-3 font-semibold text-slate-300">${escapeHtml(r.country)}</td>
+                    <td class="p-3 text-slate-400">${r.team ? escapeHtml(r.team) : '<span class="italic text-slate-600">Bez týmu</span>'}</td>
+                    <td class="p-3">
+                        <select onchange="updateRiderCategory('${escapeHtml(r.id)}', this.value)" class="bg-slate-800 border border-slate-700 text-amber-300 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400">
+                            ${extraOption}${catOptions}
+                        </select>
+                    </td>
+                    <td class="p-3 text-slate-200 font-bold">${escapeHtml(r.ebike)}</td>
+                    <td class="p-3 text-slate-400">${escapeHtml(r.motor)}</td>
                     <td class="p-3 text-right">
-                        <button onclick="deleteRider('${r.id}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
+                        <button onclick="deleteRider('${escapeHtml(r.id)}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        function renderAdminCategoriesTable() {
+            const tbody = document.getElementById('admin-categories-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (ageCategories.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="5" class="p-6 text-center text-slate-500 italic">Zatím nejsou vytvořené žádné věkové kategorie.</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+
+            ageCategories.forEach(c => {
+                const riderCount = riders.filter(r => riderMatchesCategory(r, c.id)).length;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-white">${escapeHtml(c.name)}</td>
+                    <td class="p-3 text-slate-300 font-semibold">${escapeHtml(formatAgeCategoryRange(c))}</td>
+                    <td class="p-3">
+                        <span class="bg-amber-400/15 text-amber-300 border border-amber-400/30 text-xs font-bold px-2.5 py-1 rounded-lg">${escapeHtml(formatAgeCategoryLabel(c))}</span>
+                    </td>
+                    <td class="p-3 text-center font-bold text-slate-200">${riderCount}</td>
+                    <td class="p-3 text-right space-x-2 whitespace-nowrap">
+                        <button onclick="editAgeCategory('${escapeHtml(c.id)}')" class="px-3 py-1.5 bg-amber-400/20 text-amber-300 rounded-xl hover:bg-amber-400/30 transition font-bold text-xs border border-amber-400/30">Upravit</button>
+                        <button onclick="deleteAgeCategory('${escapeHtml(c.id)}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function saveAgeCategory() {
+            const editIdEl = document.getElementById('edit-category-id');
+            const nameEl = document.getElementById('cat-name-input');
+            const fromEl = document.getElementById('cat-age-from-input');
+            const toEl = document.getElementById('cat-age-to-input');
+
+            const editId = editIdEl ? editIdEl.value.trim() : '';
+            const name = nameEl ? nameEl.value.trim() : '';
+            const fromRaw = fromEl ? fromEl.value.trim() : '';
+            const toRaw = toEl ? toEl.value.trim() : '';
+
+            const ageFrom = fromRaw !== '' ? parseInt(fromRaw, 10) : null;
+            const ageTo = toRaw !== '' ? parseInt(toRaw, 10) : null;
+
+            if (!name) {
+                showModal("Chyba", "Zadejte prosím název věkové kategorie!");
+                return;
+            }
+            if ((ageFrom !== null && (isNaN(ageFrom) || ageFrom < 0)) || (ageTo !== null && (isNaN(ageTo) || ageTo < 0))) {
+                showModal("Chyba", "Zadejte platný věk v letech (nezáporné číslo).");
+                return;
+            }
+            if (ageFrom !== null && ageTo !== null && ageFrom > ageTo) {
+                showModal("Chyba", "Věk OD nemůže být vyšší než věk DO.");
+                return;
+            }
+
+            if (editId) {
+                const existing = ageCategories.find(c => c.id === editId);
+                if (existing) {
+                    existing.name = name;
+                    existing.ageFrom = ageFrom;
+                    existing.ageTo = ageTo;
+                }
+                cancelEditAgeCategory();
+                saveData();
+                populateCategorySelects();
+                renderAdminCategoriesTable();
+                renderAdminRidersTable();
+                renderPublicLeaderboards();
+                renderPublicRaceResults();
+                renderTeamsAndRidersView();
+                showModal("Úspěch", `Věková kategorie "${name}" byla úspěšně upravena!`);
+            } else {
+                const newId = 'cat_' + Date.now();
+                ageCategories.push({
+                    id: newId,
+                    name: name,
+                    ageFrom: ageFrom,
+                    ageTo: ageTo
+                });
+                if (nameEl) nameEl.value = '';
+                if (fromEl) fromEl.value = '';
+                if (toEl) toEl.value = '';
+                saveData();
+                populateCategorySelects();
+                renderAdminCategoriesTable();
+                renderAdminRidersTable();
+                renderPublicLeaderboards();
+                renderPublicRaceResults();
+                showModal("Úspěch", `Nová věková kategorie "${name}" byla přidána a je ihned dostupná ve filtrech!`);
+            }
+        }
+
+        function editAgeCategory(id) {
+            const cat = ageCategories.find(c => c.id === id);
+            if (!cat) return;
+
+            document.getElementById('edit-category-id').value = cat.id;
+            document.getElementById('cat-name-input').value = cat.name || '';
+            document.getElementById('cat-age-from-input').value = (cat.ageFrom !== null && cat.ageFrom !== undefined) ? cat.ageFrom : '';
+            document.getElementById('cat-age-to-input').value = (cat.ageTo !== null && cat.ageTo !== undefined) ? cat.ageTo : '';
+
+            document.getElementById('btn-save-category').textContent = 'Uložit změny kategorie';
+            document.getElementById('btn-cancel-edit-category').classList.remove('hidden');
+            document.getElementById('cat-edit-badge').classList.remove('hidden');
+            document.getElementById('cat-name-input').focus();
+        }
+
+        function cancelEditAgeCategory() {
+            document.getElementById('edit-category-id').value = '';
+            document.getElementById('cat-name-input').value = '';
+            document.getElementById('cat-age-from-input').value = '';
+            document.getElementById('cat-age-to-input').value = '';
+
+            document.getElementById('btn-save-category').textContent = 'Přidat věkovou kategorii';
+            document.getElementById('btn-cancel-edit-category').classList.add('hidden');
+            document.getElementById('cat-edit-badge').classList.add('hidden');
+        }
+
+        function deleteAgeCategory(id) {
+            const cat = ageCategories.find(c => c.id === id);
+            if (!cat) return;
+            const assignedCount = riders.filter(r => riderMatchesCategory(r, id)).length;
+            const msg = assignedCount > 0
+                ? `Opravdu chcete smazat kategorii "${cat.name}"? Aktuálně je v ní zařazeno ${assignedCount} jezdců.`
+                : `Opravdu chcete smazat věkovou kategorii "${cat.name}"?`;
+
+            if (confirm(msg)) {
+                if (document.getElementById('edit-category-id').value === id) {
+                    cancelEditAgeCategory();
+                }
+                ageCategories = ageCategories.filter(c => c.id !== id);
+                saveData();
+                populateCategorySelects();
+                renderAdminCategoriesTable();
+                renderAdminRidersTable();
+                renderPublicLeaderboards();
+                renderPublicRaceResults();
+                renderTeamsAndRidersView();
+            }
         }
 
         function addNewTeam() {
@@ -2134,7 +2563,7 @@
         }
 
         function exportJSONData() {
-            const data = { teams, riders, calendar, raceResults };
+            const data = { teams, riders, calendar, ageCategories, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2153,10 +2582,15 @@
                     if (data.teams) teams = data.teams;
                     if (data.riders) riders = data.riders;
                     if (data.calendar) calendar = data.calendar;
+                    if (data.ageCategories && Array.isArray(data.ageCategories)) ageCategories = data.ageCategories;
                     if (data.raceResults) raceResults = data.raceResults;
                     saveData();
+                    populateCategorySelects();
                     populateAdminSelects();
+                    renderAdminCategoriesTable();
+                    renderAdminRidersTable();
                     renderPublicLeaderboards();
+                    renderPublicRaceResults();
                     showModal("Úspěch", "Data byla úspěšně obnovena ze zálohy!");
                 } catch(err) {
                     showModal("Chyba", "Neplatný formát JSON souboru.");
@@ -2168,6 +2602,7 @@
         window.onload = function() {
             setTimeout(() => {
                 updateHeroVideoPlayer();
+                populateCategorySelects();
                 populateAdminSelects();
                 renderPublicLeaderboards();
                 populatePublicRaceResultsSelect();
