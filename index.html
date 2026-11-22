@@ -493,6 +493,9 @@
                     <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-shield"></i> <span data-i18n="admin_tab_teams">Správa týmů</span>
                     </button>
+                    <button onclick="switchAdminSubTab('sponsors')" id="admin-sub-btn-sponsors" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-handshake"></i> <span data-i18n="admin_tab_sponsors">Sponzoři & Partneři</span>
+                    </button>
                     <button onclick="switchAdminSubTab('calendar')" id="admin-sub-btn-calendar" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-calendar-days"></i> <span data-i18n="admin_tab_calendar">Správa kalendáře</span>
                     </button>
@@ -615,6 +618,13 @@
                         <div class="sm:col-span-2">
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Motor & Pohon</label>
                             <select id="new-rider-motor" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none"></select>
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-4">
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">
+                                <i class="fa-solid fa-handshake text-amber-400 mr-1"></i> Sponzoři a partneři jezdce <span class="text-slate-500 font-semibold normal-case">(oddělujte čárkou nebo novým řádkem)</span>
+                            </label>
+                            <textarea id="new-rider-sponsors" rows="2" oninput="previewSponsorBadgesLive(this.value, 'new-rider-sponsors-preview', 'rider')" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-medium focus:border-amber-400 outline-none resize-y" placeholder="např. Crussis, Bosch, Fox Racing, Nutrend, Oakleys"></textarea>
+                            <div id="new-rider-sponsors-preview" class="flex flex-wrap gap-1.5 mt-2"></div>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
@@ -840,6 +850,13 @@
                                 + Přidat novou značku
                             </button>
                         </div>
+                        <div class="sm:col-span-2 lg:col-span-4">
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">
+                                <i class="fa-solid fa-handshake text-amber-400 mr-1"></i> Sponzoři a partneři týmu <span class="text-slate-500 font-semibold normal-case">(oddělujte čárkou nebo novým řádkem)</span>
+                            </label>
+                            <textarea id="new-team-sponsors" rows="2" oninput="previewSponsorBadgesLive(this.value, 'new-team-sponsors-preview', 'team')" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-medium focus:border-amber-400 outline-none resize-y" placeholder="např. CTM, Shimano, Maxxis, Nutrend, Red Bull"></textarea>
+                            <div id="new-team-sponsors-preview" class="flex flex-wrap gap-1.5 mt-2"></div>
+                        </div>
                     </div>
                     <div>
                         <button onclick="addNewTeam()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
@@ -850,6 +867,55 @@
                     <div class="mt-6">
                         <h4 class="text-sm font-bold text-slate-300 mb-3">Existující týmy v seriálu</h4>
                         <div id="admin-teams-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
+                </div>
+
+                <!-- Admin Sub-Content: Manage Sponsors & Partners -->
+                <div id="admin-sub-sponsors" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-black text-white">
+                                <i class="fa-solid fa-handshake mr-2 text-amber-400"></i>
+                                <span data-i18n="admin_sponsors_title">Sponzoři a partneři týmů i jednotlivých e-bikerů</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Napište ke každému týmu nebo jezdci značky, které jej podporují (oddělujte čárkou, středníkem nebo novým řádkem). Divákům se automaticky zobrazí přehledné štítky u týmu, na kartě jezdce i v žebříčcích.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-400/10 border border-amber-400/30 rounded-2xl p-4 text-xs text-amber-200 flex items-start gap-3">
+                        <i class="fa-solid fa-circle-info text-amber-400 text-base mt-0.5 shrink-0"></i>
+                        <div>
+                            <strong class="text-amber-300">Tip pro rychlou editaci:</strong> Po dopsání značek klikněte na tlačítko <strong>Uložit</strong> u daného týmu či jezdce (nebo opusťte textové pole) – změna se okamžitě propíše do databáze Firebase a zobrazí všem divákům.
+                        </div>
+                    </div>
+
+                    <!-- Teams Sponsors Block -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
+                            <h4 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                                <i class="fa-solid fa-shield text-amber-400"></i> Sponzoři a partneři týmů
+                            </h4>
+                            <span id="admin-sponsors-teams-count" class="text-[11px] font-bold text-slate-400"></span>
+                        </div>
+                        <div id="admin-sponsors-teams-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+
+                    <!-- Riders Sponsors Block -->
+                    <div class="space-y-3 pt-4 border-t border-slate-800">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <h4 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-person-biking text-sky-400"></i> Osobní sponzoři a partneři jednotlivých e-bikerů
+                                </h4>
+                                <span id="admin-sponsors-riders-count" class="text-[11px] font-bold text-slate-400"></span>
+                            </div>
+                            <div class="w-full sm:w-72">
+                                <input type="text" id="admin-sponsors-rider-search" oninput="renderAdminSponsorsRiders()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-3.5 py-2.5 text-xs font-bold focus:border-amber-400 outline-none" placeholder="🔍 Hledat jezdce, tým nebo značku...">
+                            </div>
+                        </div>
+                        <div id="admin-sponsors-riders-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
                 </div>
 
@@ -1071,6 +1137,8 @@
                 admin_categories_title: "Správa věkových kategorií e-bikerů",
                 admin_tab_motors: "Motory & Pohon",
                 admin_motors_title: "Správa motorů, pohonů a Fair-Play koeficientů",
+                admin_tab_sponsors: "Sponzoři & Partneři",
+                admin_sponsors_title: "Sponzoři a partneři týmů i jednotlivých e-bikerů",
                 admin_tab_video: "Nastavení videa",
                 admin_video_title: "Nastavení prezentačního YouTube videa",
                 video_section_title: "Oficiální prezentační video"
@@ -1138,6 +1206,8 @@
                 admin_categories_title: "Správa vekových kategórií e-bikerov",
                 admin_tab_motors: "Motory & Pohon",
                 admin_motors_title: "Správa motorov, pohonov a Fair-Play koeficientov",
+                admin_tab_sponsors: "Sponzori & Partneri",
+                admin_sponsors_title: "Sponzori a partneri tímov aj jednotlivých e-bikerov",
                 admin_tab_video: "Nastavenie videa",
                 admin_video_title: "Nastavenie prezentačného YouTube videa",
                 video_section_title: "Oficiálne prezentačné video"
@@ -1205,6 +1275,8 @@
                 admin_categories_title: "Zarządzanie kategoriami wiekowymi e-bikerów",
                 admin_tab_motors: "Silniki i Napęd",
                 admin_motors_title: "Zarządzanie silnikami i współczynnikami Fair-Play",
+                admin_tab_sponsors: "Sponsorzy i Partnerzy",
+                admin_sponsors_title: "Sponsorzy i partnerzy zespołów oraz e-bikerów",
                 admin_tab_video: "Ustawienia wideo",
                 admin_video_title: "Ustawienia promocyjnego wideo YouTube",
                 video_section_title: "Oficjalne wideo promocyjne"
@@ -1272,6 +1344,8 @@
                 admin_categories_title: "Verwaltung der E-Biker-Altersklassen",
                 admin_tab_motors: "Motoren & Antrieb",
                 admin_motors_title: "Motoren, Antriebe & Fair-Play-Faktoren verwalten",
+                admin_tab_sponsors: "Sponsoren & Partner",
+                admin_sponsors_title: "Sponsoren & Partner der Teams und einzelnen E-Biker",
                 admin_tab_video: "Video-Einstellungen",
                 admin_video_title: "YouTube-Präsentationsvideo einstellen",
                 video_section_title: "Offizielles Präsentationsvideo"
@@ -1339,6 +1413,8 @@
                 admin_categories_title: "Manage E-Biker Age Categories",
                 admin_tab_motors: "Motors & Drive",
                 admin_motors_title: "Manage E-Bike Motors & Fair-Play Coefficients",
+                admin_tab_sponsors: "Sponsors & Partners",
+                admin_sponsors_title: "Sponsors & Partners of Teams and Individual E-Bikers",
                 admin_tab_video: "Video Settings",
                 admin_video_title: "YouTube Presentation Video Settings",
                 video_section_title: "Official Presentation Video"
@@ -1792,11 +1868,18 @@
                 renderCalendar();
                 renderTeamsAndRidersView();
                 if (!document.getElementById('view-admin').classList.contains('hidden')) {
-                    renderAdminRidersTable();
+                    const activeEl = document.activeElement;
+                    const isEditingIn = (containerId) => {
+                        const container = document.getElementById(containerId);
+                        return !!(container && activeEl && container.contains(activeEl) && (activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'INPUT'));
+                    };
+                    if (!isEditingIn('admin-riders-tbody')) renderAdminRidersTable();
                     renderAdminCategoriesTable();
                     renderAdminMotorsTable();
                     renderAdminCalendarTable();
-                    renderAdminTeamsGrid();
+                    if (!isEditingIn('admin-teams-grid')) renderAdminTeamsGrid();
+                    if (!isEditingIn('admin-sponsors-teams-grid')) renderAdminSponsorsTeams();
+                    if (!isEditingIn('admin-sponsors-riders-grid')) renderAdminSponsorsRiders();
                 }
             }, (error) => {
                 console.error("Firebase snapshot error:", error);
@@ -1920,6 +2003,7 @@
                 renderAdminCalendarTable();
                 filterMotorReferenceCatalog();
                 renderAdminTeamsGrid();
+                renderAdminSponsorsSection();
                 switchAdminSubTab(currentAdminSubTab);
             }
         }
@@ -1981,13 +2065,13 @@
         function switchAdminSubTab(sub) {
             currentAdminSubTab = sub;
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'categories', 'motors', 'teams', 'calendar', 'video'].forEach(s => {
+            ['results', 'skills', 'riders', 'categories', 'motors', 'teams', 'sponsors', 'calendar', 'video'].forEach(s => {
                 const btn = document.getElementById(`admin-sub-btn-${s}`);
                 if (btn) {
                     if (s === sub) {
-                        btn.className = "px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-sm";
+                        btn.className = "px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-sm whitespace-nowrap";
                     } else {
-                        btn.className = "px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2";
+                        btn.className = "px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap";
                     }
                 }
             });
@@ -1995,6 +2079,7 @@
             if (targetEl) targetEl.classList.remove('hidden');
             if (sub === 'skills') loadRiderSkillsToForm();
             if (sub === 'categories') renderAdminCategoriesTable();
+            if (sub === 'sponsors') renderAdminSponsorsSection();
             if (sub === 'calendar') renderAdminCalendarTable();
             if (sub === 'motors') {
                 renderAdminMotorsTable();
@@ -2139,12 +2224,16 @@
                 yellowSorted.forEach((item, index) => {
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    const sponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
                     tr.innerHTML = `
                         <td class="p-4 font-black text-amber-400">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white flex items-center gap-2">${getFlagIcon(item.rider.country)} ${item.rider.name}</td>
-                        <td class="p-4 text-slate-300 font-medium">${item.rider.team || '<span class="text-slate-500 italic">Individuální</span>'}</td>
-                        <td class="p-4 text-slate-200 font-bold">${item.rider.ebike}</td>
-                        <td class="p-4 text-slate-400 text-xs">${item.rider.motor}</td>
+                        <td class="p-4 font-bold text-white">
+                            <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
+                            ${sponsorBadges ? `<div class="flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
+                        </td>
+                        <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
+                        <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
+                        <td class="p-4 text-slate-400 text-xs">${escapeHtml(item.rider.motor)}</td>
                         <td class="p-4 text-right font-black text-amber-400 text-base">${item.totalYellow} b.</td>
                     `;
                     tbody.appendChild(tr);
@@ -2161,12 +2250,16 @@
                 greenSorted.forEach((item, index) => {
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    const sponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
                     tr.innerHTML = `
                         <td class="p-4 font-black text-emerald-400">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white flex items-center gap-2">${getFlagIcon(item.rider.country)} ${item.rider.name}</td>
-                        <td class="p-4 text-slate-300 font-medium">${item.rider.team || '<span class="text-slate-500 italic">Individuální</span>'}</td>
-                        <td class="p-4 text-slate-200 font-bold">${item.rider.ebike}</td>
-                        <td class="p-4 text-slate-400 text-xs">${item.rider.motor}</td>
+                        <td class="p-4 font-bold text-white">
+                            <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
+                            ${sponsorBadges ? `<div class="flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
+                        </td>
+                        <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
+                        <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
+                        <td class="p-4 text-slate-400 text-xs">${escapeHtml(item.rider.motor)}</td>
                         <td class="p-4 text-right font-black text-emerald-400 text-base">${item.totalGreen} b.</td>
                     `;
                     tbody.appendChild(tr);
@@ -2183,12 +2276,16 @@
                 polkaSorted.forEach((item, index) => {
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    const sponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
                     tr.innerHTML = `
                         <td class="p-4 font-black text-red-500">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white flex items-center gap-2">${getFlagIcon(item.rider.country)} ${item.rider.name}</td>
-                        <td class="p-4 text-slate-300 font-medium">${item.rider.team || '<span class="text-slate-500 italic">Individuální</span>'}</td>
-                        <td class="p-4 text-slate-200 font-bold">${item.rider.ebike}</td>
-                        <td class="p-4 text-slate-400 text-xs">${item.rider.motor}</td>
+                        <td class="p-4 font-bold text-white">
+                            <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
+                            ${sponsorBadges ? `<div class="flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
+                        </td>
+                        <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
+                        <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
+                        <td class="p-4 text-slate-400 text-xs">${escapeHtml(item.rider.motor)}</td>
                         <td class="p-4 text-right font-black text-red-500 text-base">${item.totalPolka} b.</td>
                     `;
                     tbody.appendChild(tr);
@@ -2222,10 +2319,10 @@
                     });
 
                     if (manualRider) {
-                        topRiderName = manualRider + ' <span class="text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded font-bold ml-1">Manual</span>';
+                        topRiderName = escapeHtml(manualRider) + ' <span class="text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded font-bold ml-1">Manual</span>';
                     } else if (bItem.ridersOfBrand.length > 0) {
                         bItem.ridersOfBrand.sort((x, y) => y.totalPink - x.totalPink);
-                        topRiderName = bItem.ridersOfBrand[0].rider.name + ' <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold ml-1">Auto (Leader)</span>';
+                        topRiderName = escapeHtml(bItem.ridersOfBrand[0].rider.name) + ' <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold ml-1">Auto (Leader)</span>';
                     }
 
                     return {
@@ -2241,9 +2338,9 @@
                     tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
                     tr.innerHTML = `
                         <td class="p-4 font-black text-pink-400">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white text-base">${bItem.brand}</td>
+                        <td class="p-4 font-bold text-white text-base">${escapeHtml(bItem.brand)}</td>
                         <td class="p-4 text-slate-300 font-medium">${bItem.topRider}</td>
-                        <td class="p-4 text-slate-400 text-xs">${bItem.motor}</td>
+                        <td class="p-4 text-slate-400 text-xs">${escapeHtml(bItem.motor)}</td>
                         <td class="p-4 text-right font-black text-pink-400 text-base">${bItem.totalPts} b.</td>
                     `;
                     tbody.appendChild(tr);
@@ -2281,9 +2378,13 @@
                 tArr.forEach((tItem, index) => {
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    const teamSponsorBadges = renderSponsorBadges(tItem.team.sponsors, { variant: 'team', compact: true });
                     tr.innerHTML = `
                         <td class="p-4 font-black text-amber-400">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white text-base">${tItem.team.name}</td>
+                        <td class="p-4 font-bold text-white text-base">
+                            <div>${escapeHtml(tItem.team.name)}</div>
+                            ${teamSponsorBadges ? `<div class="flex flex-wrap items-center gap-1 mt-1">${teamSponsorBadges}</div>` : ''}
+                        </td>
                         <td class="p-4">${getFlagIcon(tItem.team.country)}</td>
                         <td class="p-4 text-slate-400 font-medium">${tItem.count} celkem (Top 3 počítáno)</td>
                         <td class="p-4 text-right font-black text-amber-400 text-base">${tItem.totalPts} b.</td>
@@ -2585,11 +2686,13 @@
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                const riderSponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
                 tr.innerHTML = `
                     <td class="p-4 font-black ${rankColor}">${rankText}</td>
                     <td class="p-4 font-bold text-white">
                         <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
                         <div class="text-[11px] text-amber-300/80 font-semibold mt-0.5">${escapeHtml(getCategoryLabelById(item.rider.category))}</div>
+                        ${riderSponsorBadges ? `<div class="flex flex-wrap items-center gap-1 mt-1">${riderSponsorBadges}</div>` : ''}
                     </td>
                     <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
                     <td class="p-4 text-slate-200 text-xs font-bold">${escapeHtml(item.rider.ebike)} <span class="text-slate-400">(${escapeHtml(item.rider.motor)})</span></td>
@@ -2602,28 +2705,84 @@
             });
         }
 
+        function parseSponsorsList(sponsorsText) {
+            if (!sponsorsText) return [];
+            const seen = new Set();
+            return String(sponsorsText)
+                .split(/[,;|\n]+/)
+                .map(s => s.trim())
+                .filter(s => {
+                    if (!s) return false;
+                    const key = s.toLowerCase();
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+        }
+
+        function renderSponsorBadges(sponsorsText, options = {}) {
+            const list = parseSponsorsList(sponsorsText);
+            if (list.length === 0) return '';
+            const variant = options.variant || 'team';
+            const compact = !!options.compact;
+            const styleClass = variant === 'rider'
+                ? (compact
+                    ? 'bg-sky-500/15 text-sky-300 border border-sky-500/30 text-[10px] px-1.5 py-0.5'
+                    : 'bg-sky-500/15 text-sky-300 border border-sky-500/30 text-[11px] px-2.5 py-1')
+                : (compact
+                    ? 'bg-amber-400/15 text-amber-300 border border-amber-400/30 text-[10px] px-1.5 py-0.5'
+                    : 'bg-amber-400/15 text-amber-300 border border-amber-400/30 text-[11px] px-2.5 py-1');
+            return list.map(brand =>
+                `<span class="inline-flex items-center gap-1 rounded-lg font-bold ${styleClass}"><i class="fa-solid fa-handshake text-[9px] opacity-80"></i> ${escapeHtml(brand)}</span>`
+            ).join('');
+        }
+
+        function previewSponsorBadgesLive(rawText, previewElId, variant) {
+            const el = document.getElementById(previewElId);
+            if (!el) return;
+            const html = renderSponsorBadges(rawText, { variant: variant || 'team', compact: false });
+            el.innerHTML = html || '<span class="text-[11px] text-slate-500 italic">Zatím bez zadaných sponzorů</span>';
+        }
+
         function renderTeamsAndRidersView() {
             const teamsGrid = document.getElementById('teams-roster-grid');
             if (teamsGrid) {
                 teamsGrid.innerHTML = '';
                 teams.forEach(t => {
                     let teamRiders = riders.filter(r => r.team === t.name);
+                    const teamSponsorBadges = renderSponsorBadges(t.sponsors, { variant: 'team', compact: false });
                     let div = document.createElement('div');
                     div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3.5";
                     div.innerHTML = `
                         <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                             <h4 class="font-black text-white text-base flex items-center gap-2.5">
-                                ${getFlagIcon(t.country)} ${t.name}
+                                ${getFlagIcon(t.country)} ${escapeHtml(t.name)}
                             </h4>
                             <span class="bg-amber-400/20 text-amber-300 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-400/30">${teamRiders.length} jezdců</span>
                         </div>
+                        ${teamSponsorBadges ? `
+                        <div class="bg-amber-400/5 border border-amber-400/20 rounded-xl p-3 space-y-1.5">
+                            <div class="text-[10px] uppercase tracking-wider font-black text-amber-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-handshake"></i> Sponzoři a partneři týmu
+                            </div>
+                            <div class="flex flex-wrap gap-1.5">${teamSponsorBadges}</div>
+                        </div>` : ''}
                         <ul class="space-y-2.5">
-                            ${teamRiders.length === 0 ? '<li class="text-xs text-slate-500 italic">Žádní jezdci v týmu</li>' : teamRiders.map(r => `
-                                <li class="flex justify-between items-center text-xs bg-slate-800/70 p-3 rounded-xl border border-slate-700/60 shadow-sm">
-                                    <span class="font-bold text-white flex items-center gap-2">${getFlagIcon(r.country)} ${r.name}</span>
-                                    <span class="text-slate-300 font-semibold">${r.ebike} (${r.motor})</span>
-                                </li>
-                            `).join('')}
+                            ${teamRiders.length === 0 ? '<li class="text-xs text-slate-500 italic">Žádní jezdci v týmu</li>' : teamRiders.map(r => {
+                                const rSponsorBadges = renderSponsorBadges(r.sponsors, { variant: 'rider', compact: true });
+                                return `
+                                <li class="text-xs bg-slate-800/70 p-3 rounded-xl border border-slate-700/60 shadow-sm space-y-1.5">
+                                    <div class="flex justify-between items-center gap-2">
+                                        <span class="font-bold text-white flex items-center gap-2">${getFlagIcon(r.country)} ${escapeHtml(r.name)}</span>
+                                        <span class="text-slate-300 font-semibold text-right">${escapeHtml(r.ebike)} (${escapeHtml(r.motor)})</span>
+                                    </div>
+                                    ${rSponsorBadges ? `
+                                    <div class="flex flex-wrap items-center gap-1 pt-1 border-t border-slate-700/50">
+                                        <span class="text-[10px] text-slate-400 font-bold mr-1">Partneři:</span>
+                                        ${rSponsorBadges}
+                                    </div>` : ''}
+                                </li>`;
+                            }).join('')}
                         </ul>
                     `;
                     teamsGrid.appendChild(div);
@@ -2635,17 +2794,20 @@
                 ridersGrid.innerHTML = '';
                 riders.forEach(r => {
                     let sk = r.skills || { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 };
+                    const personalSponsorBadges = renderSponsorBadges(r.sponsors, { variant: 'rider', compact: false });
+                    const riderTeamObj = r.team ? teams.find(t => t.name === r.team) : null;
+                    const teamSponsorBadges = riderTeamObj ? renderSponsorBadges(riderTeamObj.sponsors, { variant: 'team', compact: true }) : '';
                     let card = document.createElement('div');
                     card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4";
                     card.innerHTML = `
                         <div class="flex justify-between items-start border-b border-slate-800 pb-3">
                             <div>
                                 <h4 class="font-black text-white text-base flex items-center gap-2.5">
-                                    ${getFlagIcon(r.country)} ${r.name}
+                                    ${getFlagIcon(r.country)} ${escapeHtml(r.name)}
                                 </h4>
-                                <p class="text-xs text-slate-400 font-medium">${r.team || 'Individuální jezdec'} | Kat: <span class="font-bold text-white">${getCategoryLabelById(r.category)}</span>${r.birthYear ? ` | Ročník: <span class="font-bold text-slate-200">${r.birthYear}</span>` : ''}</p>
+                                <p class="text-xs text-slate-400 font-medium">${escapeHtml(r.team || 'Individuální jezdec')} | Kat: <span class="font-bold text-white">${escapeHtml(getCategoryLabelById(r.category))}</span>${r.birthYear ? ` | Ročník: <span class="font-bold text-slate-200">${r.birthYear}</span>` : ''}</p>
                             </div>
-                            <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-lg">${r.ebike}</span>
+                            <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-lg">${escapeHtml(r.ebike)}</span>
                         </div>
                         <div class="space-y-2.5 text-xs">
                             <div class="flex justify-between items-center font-medium">
@@ -2674,8 +2836,25 @@
                                 <span class="font-bold text-white">${sk.kom}/10</span>
                             </div>
                         </div>
+                        ${(personalSponsorBadges || teamSponsorBadges) ? `
+                        <div class="pt-3 border-t border-slate-800 space-y-2">
+                            ${personalSponsorBadges ? `
+                            <div class="space-y-1.5">
+                                <div class="text-[10px] uppercase tracking-wider font-black text-sky-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-handshake"></i> Sponzoři a partneři jezdce
+                                </div>
+                                <div class="flex flex-wrap gap-1.5">${personalSponsorBadges}</div>
+                            </div>` : ''}
+                            ${teamSponsorBadges ? `
+                            <div class="space-y-1">
+                                <div class="text-[10px] uppercase tracking-wider font-black text-amber-300/80 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-shield"></i> Partneři týmu (${escapeHtml(riderTeamObj.name)})
+                                </div>
+                                <div class="flex flex-wrap gap-1">${teamSponsorBadges}</div>
+                            </div>` : ''}
+                        </div>` : ''}
                         <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex justify-between font-semibold">
-                            <span>Motor: <strong class="text-white">${r.motor}</strong></span>
+                            <span>Motor: <strong class="text-white">${escapeHtml(r.motor)}</strong></span>
                         </div>
                     `;
                     ridersGrid.appendChild(card);
@@ -2838,6 +3017,8 @@
             const catEl = document.getElementById('new-rider-cat');
             const ebikeEl = document.getElementById('new-rider-ebike');
             const motorEl = document.getElementById('new-rider-motor');
+            const sponsorsEl = document.getElementById('new-rider-sponsors');
+            const sponsorsPreviewEl = document.getElementById('new-rider-sponsors-preview');
 
             const editId = editIdEl ? editIdEl.value.trim() : '';
             const name = nameEl ? nameEl.value.trim() : '';
@@ -2848,6 +3029,7 @@
             const category = catEl && catEl.value ? catEl.value : (ageCategories[0] ? ageCategories[0].id : 'Elite');
             const ebike = ebikeEl ? ebikeEl.value : 'Crussis';
             const motor = motorEl ? motorEl.value : 'Bosch CX Race';
+            const sponsors = sponsorsEl ? sponsorsEl.value.trim() : '';
 
             if (!name) {
                 showModal("Chyba", "Zadejte prosím jméno jezdce!");
@@ -2863,6 +3045,7 @@
                     existing.category = category;
                     existing.ebike = ebike;
                     existing.motor = motor;
+                    existing.sponsors = sponsors;
                     if (birthYear && !isNaN(birthYear)) {
                         existing.birthYear = birthYear;
                     } else {
@@ -2874,6 +3057,7 @@
                 renderAdminRidersTable();
                 renderAdminCategoriesTable();
                 renderAdminTeamsGrid();
+                renderAdminSponsorsSection();
                 renderPublicLeaderboards();
                 renderPublicRaceResults();
                 renderTeamsAndRidersView();
@@ -2895,6 +3079,7 @@
                 category: category,
                 ebike: ebike,
                 motor: motor,
+                sponsors: sponsors,
                 skills: { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 }
             };
             if (birthYear && !isNaN(birthYear)) {
@@ -2905,10 +3090,13 @@
             if (nameEl) nameEl.value = '';
             if (birthYearEl) birthYearEl.value = '';
             if (ageHintEl) ageHintEl.textContent = '';
+            if (sponsorsEl) sponsorsEl.value = '';
+            if (sponsorsPreviewEl) sponsorsPreviewEl.innerHTML = '';
             populateAdminSelects();
             renderAdminRidersTable();
             renderAdminCategoriesTable();
             renderAdminTeamsGrid();
+            renderAdminSponsorsSection();
             renderPublicLeaderboards();
             renderPublicRaceResults();
             renderTeamsAndRidersView();
@@ -2952,6 +3140,11 @@
             ensureSelectValue(document.getElementById('new-rider-cat'), matchedCat ? matchedCat.id : (r.category || ''));
             ensureSelectValue(document.getElementById('new-rider-ebike'), r.ebike || '');
             ensureSelectValue(document.getElementById('new-rider-motor'), r.motor || '');
+            const sponsorsEl = document.getElementById('new-rider-sponsors');
+            if (sponsorsEl) {
+                sponsorsEl.value = r.sponsors || '';
+                previewSponsorBadgesLive(sponsorsEl.value, 'new-rider-sponsors-preview', 'rider');
+            }
 
             document.getElementById('btn-save-rider').textContent = 'Uložit změny jezdce';
             document.getElementById('btn-cancel-edit-rider').classList.remove('hidden');
@@ -2964,6 +3157,8 @@
             const nameEl = document.getElementById('new-rider-name');
             const birthYearEl = document.getElementById('new-rider-birthyear');
             const ageHintEl = document.getElementById('new-rider-age-hint');
+            const sponsorsEl = document.getElementById('new-rider-sponsors');
+            const sponsorsPreviewEl = document.getElementById('new-rider-sponsors-preview');
             const btnSave = document.getElementById('btn-save-rider');
             const btnCancel = document.getElementById('btn-cancel-edit-rider');
             const badge = document.getElementById('rider-edit-badge');
@@ -2972,6 +3167,8 @@
             if (nameEl) nameEl.value = '';
             if (birthYearEl) birthYearEl.value = '';
             if (ageHintEl) ageHintEl.textContent = '';
+            if (sponsorsEl) sponsorsEl.value = '';
+            if (sponsorsPreviewEl) sponsorsPreviewEl.innerHTML = '';
             if (btnSave) btnSave.textContent = 'Vytvořit a uložit jezdce';
             if (btnCancel) btnCancel.classList.add('hidden');
             if (badge) badge.classList.add('hidden');
@@ -2987,6 +3184,7 @@
             }
             renderAdminCategoriesTable();
             renderAdminTeamsGrid();
+            renderAdminSponsorsSection();
             renderPublicLeaderboards();
             renderPublicRaceResults();
             renderTeamsAndRidersView();
@@ -3010,6 +3208,7 @@
                 renderAdminRidersTable();
                 renderAdminCategoriesTable();
                 renderAdminTeamsGrid();
+                renderAdminSponsorsSection();
                 renderPublicLeaderboards();
                 renderPublicRaceResults();
                 renderTeamsAndRidersView();
@@ -3069,9 +3268,12 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
                 tr.innerHTML = `
-                    <td class="p-3 font-bold text-white whitespace-nowrap">
-                        <div class="flex items-center gap-2">${getFlagIcon(r.country)} ${escapeHtml(r.name)}</div>
+                    <td class="p-3 font-bold text-white min-w-[220px]">
+                        <div class="flex items-center gap-2 whitespace-nowrap">${getFlagIcon(r.country)} ${escapeHtml(r.name)}</div>
                         ${r.birthYear ? `<div class="text-[11px] text-slate-400 font-medium">Ročník ${r.birthYear} (${2027 - r.birthYear} let)</div>` : ''}
+                        <div class="mt-1.5">
+                            <input type="text" value="${escapeHtml(r.sponsors || '')}" onchange="updateRiderField('${escapeHtml(r.id)}', 'sponsors', this.value.trim())" class="w-full bg-slate-900/80 border border-slate-700/80 text-sky-200 placeholder-slate-500 text-[11px] rounded-lg px-2 py-1 font-medium outline-none focus:border-amber-400" placeholder="🤝 Sponzoři jezdce (čárkou)...">
+                        </div>
                     </td>
                     <td class="p-3">
                         <select onchange="updateRiderField('${escapeHtml(r.id)}', 'country', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400">
@@ -3784,14 +3986,17 @@
             }
         }
 
-        function addNewTeam() {
+        async function addNewTeam() {
             const nameEl = document.getElementById('new-team-name');
             const countryEl = document.getElementById('new-team-country');
             const brandEl = document.getElementById('new-team-brand');
+            const sponsorsEl = document.getElementById('new-team-sponsors');
+            const sponsorsPreviewEl = document.getElementById('new-team-sponsors-preview');
 
             const name = nameEl ? nameEl.value.trim() : '';
             const country = countryEl ? countryEl.value : 'CZ';
             const brand = brandEl ? brandEl.value : 'Crussis';
+            const sponsors = sponsorsEl ? sponsorsEl.value.trim() : '';
 
             if (!name) {
                 showModal("Chyba", "Zadejte název týmu!");
@@ -3799,24 +4004,36 @@
             }
 
             const newId = 't_' + Date.now();
-            teams.push({ id: newId, name: name, country: country, brand: brand, featuredRiderId: '' });
-            saveData();
+            teams.push({ id: newId, name: name, country: country, brand: brand, sponsors: sponsors, featuredRiderId: '' });
             if (nameEl) nameEl.value = '';
+            if (sponsorsEl) sponsorsEl.value = '';
+            if (sponsorsPreviewEl) sponsorsPreviewEl.innerHTML = '';
             populateAdminSelects();
             renderAdminTeamsGrid();
+            renderAdminSponsorsSection();
             renderPublicLeaderboards();
-            showModal("Úspěch", "Nový tým a značka byly vytvořeny!");
+            renderTeamsAndRidersView();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", "Nový tým a jeho partneři byli vytvořeni a uloženi do Firebase databáze!");
+            } else {
+                showModal("Chyba databáze Firebase", `Nový tým se neuložil (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
         }
 
-        function addNewCustomBrand() {
+        async function addNewCustomBrand() {
             const brandName = prompt("Zadejte název nové značky e-biku / výrobce:");
             if (brandName && brandName.trim() !== '') {
                 const cleanName = brandName.trim();
                 if (!availableBrands.includes(cleanName)) {
                     availableBrands.push(cleanName);
-                    saveData();
                     populateAdminSelects();
-                    showModal("Úspěch", `Značka "${cleanName}" byla přidána do seznamu.`);
+                    const res = await saveData();
+                    if (res.ok) {
+                        showModal("Úspěch", `Značka "${cleanName}" byla přidána do seznamu.`);
+                    } else {
+                        showModal("Chyba databáze Firebase", `Značku se nepodařilo uložit (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                    }
                 } else {
                     showModal("Upozornění", "Tato značka již v seznamu existuje.");
                 }
@@ -3827,22 +4044,39 @@
             const grid = document.getElementById('admin-teams-grid');
             if (!grid) return;
             grid.innerHTML = '';
-            teams.forEach(t => {
+            teams.forEach((t, idx) => {
+                const inputId = `team-card-sponsors-${idx}`;
+                const previewId = `team-card-sponsors-preview-${idx}`;
+                const statusId = `team-card-sponsors-status-${idx}`;
+                const previewHtml = renderSponsorBadges(t.sponsors, { variant: 'team', compact: true });
                 let div = document.createElement('div');
                 div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3";
                 div.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <h5 class="font-black text-white text-sm flex items-center gap-2">${getFlagIcon(t.country)} ${t.name}</h5>
-                        <button onclick="deleteTeam('${t.id}')" class="px-2.5 py-1 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-[11px] border border-red-500/30">Smazat</button>
+                    <div class="flex justify-between items-center gap-2">
+                        <h5 class="font-black text-white text-sm flex items-center gap-2">${getFlagIcon(t.country)} ${escapeHtml(t.name)}</h5>
+                        <button onclick="deleteTeam('${escapeHtml(t.id)}')" class="px-2.5 py-1 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-[11px] border border-red-500/30">Smazat</button>
                     </div>
-                    <div class="text-xs text-slate-400 space-y-1">
-                        <div>Značka e-biku: <strong class="text-white">${t.brand || 'Neuvedeno'}</strong></div>
-                        <div class="flex items-center gap-2 pt-1">
+                    <div class="text-xs text-slate-400 space-y-2">
+                        <div>Značka e-biku: <strong class="text-white">${escapeHtml(t.brand || 'Neuvedeno')}</strong></div>
+                        <div class="flex items-center gap-2 pt-1 flex-wrap">
                             <span>Manuální top jezdec:</span>
-                            <select onchange="updateTeamFeaturedRider('${t.id}', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-1.5 font-bold">
+                            <select onchange="updateTeamFeaturedRider('${escapeHtml(t.id)}', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-1.5 font-bold">
                                 <option value="">-- Auto (Dle bodů) --</option>
-                                ${riders.filter(r => r.team === t.name).map(r => `<option value="${r.id}" ${t.featuredRiderId === r.id ? 'selected' : ''}>${r.name}</option>`).join('')}
+                                ${riders.filter(r => r.team === t.name).map(r => `<option value="${escapeHtml(r.id)}" ${t.featuredRiderId === r.id ? 'selected' : ''}>${escapeHtml(r.name)}</option>`).join('')}
                             </select>
+                        </div>
+                        <div class="pt-2 border-t border-slate-800 space-y-1.5">
+                            <label for="${inputId}" class="block text-[11px] uppercase font-black text-amber-300/90">
+                                <i class="fa-solid fa-handshake mr-1"></i> Sponzoři a partneři týmu
+                            </label>
+                            <textarea id="${inputId}" rows="2" oninput="previewSponsorBadgesLive(this.value, '${previewId}', 'team')" onchange="updateTeamSponsors('${escapeHtml(t.id)}', this.value, '${statusId}', 'teams')" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2 text-xs font-medium focus:border-amber-400 outline-none resize-y" placeholder="např. CTM, Shimano, Maxxis, Nutrend">${escapeHtml(t.sponsors || '')}</textarea>
+                            <div id="${previewId}" class="flex flex-wrap gap-1">${previewHtml || '<span class="text-[11px] text-slate-500 italic">Zatím bez zadaných sponzorů</span>'}</div>
+                            <div class="flex items-center justify-between gap-2 pt-1">
+                                <span id="${statusId}" class="text-[11px] font-bold text-emerald-400"></span>
+                                <button type="button" onclick="saveTeamSponsorsFromInput('${escapeHtml(t.id)}', '${inputId}', '${statusId}', 'teams')" class="px-3 py-1.5 bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/30 rounded-lg text-[11px] font-black transition">
+                                    Uložit sponzory
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -3850,22 +4084,217 @@
             });
         }
 
-        function updateTeamFeaturedRider(teamId, riderId) {
+        async function updateTeamFeaturedRider(teamId, riderId) {
             let t = teams.find(item => item.id === teamId);
             if (t) {
                 t.featuredRiderId = riderId;
-                saveData();
                 renderPublicLeaderboards();
+                const res = await saveData();
+                if (!res.ok) {
+                    showModal("Chyba databáze Firebase", `Změna u týmu "${t.name}" se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
             }
         }
 
-        function deleteTeam(id) {
+        async function updateTeamSponsors(teamId, rawSponsors, statusElId, sourceView) {
+            const t = teams.find(item => item.id === teamId);
+            if (!t) return;
+            t.sponsors = String(rawSponsors || '').trim();
+            if (sourceView !== 'teams') renderAdminTeamsGrid();
+            if (sourceView !== 'sponsors') renderAdminSponsorsSection();
+            renderPublicLeaderboards();
+            renderTeamsAndRidersView();
+            const statusEl = statusElId ? document.getElementById(statusElId) : null;
+            if (statusEl) {
+                statusEl.textContent = 'Ukládám…';
+                statusEl.className = 'text-[11px] font-bold text-amber-300';
+            }
+            const res = await saveData();
+            if (res.ok) {
+                if (statusEl) {
+                    statusEl.textContent = 'Uloženo do Firebase ✓';
+                    statusEl.className = 'text-[11px] font-bold text-emerald-400';
+                }
+            } else {
+                if (statusEl) {
+                    statusEl.textContent = 'Chyba uložení!';
+                    statusEl.className = 'text-[11px] font-bold text-red-400';
+                }
+                showModal("Chyba databáze Firebase", `Sponzoři týmu "${t.name}" se neuložili (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        function saveTeamSponsorsFromInput(teamId, inputElId, statusElId, sourceView) {
+            const inputEl = document.getElementById(inputElId);
+            if (!inputEl) return;
+            updateTeamSponsors(teamId, inputEl.value, statusElId, sourceView);
+        }
+
+        async function updateRiderSponsors(riderId, rawSponsors, statusElId, sourceView) {
+            const r = riders.find(item => item.id === riderId);
+            if (!r) return;
+            r.sponsors = String(rawSponsors || '').trim();
+            if (sourceView !== 'riders') renderAdminRidersTable();
+            if (sourceView !== 'sponsors') renderAdminSponsorsSection();
+            renderPublicLeaderboards();
+            renderPublicRaceResults();
+            renderTeamsAndRidersView();
+            const statusEl = statusElId ? document.getElementById(statusElId) : null;
+            if (statusEl) {
+                statusEl.textContent = 'Ukládám…';
+                statusEl.className = 'text-[11px] font-bold text-amber-300';
+            }
+            const res = await saveData();
+            if (res.ok) {
+                if (statusEl) {
+                    statusEl.textContent = 'Uloženo do Firebase ✓';
+                    statusEl.className = 'text-[11px] font-bold text-emerald-400';
+                }
+            } else {
+                if (statusEl) {
+                    statusEl.textContent = 'Chyba uložení!';
+                    statusEl.className = 'text-[11px] font-bold text-red-400';
+                }
+                showModal("Chyba databáze Firebase", `Sponzoři jezdce "${r.name}" se neuložili (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        function saveRiderSponsorsFromInput(riderId, inputElId, statusElId, sourceView) {
+            const inputEl = document.getElementById(inputElId);
+            if (!inputEl) return;
+            updateRiderSponsors(riderId, inputEl.value, statusElId, sourceView);
+        }
+
+        function renderAdminSponsorsSection() {
+            renderAdminSponsorsTeams();
+            renderAdminSponsorsRiders();
+        }
+
+        function renderAdminSponsorsTeams() {
+            const grid = document.getElementById('admin-sponsors-teams-grid');
+            const countEl = document.getElementById('admin-sponsors-teams-count');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const filledCount = teams.filter(t => parseSponsorsList(t.sponsors).length > 0).length;
+            if (countEl) countEl.textContent = `Vyplněno u ${filledCount} z ${teams.length} týmů`;
+
+            if (teams.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-xs text-slate-500 italic p-5 bg-[#0f172a] rounded-2xl border border-slate-800">Zatím nejsou vytvořeny žádné týmy.</div>';
+                return;
+            }
+
+            teams.forEach((t, idx) => {
+                const inputId = `sponsor-tab-team-input-${idx}`;
+                const previewId = `sponsor-tab-team-preview-${idx}`;
+                const statusId = `sponsor-tab-team-status-${idx}`;
+                const teamRidersCount = riders.filter(r => r.team === t.name).length;
+                const previewHtml = renderSponsorBadges(t.sponsors, { variant: 'team', compact: false });
+
+                const card = document.createElement('div');
+                card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                        <div>
+                            <h5 class="font-black text-white text-sm flex items-center gap-2">${getFlagIcon(t.country)} ${escapeHtml(t.name)}</h5>
+                            <div class="text-[11px] text-slate-400 font-medium">Značka: <span class="text-slate-200 font-bold">${escapeHtml(t.brand || 'Neuvedeno')}</span> • ${teamRidersCount} jezdců</div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="${inputId}" class="block text-[11px] uppercase font-black text-amber-300/90">
+                            Sponzoři a partneři týmu
+                        </label>
+                        <textarea id="${inputId}" rows="2" oninput="previewSponsorBadgesLive(this.value, '${previewId}', 'team')" onchange="updateTeamSponsors('${escapeHtml(t.id)}', this.value, '${statusId}', 'sponsors')" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs font-medium focus:border-amber-400 outline-none resize-y" placeholder="např. CTM, Shimano, Maxxis, Nutrend, Red Bull">${escapeHtml(t.sponsors || '')}</textarea>
+                        <div id="${previewId}" class="flex flex-wrap gap-1.5 min-h-[24px]">${previewHtml || '<span class="text-[11px] text-slate-500 italic">Zatím bez zadaných sponzorů</span>'}</div>
+                        <div class="flex items-center justify-between gap-2 pt-1">
+                            <span id="${statusId}" class="text-[11px] font-bold text-emerald-400"></span>
+                            <button type="button" onclick="saveTeamSponsorsFromInput('${escapeHtml(t.id)}', '${inputId}', '${statusId}', 'sponsors')" class="px-3.5 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-xs font-black transition shadow">
+                                <i class="fa-solid fa-floppy-disk mr-1"></i> Uložit
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderAdminSponsorsRiders() {
+            const grid = document.getElementById('admin-sponsors-riders-grid');
+            const countEl = document.getElementById('admin-sponsors-riders-count');
+            const searchEl = document.getElementById('admin-sponsors-rider-search');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+            const filledCount = riders.filter(r => parseSponsorsList(r.sponsors).length > 0).length;
+            if (countEl) countEl.textContent = `Vyplněno u ${filledCount} z ${riders.length} e-bikerů`;
+
+            const filtered = riders.filter(r => {
+                if (!query) return true;
+                const hay = [r.name, r.team, r.ebike, r.motor, r.sponsors].filter(Boolean).join(' ').toLowerCase();
+                return hay.includes(query);
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-xs text-slate-500 italic p-5 bg-[#0f172a] rounded-2xl border border-slate-800">Žádný e-biker neodpovídá vyhledávání.</div>';
+                return;
+            }
+
+            filtered.forEach((r, idx) => {
+                const inputId = `sponsor-tab-rider-input-${idx}`;
+                const previewId = `sponsor-tab-rider-preview-${idx}`;
+                const statusId = `sponsor-tab-rider-status-${idx}`;
+                const previewHtml = renderSponsorBadges(r.sponsors, { variant: 'rider', compact: false });
+                const riderTeamObj = r.team ? teams.find(t => t.name === r.team) : null;
+                const teamSponsorsHtml = riderTeamObj ? renderSponsorBadges(riderTeamObj.sponsors, { variant: 'team', compact: true }) : '';
+
+                const card = document.createElement('div');
+                card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3";
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-2.5">
+                        <div>
+                            <h5 class="font-black text-white text-sm flex items-center gap-2">${getFlagIcon(r.country)} ${escapeHtml(r.name)}</h5>
+                            <div class="text-[11px] text-slate-400 font-medium">
+                                ${escapeHtml(r.team || 'Individuální jezdec')} • <span class="text-slate-200 font-bold">${escapeHtml(r.ebike)}</span> (${escapeHtml(r.motor)})
+                            </div>
+                        </div>
+                        <span class="bg-slate-800 text-amber-300 border border-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-lg shrink-0">${escapeHtml(getCategoryLabelById(r.category))}</span>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="${inputId}" class="block text-[11px] uppercase font-black text-sky-300/90">
+                            Osobní sponzoři a partneři e-bikera
+                        </label>
+                        <textarea id="${inputId}" rows="2" oninput="previewSponsorBadgesLive(this.value, '${previewId}', 'rider')" onchange="updateRiderSponsors('${escapeHtml(r.id)}', this.value, '${statusId}', 'sponsors')" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-2.5 text-xs font-medium focus:border-amber-400 outline-none resize-y" placeholder="např. Crussis, Bosch, Fox Racing, Oakley, Nutrend">${escapeHtml(r.sponsors || '')}</textarea>
+                        <div id="${previewId}" class="flex flex-wrap gap-1.5 min-h-[24px]">${previewHtml || '<span class="text-[11px] text-slate-500 italic">Zatím bez zadaných osobních sponzorů</span>'}</div>
+                        ${teamSponsorsHtml ? `
+                        <div class="pt-1.5 border-t border-slate-800/80 flex flex-wrap items-center gap-1">
+                            <span class="text-[10px] text-slate-400 font-bold mr-1">Týmoví partneři:</span>
+                            ${teamSponsorsHtml}
+                        </div>` : ''}
+                        <div class="flex items-center justify-between gap-2 pt-1">
+                            <span id="${statusId}" class="text-[11px] font-bold text-emerald-400"></span>
+                            <button type="button" onclick="saveRiderSponsorsFromInput('${escapeHtml(r.id)}', '${inputId}', '${statusId}', 'sponsors')" class="px-3.5 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-xs font-black transition shadow">
+                                <i class="fa-solid fa-floppy-disk mr-1"></i> Uložit
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        async function deleteTeam(id) {
             if (confirm("Opravdu chcete smazat tento tým?")) {
                 teams = teams.filter(t => t.id !== id);
-                saveData();
                 populateAdminSelects();
                 renderAdminTeamsGrid();
+                renderAdminSponsorsSection();
                 renderPublicLeaderboards();
+                renderTeamsAndRidersView();
+                const res = await saveData();
+                if (!res.ok) {
+                    showModal("Chyba databáze Firebase", `Smazání týmu se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
             }
         }
 
@@ -4088,9 +4517,12 @@
                     renderAdminMotorsTable();
                     renderAdminCalendarTable();
                     renderAdminRidersTable();
+                    renderAdminTeamsGrid();
+                    renderAdminSponsorsSection();
                     renderCalendar();
                     renderPublicLeaderboards();
                     renderPublicRaceResults();
+                    renderTeamsAndRidersView();
                     showModal("Úspěch", "Data byla úspěšně obnovena ze zálohy!");
                 } catch(err) {
                     showModal("Chyba", "Neplatný formát JSON souboru.");
