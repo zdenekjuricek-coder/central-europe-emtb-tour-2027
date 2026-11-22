@@ -323,6 +323,60 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Race Winners Highlight Cards (Cíl / Sprint / KOM) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div onclick="switchRaceResultFilter('finish')" id="race-card-finish" class="cursor-pointer bg-gradient-to-br from-amber-500/15 via-[#0f172a] to-slate-900 border-2 border-amber-400/70 rounded-2xl p-4 shadow-lg transition hover:border-amber-400 flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="bg-amber-400 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider">Vítěz závodu (Cíl)</span>
+                                <i class="fa-solid fa-trophy text-amber-400"></i>
+                            </div>
+                            <div id="race-winner-finish-name" class="text-sm font-black text-white flex items-center gap-1.5">--</div>
+                            <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                                <span id="race-winner-finish-team" class="text-slate-400 font-semibold truncate pr-2">Bez výsledku</span>
+                                <span id="race-winner-finish-pts" class="font-black text-amber-400 whitespace-nowrap">0 b.</span>
+                            </div>
+                        </div>
+                        <div onclick="switchRaceResultFilter('sprint')" id="race-card-sprint" class="cursor-pointer bg-gradient-to-br from-emerald-500/15 via-[#0f172a] to-slate-900 border border-emerald-500/30 rounded-2xl p-4 shadow-lg transition hover:border-emerald-400 flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="bg-emerald-500 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider">Nejlepší sprinter (Sprint)</span>
+                                <i class="fa-solid fa-bolt text-emerald-400"></i>
+                            </div>
+                            <div id="race-winner-sprint-name" class="text-sm font-black text-white flex items-center gap-1.5">--</div>
+                            <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                                <span id="race-winner-sprint-team" class="text-slate-400 font-semibold truncate pr-2">Bez výsledku</span>
+                                <span id="race-winner-sprint-pts" class="font-black text-emerald-400 whitespace-nowrap">0 b.</span>
+                            </div>
+                        </div>
+                        <div onclick="switchRaceResultFilter('kom')" id="race-card-kom" class="cursor-pointer bg-gradient-to-br from-red-500/15 via-[#0f172a] to-slate-900 border border-red-500/30 rounded-2xl p-4 shadow-lg transition hover:border-red-400 flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="bg-red-500 text-white font-black text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider">Horská prémie (KOM)</span>
+                                <i class="fa-solid fa-mountain text-red-400"></i>
+                            </div>
+                            <div id="race-winner-kom-name" class="text-sm font-black text-white flex items-center gap-1.5">--</div>
+                            <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                                <span id="race-winner-kom-team" class="text-slate-400 font-semibold truncate pr-2">Bez výsledku</span>
+                                <span id="race-winner-kom-pts" class="font-black text-red-400 whitespace-nowrap">0 b.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Discipline Filter Bar: Cíl / Sprint / KOM -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs uppercase font-black text-slate-400 mr-1">Zobrazit pořadí:</span>
+                            <button onclick="switchRaceResultFilter('finish')" id="race-filter-btn-finish" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-2">
+                                <i class="fa-solid fa-flag-checkered"></i> <span>Cíl (Celkově)</span>
+                            </button>
+                            <button onclick="switchRaceResultFilter('sprint')" id="race-filter-btn-sprint" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
+                                <i class="fa-solid fa-bolt text-emerald-400"></i> <span>Sprint</span>
+                            </button>
+                            <button onclick="switchRaceResultFilter('kom')" id="race-filter-btn-kom" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
+                                <i class="fa-solid fa-mountain text-red-400"></i> <span>Horská prémie (KOM)</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto rounded-2xl border border-slate-800 shadow-xl">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
@@ -330,11 +384,11 @@
                                     <th class="p-4 w-16">Poř.</th>
                                     <th class="p-4" data-i18n="th_rider">Jezdec</th>
                                     <th class="p-4" data-i18n="th_team">Tým</th>
-                                    <th class="p-4" data-i18n="th_ebike">E-Bike & Motor</th>
+                                    <th class="p-4" data-i18n="th_ebike">E-Bike &amp; Motor</th>
                                     <th class="p-4 text-center">Cíl (Body)</th>
                                     <th class="p-4 text-center">Sprinty</th>
                                     <th class="p-4 text-center">KOM</th>
-                                    <th class="p-4 text-right" data-i18n="th_points">Celkem z kola</th>
+                                    <th id="race-results-points-th" class="p-4 text-right" data-i18n="th_points">Celkem z kola</th>
                                 </tr>
                             </thead>
                             <tbody id="public-race-results-tbody" class="divide-y divide-slate-800/60 bg-[#0f172a]"></tbody>
@@ -2214,62 +2268,169 @@
             }
         }
 
+        let currentRaceResultFilter = 'finish';
+
+        function switchRaceResultFilter(mode) {
+            currentRaceResultFilter = mode;
+            const styles = {
+                finish: {
+                    activeBtn: 'px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-2',
+                    activeCard: 'cursor-pointer bg-gradient-to-br from-amber-500/20 via-[#0f172a] to-slate-900 border-2 border-amber-400 rounded-2xl p-4 shadow-lg transition flex flex-col justify-between',
+                    inactiveCard: 'cursor-pointer bg-gradient-to-br from-amber-500/10 via-[#0f172a] to-slate-900 border border-amber-500/30 rounded-2xl p-4 shadow-lg transition hover:border-amber-400 flex flex-col justify-between'
+                },
+                sprint: {
+                    activeBtn: 'px-4 py-2.5 rounded-2xl text-xs font-black bg-emerald-500 text-slate-950 shadow-lg transition flex items-center gap-2',
+                    activeCard: 'cursor-pointer bg-gradient-to-br from-emerald-500/20 via-[#0f172a] to-slate-900 border-2 border-emerald-400 rounded-2xl p-4 shadow-lg transition flex flex-col justify-between',
+                    inactiveCard: 'cursor-pointer bg-gradient-to-br from-emerald-500/10 via-[#0f172a] to-slate-900 border border-emerald-500/30 rounded-2xl p-4 shadow-lg transition hover:border-emerald-400 flex flex-col justify-between'
+                },
+                kom: {
+                    activeBtn: 'px-4 py-2.5 rounded-2xl text-xs font-black bg-red-500 text-white shadow-lg transition flex items-center gap-2',
+                    activeCard: 'cursor-pointer bg-gradient-to-br from-red-500/20 via-[#0f172a] to-slate-900 border-2 border-red-400 rounded-2xl p-4 shadow-lg transition flex flex-col justify-between',
+                    inactiveCard: 'cursor-pointer bg-gradient-to-br from-red-500/10 via-[#0f172a] to-slate-900 border border-red-500/30 rounded-2xl p-4 shadow-lg transition hover:border-red-400 flex flex-col justify-between'
+                }
+            };
+            const inactiveBtn = 'px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2';
+
+            ['finish', 'sprint', 'kom'].forEach(m => {
+                const btn = document.getElementById(`race-filter-btn-${m}`);
+                const card = document.getElementById(`race-card-${m}`);
+                if (btn) btn.className = (m === mode) ? styles[m].activeBtn : inactiveBtn;
+                if (card) card.className = (m === mode) ? styles[m].activeCard : styles[m].inactiveCard;
+            });
+
+            renderPublicRaceResults();
+        }
+
         function renderPublicRaceResults() {
             const raceSelect = document.getElementById('public-race-results-select');
             const catFilterEl = document.getElementById('public-race-results-category-filter');
             const raceId = raceSelect ? raceSelect.value : '';
             const catFilter = catFilterEl ? catFilterEl.value : 'all';
             const tbody = document.getElementById('public-race-results-tbody');
+            const pointsTh = document.getElementById('race-results-points-th');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             let rRes = raceResults[raceId] || {};
-            let raceRidersList = [];
+            let allRidersInRace = [];
 
             for (let riderId in rRes) {
                 let r = riders.find(item => item.id === riderId);
                 if (r && riderMatchesCategory(r, catFilter)) {
                     let data = rRes[riderId];
-                    let fPts = getFinishPoints(data.finish || 0);
-                    let sPts = getSprintPoints(data.sprint || 0);
-                    let kPts = getKomPoints(data.kom || 0);
+                    let finishPos = parseInt(data.finish, 10) || 0;
+                    let sprintPos = parseInt(data.sprint, 10) || 0;
+                    let komPos = parseInt(data.kom, 10) || 0;
+                    let fPts = getFinishPoints(finishPos);
+                    let sPts = getSprintPoints(sprintPos);
+                    let kPts = getKomPoints(komPos);
                     let total = fPts + sPts + kPts;
-                    raceRidersList.push({
+                    allRidersInRace.push({
                         rider: r,
-                        finish: data.finish || 999,
+                        finish: finishPos > 0 ? finishPos : 999,
                         fPts,
-                        sprint: data.sprint || '-',
+                        sprintPos,
+                        sprint: sprintPos > 0 ? sprintPos : '-',
                         sPts,
-                        kom: data.kom || '-',
+                        komPos,
+                        kom: komPos > 0 ? komPos : '-',
                         kPts,
                         total
                     });
                 }
             }
 
-            raceRidersList.sort((a, b) => a.finish - b.finish);
+            // Populate 3 race winners cards (Cíl / Sprint / KOM)
+            const setWinnerCard = (prefix, item, ptsLabel) => {
+                const nameEl = document.getElementById(`race-winner-${prefix}-name`);
+                const teamEl = document.getElementById(`race-winner-${prefix}-team`);
+                const ptsEl = document.getElementById(`race-winner-${prefix}-pts`);
+                if (!nameEl || !teamEl || !ptsEl) return;
+                if (item) {
+                    nameEl.innerHTML = `${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}`;
+                    teamEl.textContent = item.rider.team || 'Individuální jezdec';
+                    ptsEl.textContent = ptsLabel;
+                } else {
+                    nameEl.textContent = '--';
+                    teamEl.textContent = 'Bez výsledku';
+                    ptsEl.textContent = '0 b.';
+                }
+            };
+
+            const finishWinners = allRidersInRace.filter(x => x.finish <= 30).sort((a, b) => a.finish - b.finish);
+            const sprintWinners = allRidersInRace.filter(x => x.sprintPos > 0).sort((a, b) => a.sprintPos - b.sprintPos || a.finish - b.finish);
+            const komWinners = allRidersInRace.filter(x => x.komPos > 0).sort((a, b) => a.komPos - b.komPos || a.finish - b.finish);
+
+            setWinnerCard('finish', finishWinners[0], finishWinners[0] ? `${finishWinners[0].finish}. m. (${finishWinners[0].fPts} b.)` : '0 b.');
+            setWinnerCard('sprint', sprintWinners[0], sprintWinners[0] ? `${sprintWinners[0].sprintPos}. m. (${sprintWinners[0].sPts} b.)` : '0 b.');
+            setWinnerCard('kom', komWinners[0], komWinners[0] ? `${komWinners[0].komPos}. m. (${komWinners[0].kPts} b.)` : '0 b.');
+
+            // Filter & sort table according to selected discipline: finish | sprint | kom
+            let raceRidersList = [];
+            if (currentRaceResultFilter === 'sprint') {
+                if (pointsTh) pointsTh.textContent = 'Sprint Body';
+                raceRidersList = sprintWinners;
+            } else if (currentRaceResultFilter === 'kom') {
+                if (pointsTh) pointsTh.textContent = 'KOM Body';
+                raceRidersList = komWinners;
+            } else {
+                if (pointsTh) pointsTh.textContent = 'Celkem z kola';
+                raceRidersList = [...allRidersInRace].sort((a, b) => a.finish - b.finish || b.total - a.total);
+            }
 
             if (raceRidersList.length === 0) {
+                let emptyMsg = 'Pro tento závod zatím nejsou zapsány žádné výsledky.';
+                if (currentRaceResultFilter === 'sprint') {
+                    emptyMsg = catFilter === 'all'
+                        ? 'Pro tento závod zatím nejsou zapsány žádné výsledky ze Sprintu.'
+                        : 'Pro vybranou věkovou kategorii zatím nejsou v tomto závodě výsledky ze Sprintu.';
+                } else if (currentRaceResultFilter === 'kom') {
+                    emptyMsg = catFilter === 'all'
+                        ? 'Pro tento závod zatím nejsou zapsány žádné výsledky z horské prémie (KOM).'
+                        : 'Pro vybranou věkovou kategorii zatím nejsou v tomto závodě výsledky z horské prémie (KOM).';
+                } else if (catFilter !== 'all') {
+                    emptyMsg = 'Pro vybranou věkovou kategorii v tomto závodě zatím nejsou výsledky.';
+                }
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="8" class="p-6 text-center text-slate-500 italic">${catFilter === 'all' ? 'Pro tento závod zatím nejsou zapsány žádné výsledky.' : 'Pro vybranou věkovou kategorii v tomto závodě zatím nejsou výsledky.'}</td>`;
+                tr.innerHTML = `<td colspan="8" class="p-6 text-center text-slate-500 italic">${emptyMsg}</td>`;
                 tbody.appendChild(tr);
                 return;
             }
 
             raceRidersList.forEach((item, index) => {
+                let rankText = `${index + 1}.`;
+                let rankColor = 'text-amber-400';
+                let pointsDisplay = `${item.total} b.`;
+                let pointsColor = 'text-amber-400';
+
+                if (currentRaceResultFilter === 'sprint') {
+                    rankText = catFilter === 'all' ? `${item.sprintPos}.` : `${index + 1}.`;
+                    rankColor = 'text-emerald-400';
+                    pointsDisplay = `${item.sPts} b.`;
+                    pointsColor = 'text-emerald-400';
+                } else if (currentRaceResultFilter === 'kom') {
+                    rankText = catFilter === 'all' ? `${item.komPos}.` : `${index + 1}.`;
+                    rankColor = 'text-red-400';
+                    pointsDisplay = `${item.kPts} b.`;
+                    pointsColor = 'text-red-400';
+                } else {
+                    rankText = catFilter === 'all' ? (item.finish <= 30 ? `${item.finish}.` : '-') : `${index + 1}.`;
+                }
+
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
                 tr.innerHTML = `
-                    <td class="p-4 font-black text-amber-400">${catFilter === 'all' ? (item.finish <= 30 ? item.finish + '.' : '-') : (index + 1) + '.'}</td>
+                    <td class="p-4 font-black ${rankColor}">${rankText}</td>
                     <td class="p-4 font-bold text-white">
-                        <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${item.rider.name}</div>
-                        <div class="text-[11px] text-amber-300/80 font-semibold mt-0.5">${getCategoryLabelById(item.rider.category)}</div>
+                        <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
+                        <div class="text-[11px] text-amber-300/80 font-semibold mt-0.5">${escapeHtml(getCategoryLabelById(item.rider.category))}</div>
                     </td>
-                    <td class="p-4 text-slate-300 font-medium">${item.rider.team || '<span class="text-slate-500 italic">Individuální</span>'}</td>
-                    <td class="p-4 text-slate-200 text-xs font-bold">${item.rider.ebike} <span class="text-slate-400">(${item.rider.motor})</span></td>
-                    <td class="p-4 text-center font-bold text-white">${item.finish <= 30 ? item.finish + '. m. (' + item.fPts + ' b.)' : 'Nedokončil'}</td>
-                    <td class="p-4 text-center font-semibold text-emerald-400">${item.sprint !== '-' ? item.sprint + '. m. (' + item.sPts + ' b.)' : '-'}</td>
-                    <td class="p-4 text-center font-semibold text-red-500">${item.kom !== '-' ? item.kom + '. m. (' + item.kPts + ' b.)' : '-'}</td>
-                    <td class="p-4 text-right font-black text-amber-400 text-base">${item.total} b.</td>
+                    <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
+                    <td class="p-4 text-slate-200 text-xs font-bold">${escapeHtml(item.rider.ebike)} <span class="text-slate-400">(${escapeHtml(item.rider.motor)})</span></td>
+                    <td class="p-4 text-center font-bold ${currentRaceResultFilter === 'finish' ? 'text-amber-300 bg-amber-400/5' : 'text-white'}">${item.finish <= 30 ? item.finish + '. m. (' + item.fPts + ' b.)' : 'Nedokončil'}</td>
+                    <td class="p-4 text-center font-semibold ${currentRaceResultFilter === 'sprint' ? 'text-emerald-300 font-black bg-emerald-500/10' : 'text-emerald-400'}">${item.sprint !== '-' ? item.sprint + '. m. (' + item.sPts + ' b.)' : '-'}</td>
+                    <td class="p-4 text-center font-semibold ${currentRaceResultFilter === 'kom' ? 'text-red-400 font-black bg-red-500/10' : 'text-red-500'}">${item.kom !== '-' ? item.kom + '. m. (' + item.kPts + ' b.)' : '-'}</td>
+                    <td class="p-4 text-right font-black ${pointsColor} text-base">${pointsDisplay}</td>
                 `;
                 tbody.appendChild(tr);
             });
