@@ -892,6 +892,10 @@
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5"><i class="fa-solid fa-link mr-1 text-sky-400"></i> Web závodu (odkaz pro více info)</label>
                             <input type="url" id="new-race-website" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="https://www.web-zavodu.cz">
                         </div>
+                        <div class="sm:col-span-2 lg:col-span-3">
+                            <label class="block text-xs uppercase font-black text-red-400 mb-1.5"><i class="fa-brands fa-youtube mr-1 text-red-500"></i> YouTube video závodu (odkaz z YouTube nebo Video ID)</label>
+                            <input type="text" id="new-race-youtube" class="w-full bg-slate-800 border border-red-500/40 text-white rounded-xl p-3 text-sm font-bold focus:border-red-400 outline-none" placeholder="např. https://www.youtube.com/watch?v=... nebo https://youtu.be/...">
+                        </div>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
@@ -912,7 +916,7 @@
                                     <th class="p-3">Datum</th>
                                     <th class="p-3">Čas startu</th>
                                     <th class="p-3">Trať / Parametry</th>
-                                    <th class="p-3">Web závodu</th>
+                                    <th class="p-3">Web &amp; Video</th>
                                     <th class="p-3 text-right">Akce</th>
                                 </tr>
                             </thead>
@@ -974,6 +978,29 @@
             <p id="modal-message" class="text-sm text-slate-300">Zde bude text zprávy...</p>
             <div class="flex justify-end pt-2">
                 <button onclick="closeModal()" class="px-6 py-3 bg-amber-400 text-slate-950 rounded-xl text-xs font-black hover:bg-amber-300 transition shadow-lg">Zavřít</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Race YouTube Video Preview Modal -->
+    <div id="race-video-modal" onclick="if(event.target===this) closeRaceVideoModal()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-[#111827] rounded-3xl p-5 sm:p-6 max-w-4xl w-full shadow-2xl border border-slate-700 space-y-4">
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <i class="fa-brands fa-youtube text-red-500 text-xl shrink-0"></i>
+                    <h3 id="race-video-modal-title" class="text-base sm:text-lg font-black text-white truncate">Video závodu</h3>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a id="race-video-modal-yt-link" href="#" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-xl text-xs font-bold transition inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Otevřít na YouTube
+                    </a>
+                    <button onclick="closeRaceVideoModal()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-black transition">
+                        <i class="fa-solid fa-xmark"></i> Zavřít
+                    </button>
+                </div>
+            </div>
+            <div class="relative w-full rounded-2xl overflow-hidden bg-black shadow-xl" style="padding-bottom: 56.25%; height: 0;">
+                <iframe id="race-video-modal-iframe" src="" class="absolute top-0 left-0 w-full h-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
     </div>
@@ -2280,6 +2307,63 @@
             return 'https://' + trimmed;
         }
 
+        function extractYouTubeVideoId(raw) {
+            const val = String(raw || '').trim();
+            if (!val) return '';
+            if (/^[a-zA-Z0-9_-]{11}$/.test(val)) return val;
+            try {
+                const url = new URL(/^https?:\/\//i.test(val) ? val : 'https://' + val);
+                if (url.hostname.includes('youtu.be')) {
+                    const seg = url.pathname.replace(/^\/+/, '').split('/')[0];
+                    if (/^[a-zA-Z0-9_-]{11}$/.test(seg)) return seg;
+                }
+                if (url.hostname.includes('youtube.com')) {
+                    const v = url.searchParams.get('v');
+                    if (v && /^[a-zA-Z0-9_-]{11}$/.test(v)) return v;
+                    const match = url.pathname.match(/\/(?:embed|shorts|live)\/([a-zA-Z0-9_-]{11})/);
+                    if (match) return match[1];
+                }
+            } catch (e) {
+                const fallbackMatch = val.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+                if (fallbackMatch) return fallbackMatch[1];
+            }
+            return '';
+        }
+
+        function normalizeYouTubeWatchUrl(raw) {
+            const trimmed = String(raw || '').trim();
+            if (!trimmed) return '';
+            const id = extractYouTubeVideoId(trimmed);
+            if (id) return `https://www.youtube.com/watch?v=${id}`;
+            return normalizeRaceWebsiteUrl(trimmed);
+        }
+
+        function openRaceVideoModal(raceId) {
+            const race = calendar.find(c => c.id === raceId);
+            if (!race || !race.youtubeUrl) return;
+            const videoId = extractYouTubeVideoId(race.youtubeUrl);
+            const watchUrl = normalizeYouTubeWatchUrl(race.youtubeUrl);
+            if (!videoId) {
+                if (watchUrl) window.open(watchUrl, '_blank', 'noopener,noreferrer');
+                return;
+            }
+            const modal = document.getElementById('race-video-modal');
+            const titleEl = document.getElementById('race-video-modal-title');
+            const iframe = document.getElementById('race-video-modal-iframe');
+            const ytLink = document.getElementById('race-video-modal-yt-link');
+            if (titleEl) titleEl.textContent = `${race.name} – Video tratě`;
+            if (ytLink) ytLink.href = watchUrl;
+            if (iframe) iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeRaceVideoModal() {
+            const modal = document.getElementById('race-video-modal');
+            const iframe = document.getElementById('race-video-modal-iframe');
+            if (iframe) iframe.src = '';
+            if (modal) modal.classList.add('hidden');
+        }
+
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
             if (!grid) return;
@@ -2293,6 +2377,8 @@
             calendar.forEach((c, idx) => {
                 const startTimeText = c.startTime ? escapeHtml(c.startTime) : 'Upřesníme';
                 const safeUrl = normalizeRaceWebsiteUrl(c.website);
+                const safeYtUrl = normalizeYouTubeWatchUrl(c.youtubeUrl);
+                const hasYtVideoId = !!extractYouTubeVideoId(c.youtubeUrl);
                 const card = document.createElement('div');
                 card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between hover:border-amber-400/40 transition gap-4";
                 card.innerHTML = `
@@ -2307,15 +2393,25 @@
                         <h4 class="text-base font-black text-white mb-1.5">${escapeHtml(c.name)}</h4>
                         <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-amber-400"></i> ${escapeHtml(c.location)}</p>
                     </div>
-                    <div class="space-y-3 pt-3.5 border-t border-slate-800">
+                    <div class="space-y-2.5 pt-3.5 border-t border-slate-800">
                         <div class="flex justify-between items-center text-xs gap-2">
                             <span class="text-slate-400 font-bold">Trať:</span>
                             <span class="font-extrabold text-white text-right">${escapeHtml(c.params || '-')}</span>
                         </div>
-                        ${safeUrl ? `
-                        <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-3 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 rounded-xl text-xs font-black transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Web závodu / Více informací
-                        </a>` : ''}
+                        ${(safeUrl || safeYtUrl) ? `
+                        <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                            ${safeUrl ? `
+                            <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 py-2.5 px-3 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Web závodu
+                            </a>` : ''}
+                            ${safeYtUrl ? (hasYtVideoId ? `
+                            <button type="button" onclick="openRaceVideoModal('${escapeHtml(c.id)}')" class="flex-1 py-2.5 px-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                <i class="fa-brands fa-youtube text-red-500 text-sm"></i> Video závodu
+                            </button>` : `
+                            <a href="${escapeHtml(safeYtUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 py-2.5 px-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                <i class="fa-brands fa-youtube text-red-500 text-sm"></i> Video závodu
+                            </a>`) : ''}
+                        </div>` : ''}
                     </div>
                 `;
                 grid.appendChild(card);
@@ -3787,6 +3883,8 @@
 
             calendar.forEach((c, idx) => {
                 const safeUrl = normalizeRaceWebsiteUrl(c.website);
+                const safeYtUrl = normalizeYouTubeWatchUrl(c.youtubeUrl);
+                const hasYtVideoId = !!extractYouTubeVideoId(c.youtubeUrl);
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
                 tr.innerHTML = `
@@ -3801,9 +3899,17 @@
                     </td>
                     <td class="p-3 text-slate-300 text-xs font-semibold">${escapeHtml(c.params || '-')}</td>
                     <td class="p-3 text-xs whitespace-nowrap">
-                        ${safeUrl
-                            ? `<a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 rounded-lg font-bold transition"><i class="fa-solid fa-arrow-up-right-from-square"></i> Otevřít web</a>`
-                            : '<span class="text-slate-500 italic">Neuvedeno</span>'}
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            ${safeUrl
+                                ? `<a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-1 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 rounded-lg font-bold transition"><i class="fa-solid fa-arrow-up-right-from-square"></i> Web</a>`
+                                : ''}
+                            ${safeYtUrl
+                                ? (hasYtVideoId
+                                    ? `<button type="button" onclick="openRaceVideoModal('${escapeHtml(c.id)}')" class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-lg font-bold transition"><i class="fa-brands fa-youtube text-red-500"></i> Video</button>`
+                                    : `<a href="${escapeHtml(safeYtUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-lg font-bold transition"><i class="fa-brands fa-youtube text-red-500"></i> Video</a>`)
+                                : ''}
+                            ${(!safeUrl && !safeYtUrl) ? '<span class="text-slate-500 italic">Neuvedeno</span>' : ''}
+                        </div>
                     </td>
                     <td class="p-3 text-right space-x-2 whitespace-nowrap">
                         <button type="button" onclick="editRace('${escapeHtml(c.id)}')" class="px-3 py-1.5 bg-amber-400/20 text-amber-300 rounded-xl hover:bg-amber-400/30 transition font-bold text-xs border border-amber-400/30">Upravit</button>
@@ -3822,6 +3928,7 @@
             const startTimeEl = document.getElementById('new-race-start-time');
             const paramsEl = document.getElementById('new-race-params');
             const websiteEl = document.getElementById('new-race-website');
+            const youtubeEl = document.getElementById('new-race-youtube');
 
             const editId = editIdEl ? editIdEl.value.trim() : '';
             const name = nameEl ? nameEl.value.trim() : '';
@@ -3830,6 +3937,7 @@
             const startTime = startTimeEl ? startTimeEl.value.trim() : '';
             const params = (paramsEl ? paramsEl.value.trim() : '') || '50 km';
             const website = normalizeRaceWebsiteUrl(websiteEl ? websiteEl.value : '');
+            const youtubeUrl = normalizeYouTubeWatchUrl(youtubeEl ? youtubeEl.value : '');
 
             if (!name || !location) {
                 showModal("Chyba", "Zadejte název a lokaci závodu!");
@@ -3845,6 +3953,7 @@
                     existing.startTime = startTime;
                     existing.params = params;
                     existing.website = website;
+                    existing.youtubeUrl = youtubeUrl;
                 }
                 cancelEditRace();
                 populateAdminSelects();
@@ -3860,7 +3969,7 @@
                 }
             } else {
                 const newId = 'rc_' + Date.now();
-                calendar.push({ id: newId, name, location, date, startTime, params, website });
+                calendar.push({ id: newId, name, location, date, startTime, params, website, youtubeUrl });
                 cancelEditRace();
                 populateAdminSelects();
                 populatePublicRaceResultsSelect();
@@ -3886,6 +3995,7 @@
             document.getElementById('new-race-start-time').value = race.startTime || '09:30';
             document.getElementById('new-race-params').value = race.params || '';
             document.getElementById('new-race-website').value = race.website || '';
+            document.getElementById('new-race-youtube').value = race.youtubeUrl || '';
 
             document.getElementById('btn-save-race').textContent = 'Uložit změny závodu';
             document.getElementById('btn-cancel-edit-race').classList.remove('hidden');
@@ -3902,6 +4012,7 @@
             document.getElementById('new-race-start-time').value = '09:30';
             document.getElementById('new-race-params').value = '';
             document.getElementById('new-race-website').value = '';
+            document.getElementById('new-race-youtube').value = '';
 
             document.getElementById('btn-save-race').textContent = 'Přidat závod do kalendáře';
             document.getElementById('btn-cancel-edit-race').classList.add('hidden');
