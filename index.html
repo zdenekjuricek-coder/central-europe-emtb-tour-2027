@@ -516,15 +516,21 @@
 
                 <!-- Admin Sub-Content: Manage Riders -->
                 <div id="admin-sub-riders" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                    <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-user-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_rider_title">Přidat / Spravovat jezdce</span></h3>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-user-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_rider_title">Přidat / Spravovat jezdce</span></h3>
+                        <span id="rider-edit-badge" class="hidden text-xs font-black bg-amber-400/20 text-amber-300 border border-amber-400/40 px-3 py-1 rounded-full">
+                            Režim úpravy jezdce
+                        </span>
+                    </div>
+                    <input type="hidden" id="edit-rider-id" value="">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_rider_name">Jméno a příjmení</label>
-                            <input type="text" id="new-rider-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Jan Novák">
+                            <input type="text" id="new-rider-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. Jan Novák">
                         </div>
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_rider_country">Stát (Vlajka)</label>
-                            <select id="new-rider-country" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
+                            <select id="new-rider-country" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none">
                                 <option value="CZ">🇨🇿 Česká republika</option>
                                 <option value="SK">🇸🇰 Slovensko</option>
                                 <option value="PL">🇵🇱 Polsko</option>
@@ -535,28 +541,31 @@
                         </div>
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_team_name">Tým</label>
-                            <select id="new-rider-team" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                            <select id="new-rider-team" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none"></select>
                         </div>
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Rok narození <span id="new-rider-age-hint" class="text-amber-400 font-semibold normal-case"></span></label>
-                            <input type="number" id="new-rider-birthyear" min="1930" max="2020" oninput="autoSelectCategoryByBirthYear()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. 1988">
+                            <input type="number" id="new-rider-birthyear" min="1930" max="2020" oninput="autoSelectCategoryByBirthYear()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. 1988">
                         </div>
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Věková kategorie</label>
-                            <select id="new-rider-cat" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                            <select id="new-rider-cat" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none"></select>
                         </div>
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Značka E-Biku</label>
-                            <select id="new-rider-ebike" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                            <select id="new-rider-ebike" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none"></select>
                         </div>
                         <div class="sm:col-span-2">
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Motor & Pohon</label>
-                            <select id="new-rider-motor" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
+                            <select id="new-rider-motor" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none"></select>
                         </div>
                     </div>
-                    <div>
-                        <button onclick="addNewRider()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="addNewRider()" id="btn-save-rider" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
                             Vytvořit a uložit jezdce
+                        </button>
+                        <button onclick="cancelEditRider()" id="btn-cancel-edit-rider" class="hidden w-full sm:w-auto px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs uppercase tracking-wider transition">
+                            Zrušit úpravu
                         </button>
                     </div>
 
@@ -2248,7 +2257,17 @@
                 .replace(/'/g, '&#39;');
         }
 
-        function addNewRider() {
+        const availableCountries = [
+            { code: 'CZ', label: '🇨🇿 CZ' },
+            { code: 'SK', label: '🇸🇰 SK' },
+            { code: 'PL', label: '🇵🇱 PL' },
+            { code: 'DE', label: '🇩🇪 DE' },
+            { code: 'AT', label: '🇦🇹 AT' },
+            { code: 'HU', label: '🇭🇺 HU' }
+        ];
+
+        async function addNewRider() {
+            const editIdEl = document.getElementById('edit-rider-id');
             const nameEl = document.getElementById('new-rider-name');
             const countryEl = document.getElementById('new-rider-country');
             const teamEl = document.getElementById('new-rider-team');
@@ -2258,6 +2277,7 @@
             const ebikeEl = document.getElementById('new-rider-ebike');
             const motorEl = document.getElementById('new-rider-motor');
 
+            const editId = editIdEl ? editIdEl.value.trim() : '';
             const name = nameEl ? nameEl.value.trim() : '';
             const country = countryEl ? countryEl.value : 'CZ';
             const team = teamEl ? teamEl.value : '';
@@ -2269,6 +2289,38 @@
 
             if (!name) {
                 showModal("Chyba", "Zadejte prosím jméno jezdce!");
+                return;
+            }
+
+            if (editId) {
+                const existing = riders.find(r => r.id === editId);
+                if (existing) {
+                    existing.name = name;
+                    existing.country = country;
+                    existing.team = team;
+                    existing.category = category;
+                    existing.ebike = ebike;
+                    existing.motor = motor;
+                    if (birthYear && !isNaN(birthYear)) {
+                        existing.birthYear = birthYear;
+                    } else {
+                        delete existing.birthYear;
+                    }
+                }
+                cancelEditRider();
+                populateAdminSelects();
+                renderAdminRidersTable();
+                renderAdminCategoriesTable();
+                renderAdminTeamsGrid();
+                renderPublicLeaderboards();
+                renderPublicRaceResults();
+                renderTeamsAndRidersView();
+                const res = await saveData();
+                if (res.ok) {
+                    showModal("Úspěch", `Údaje jezdce "${name}" byly upraveny a uloženy do Firebase databáze!`);
+                } else {
+                    showModal("Chyba databáze Firebase", `Změny jezdce se neuložily (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
                 return;
             }
 
@@ -2288,37 +2340,121 @@
             }
             riders.push(riderObj);
 
-            saveData();
             if (nameEl) nameEl.value = '';
             if (birthYearEl) birthYearEl.value = '';
             if (ageHintEl) ageHintEl.textContent = '';
             populateAdminSelects();
             renderAdminRidersTable();
             renderAdminCategoriesTable();
+            renderAdminTeamsGrid();
             renderPublicLeaderboards();
-            showModal("Úspěch", "Nový jezdec byl úspěšně přidán a uložen do databáze!");
-        }
-
-        function updateRiderCategory(riderId, newCategoryId) {
-            const r = riders.find(item => item.id === riderId);
-            if (r) {
-                r.category = newCategoryId;
-                saveData();
-                renderAdminCategoriesTable();
-                renderPublicLeaderboards();
-                renderPublicRaceResults();
-                renderTeamsAndRidersView();
+            renderPublicRaceResults();
+            renderTeamsAndRidersView();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", "Nový jezdec byl úspěšně přidán a uložen do Firebase databáze!");
+            } else {
+                showModal("Chyba databáze Firebase", `Nový jezdec se neuložil do databáze (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
             }
         }
 
-        function deleteRider(id) {
+        function editRider(id) {
+            const r = riders.find(item => item.id === id);
+            if (!r) return;
+
+            populateCategorySelects();
+            populateAdminSelects();
+
+            const ensureSelectValue = (selectEl, val) => {
+                if (!selectEl || val === undefined || val === null) return;
+                const hasOpt = Array.from(selectEl.options).some(o => o.value === val);
+                if (!hasOpt && val !== '') {
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    opt.textContent = val;
+                    selectEl.appendChild(opt);
+                }
+                selectEl.value = val;
+            };
+
+            document.getElementById('edit-rider-id').value = r.id;
+            document.getElementById('new-rider-name').value = r.name || '';
+            ensureSelectValue(document.getElementById('new-rider-country'), r.country || 'CZ');
+            ensureSelectValue(document.getElementById('new-rider-team'), r.team || '');
+            document.getElementById('new-rider-birthyear').value = r.birthYear || '';
+            const ageHintEl = document.getElementById('new-rider-age-hint');
+            if (ageHintEl) {
+                ageHintEl.textContent = r.birthYear ? `(věk v 2027: ${2027 - r.birthYear} let)` : '';
+            }
+            const matchedCat = getCategoryByIdOrName(r.category);
+            ensureSelectValue(document.getElementById('new-rider-cat'), matchedCat ? matchedCat.id : (r.category || ''));
+            ensureSelectValue(document.getElementById('new-rider-ebike'), r.ebike || '');
+            ensureSelectValue(document.getElementById('new-rider-motor'), r.motor || '');
+
+            document.getElementById('btn-save-rider').textContent = 'Uložit změny jezdce';
+            document.getElementById('btn-cancel-edit-rider').classList.remove('hidden');
+            document.getElementById('rider-edit-badge').classList.remove('hidden');
+            document.getElementById('new-rider-name').focus();
+        }
+
+        function cancelEditRider() {
+            const editIdEl = document.getElementById('edit-rider-id');
+            const nameEl = document.getElementById('new-rider-name');
+            const birthYearEl = document.getElementById('new-rider-birthyear');
+            const ageHintEl = document.getElementById('new-rider-age-hint');
+            const btnSave = document.getElementById('btn-save-rider');
+            const btnCancel = document.getElementById('btn-cancel-edit-rider');
+            const badge = document.getElementById('rider-edit-badge');
+
+            if (editIdEl) editIdEl.value = '';
+            if (nameEl) nameEl.value = '';
+            if (birthYearEl) birthYearEl.value = '';
+            if (ageHintEl) ageHintEl.textContent = '';
+            if (btnSave) btnSave.textContent = 'Vytvořit a uložit jezdce';
+            if (btnCancel) btnCancel.classList.add('hidden');
+            if (badge) badge.classList.add('hidden');
+        }
+
+        async function updateRiderField(riderId, field, newValue) {
+            const r = riders.find(item => item.id === riderId);
+            if (!r) return;
+            r[field] = newValue;
+            populateAdminSelects();
+            if (field === 'country') {
+                renderAdminRidersTable();
+            }
+            renderAdminCategoriesTable();
+            renderAdminTeamsGrid();
+            renderPublicLeaderboards();
+            renderPublicRaceResults();
+            renderTeamsAndRidersView();
+            const res = await saveData();
+            if (!res.ok) {
+                showModal("Chyba databáze Firebase", `Změna u jezdce "${r.name}" se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function updateRiderCategory(riderId, newCategoryId) {
+            return updateRiderField(riderId, 'category', newCategoryId);
+        }
+
+        async function deleteRider(id) {
             if (confirm("Opravdu chcete smazat tohoto jezdce?")) {
+                if (document.getElementById('edit-rider-id') && document.getElementById('edit-rider-id').value === id) {
+                    cancelEditRider();
+                }
                 riders = riders.filter(r => r.id !== id);
-                saveData();
                 populateAdminSelects();
                 renderAdminRidersTable();
                 renderAdminCategoriesTable();
+                renderAdminTeamsGrid();
                 renderPublicLeaderboards();
+                renderPublicRaceResults();
+                renderTeamsAndRidersView();
+                const res = await saveData();
+                if (!res.ok) {
+                    showModal("Chyba databáze Firebase", `Smazání jezdce se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
             }
         }
 
@@ -2332,27 +2468,76 @@
                 const catOptions = ageCategories.map(c =>
                     `<option value="${escapeHtml(c.id)}" ${selectedCatId === c.id ? 'selected' : ''}>${escapeHtml(formatAgeCategoryLabel(c))}</option>`
                 ).join('');
-                const extraOption = !matchedCat && r.category
+                const extraCatOption = !matchedCat && r.category
                     ? `<option value="${escapeHtml(r.category)}" selected>${escapeHtml(r.category)}</option>`
+                    : '';
+
+                const countryHasMatch = availableCountries.some(c => c.code === r.country);
+                const countryOptions = availableCountries.map(c =>
+                    `<option value="${escapeHtml(c.code)}" ${r.country === c.code ? 'selected' : ''}>${c.label}</option>`
+                ).join('');
+                const extraCountryOption = !countryHasMatch && r.country
+                    ? `<option value="${escapeHtml(r.country)}" selected>${escapeHtml(r.country)}</option>`
+                    : '';
+
+                const teamHasMatch = !r.team || teams.some(t => t.name === r.team);
+                const teamOptions = `<option value="" ${!r.team ? 'selected' : ''}>-- Bez týmu --</option>` + teams.map(t =>
+                    `<option value="${escapeHtml(t.name)}" ${r.team === t.name ? 'selected' : ''}>${escapeHtml(t.name)}</option>`
+                ).join('');
+                const extraTeamOption = !teamHasMatch && r.team
+                    ? `<option value="${escapeHtml(r.team)}" selected>${escapeHtml(r.team)}</option>`
+                    : '';
+
+                const ebikeHasMatch = availableBrands.includes(r.ebike);
+                const ebikeOptions = availableBrands.map(b =>
+                    `<option value="${escapeHtml(b)}" ${r.ebike === b ? 'selected' : ''}>${escapeHtml(b)}</option>`
+                ).join('');
+                const extraEbikeOption = !ebikeHasMatch && r.ebike
+                    ? `<option value="${escapeHtml(r.ebike)}" selected>${escapeHtml(r.ebike)}</option>`
+                    : '';
+
+                const motorHasMatch = availableMotors.includes(r.motor);
+                const motorOptions = availableMotors.map(m =>
+                    `<option value="${escapeHtml(m)}" ${r.motor === m ? 'selected' : ''}>${escapeHtml(m)}${motorHandicaps[m] ? ` (${motorHandicaps[m]})` : ''}</option>`
+                ).join('');
+                const extraMotorOption = !motorHasMatch && r.motor
+                    ? `<option value="${escapeHtml(r.motor)}" selected>${escapeHtml(r.motor)}</option>`
                     : '';
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
                 tr.innerHTML = `
-                    <td class="p-3 font-bold text-white">
+                    <td class="p-3 font-bold text-white whitespace-nowrap">
                         <div class="flex items-center gap-2">${getFlagIcon(r.country)} ${escapeHtml(r.name)}</div>
                         ${r.birthYear ? `<div class="text-[11px] text-slate-400 font-medium">Ročník ${r.birthYear} (${2027 - r.birthYear} let)</div>` : ''}
                     </td>
-                    <td class="p-3 font-semibold text-slate-300">${escapeHtml(r.country)}</td>
-                    <td class="p-3 text-slate-400">${r.team ? escapeHtml(r.team) : '<span class="italic text-slate-600">Bez týmu</span>'}</td>
                     <td class="p-3">
-                        <select onchange="updateRiderCategory('${escapeHtml(r.id)}', this.value)" class="bg-slate-800 border border-slate-700 text-amber-300 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400">
-                            ${extraOption}${catOptions}
+                        <select onchange="updateRiderField('${escapeHtml(r.id)}', 'country', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400">
+                            ${extraCountryOption}${countryOptions}
                         </select>
                     </td>
-                    <td class="p-3 text-slate-200 font-bold">${escapeHtml(r.ebike)}</td>
-                    <td class="p-3 text-slate-400">${escapeHtml(r.motor)}</td>
-                    <td class="p-3 text-right">
+                    <td class="p-3">
+                        <select onchange="updateRiderField('${escapeHtml(r.id)}', 'team', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400 max-w-[180px]">
+                            ${extraTeamOption}${teamOptions}
+                        </select>
+                    </td>
+                    <td class="p-3">
+                        <select onchange="updateRiderField('${escapeHtml(r.id)}', 'category', this.value)" class="bg-slate-800 border border-slate-700 text-amber-300 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400">
+                            ${extraCatOption}${catOptions}
+                        </select>
+                    </td>
+                    <td class="p-3">
+                        <select onchange="updateRiderField('${escapeHtml(r.id)}', 'ebike', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400">
+                            ${extraEbikeOption}${ebikeOptions}
+                        </select>
+                    </td>
+                    <td class="p-3">
+                        <select onchange="updateRiderField('${escapeHtml(r.id)}', 'motor', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400 max-w-[190px]">
+                            ${extraMotorOption}${motorOptions}
+                        </select>
+                    </td>
+                    <td class="p-3 text-right space-x-2 whitespace-nowrap">
+                        <button onclick="editRider('${escapeHtml(r.id)}')" class="px-3 py-1.5 bg-amber-400/20 text-amber-300 rounded-xl hover:bg-amber-400/30 transition font-bold text-xs border border-amber-400/30">Upravit</button>
                         <button onclick="deleteRider('${escapeHtml(r.id)}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
                     </td>
                 `;
