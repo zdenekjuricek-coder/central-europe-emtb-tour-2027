@@ -855,29 +855,69 @@
 
                 <!-- Admin Sub-Content: Manage Calendar -->
                 <div id="admin-sub-calendar" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
-                    <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-calendar-plus mr-2 text-amber-400"></i> <span data-i18n="admin_add_race_title">Přidat / Spravovat závod</span></h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h3 class="text-base sm:text-lg font-black text-white">
+                            <i class="fa-solid fa-calendar-plus mr-2 text-amber-400"></i>
+                            <span data-i18n="admin_add_race_title">Přidat / Spravovat závod</span>
+                        </h3>
+                        <span id="race-edit-badge" class="hidden text-xs font-black bg-amber-400/20 text-amber-300 border border-amber-400/40 px-3 py-1 rounded-full">
+                            Režim úpravy závodu
+                        </span>
+                    </div>
+
+                    <input type="hidden" id="edit-race-id" value="">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název závodu</label>
-                            <input type="text" id="new-race-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="např. Beskydy e-MTB">
+                            <input type="text" id="new-race-name" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. Beskydy e-MTB">
                         </div>
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Město / Lokace</label>
-                            <input type="text" id="new-race-loc" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="Dolní Bečva, CZ">
+                            <input type="text" id="new-race-loc" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="Dolní Bečva, CZ">
                         </div>
                         <div>
-                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Datum</label>
-                            <input type="date" id="new-race-date" value="2027-05-15" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold">
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Datum závodu</label>
+                            <input type="date" id="new-race-date" value="2027-05-15" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-amber-400 mb-1.5"><i class="fa-regular fa-clock mr-1"></i> Čas startu (hodina : minuta)</label>
+                            <input type="time" id="new-race-start-time" value="09:30" class="w-full bg-slate-800 border border-amber-400/40 text-amber-300 rounded-xl p-3 text-sm font-black focus:border-amber-400 outline-none">
                         </div>
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Parametry (km / převýšení)</label>
-                            <input type="text" id="new-race-params" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="52 km / 1600m">
+                            <input type="text" id="new-race-params" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="52 km / 1 600 m (Monument)">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5"><i class="fa-solid fa-link mr-1 text-sky-400"></i> Web závodu (odkaz pro více info)</label>
+                            <input type="url" id="new-race-website" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="https://www.web-zavodu.cz">
                         </div>
                     </div>
-                    <div>
-                        <button onclick="addNewRace()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="addNewRace()" id="btn-save-race" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
                             Přidat závod do kalendáře
                         </button>
+                        <button onclick="cancelEditRace()" id="btn-cancel-edit-race" class="hidden w-full sm:w-auto px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs uppercase tracking-wider transition">
+                            Zrušit úpravu
+                        </button>
+                    </div>
+
+                    <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
+                                    <th class="p-3 w-12">#</th>
+                                    <th class="p-3">Závod &amp; Lokace</th>
+                                    <th class="p-3">Datum</th>
+                                    <th class="p-3">Čas startu</th>
+                                    <th class="p-3">Trať / Parametry</th>
+                                    <th class="p-3">Web závodu</th>
+                                    <th class="p-3 text-right">Akce</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-calendar-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -1465,16 +1505,16 @@
         ];
 
         let defaultCalendar = [
-            { id: 'rc1', name: 'ŠKODA Svätojurský MTB maratón', location: 'Svätý Jur, SK', date: '2027-04-17', params: '42 km / 1 150 m (Klasika)' },
-            { id: 'rc2', name: 'Bike Maraton Harrachov – Jakuszyce', location: 'Harrachov / Jakuszyce, CZ/PL', date: '2027-05-08', params: '60 km / 1 490 m (Monument)' },
-            { id: 'rc3', name: 'ŠKODA MTB maratón Rajecké Teplice', location: 'Rajecké Teplice, SK', date: '2027-05-22', params: '50 km / 1 450 m (Monument)' },
-            { id: 'rc4', name: 'ŠKODA Slovenský raj', location: 'Hrabušice – Podlesok, SK', date: '2027-06-05', params: '54 km / 1 350 m (Klasika)' },
-            { id: 'rc5', name: 'Malevil Cup', location: 'Jablonné v Podještědí, CZ', date: '2027-06-12', params: '70 km / 1 400 m (Monument)' },
-            { id: 'rc6', name: 'Bikemaraton Drásal', location: 'Holešov, CZ', date: '2027-06-26', params: '58 km / 1 721 m (Královská)' },
-            { id: 'rc7', name: 'Bike Maraton Bielawa', location: 'Soví hory, PL', date: '2027-07-17', params: '52 km / 1 550 m (Monument)' },
-            { id: 'rc8', name: 'ŠKODA Horal MTB maratón', location: 'Svit – Vysoké Tatry, SK', date: '2027-08-07', params: '62 km / 1 750 m (Královská)' },
-            { id: 'rc9', name: 'Silesia Bike Marathon Wisła', location: 'Slezské Beskydy, PL', date: '2027-08-28', params: '42 km / 1 622 m (Královská)' },
-            { id: 'rc10', name: 'Rallye Sudety', location: 'Teplice nad Metují, CZ', date: '2027-09-11', params: '60 km / 1 650 m (Královská)' }
+            { id: 'rc1', name: 'ŠKODA Svätojurský MTB maratón', location: 'Svätý Jur, SK', date: '2027-04-17', startTime: '09:30', params: '42 km / 1 150 m (Klasika)', website: '' },
+            { id: 'rc2', name: 'Bike Maraton Harrachov – Jakuszyce', location: 'Harrachov / Jakuszyce, CZ/PL', date: '2027-05-08', startTime: '10:00', params: '60 km / 1 490 m (Monument)', website: '' },
+            { id: 'rc3', name: 'ŠKODA MTB maratón Rajecké Teplice', location: 'Rajecké Teplice, SK', date: '2027-05-22', startTime: '09:30', params: '50 km / 1 450 m (Monument)', website: '' },
+            { id: 'rc4', name: 'ŠKODA Slovenský raj', location: 'Hrabušice – Podlesok, SK', date: '2027-06-05', startTime: '09:30', params: '54 km / 1 350 m (Klasika)', website: '' },
+            { id: 'rc5', name: 'Malevil Cup', location: 'Jablonné v Podještědí, CZ', date: '2027-06-12', startTime: '09:00', params: '70 km / 1 400 m (Monument)', website: '' },
+            { id: 'rc6', name: 'Bikemaraton Drásal', location: 'Holešov, CZ', date: '2027-06-26', startTime: '09:00', params: '58 km / 1 721 m (Královská)', website: '' },
+            { id: 'rc7', name: 'Bike Maraton Bielawa', location: 'Soví hory, PL', date: '2027-07-17', startTime: '10:00', params: '52 km / 1 550 m (Monument)', website: '' },
+            { id: 'rc8', name: 'ŠKODA Horal MTB maratón', location: 'Svit – Vysoké Tatry, SK', date: '2027-08-07', startTime: '09:00', params: '62 km / 1 750 m (Královská)', website: '' },
+            { id: 'rc9', name: 'Silesia Bike Marathon Wisła', location: 'Slezské Beskydy, PL', date: '2027-08-28', startTime: '10:00', params: '42 km / 1 622 m (Královská)', website: '' },
+            { id: 'rc10', name: 'Rallye Sudety', location: 'Teplice nad Metují, CZ', date: '2027-09-11', startTime: '08:30', params: '60 km / 1 650 m (Královská)', website: '' }
         ];
 
         let defaultAgeCategories = [
@@ -1722,11 +1762,13 @@
                 renderPublicLeaderboards();
                 populatePublicRaceResultsSelect();
                 renderPublicRaceResults();
+                renderCalendar();
                 renderTeamsAndRidersView();
                 if (!document.getElementById('view-admin').classList.contains('hidden')) {
                     renderAdminRidersTable();
                     renderAdminCategoriesTable();
                     renderAdminMotorsTable();
+                    renderAdminCalendarTable();
                     renderAdminTeamsGrid();
                 }
             }, (error) => {
@@ -1740,7 +1782,7 @@
         window.loadDefaultData = function() {
             teams = defaultTeams;
             riders = defaultRiders;
-            calendar = defaultCalendar;
+            calendar = defaultCalendar.map(c => ({ ...c }));
             ageCategories = defaultAgeCategories.map(c => ({ ...c }));
             availableMotors = [...defaultAvailableMotors];
             motorHandicaps = { ...defaultMotorHandicaps };
@@ -1753,6 +1795,7 @@
             renderPublicLeaderboards();
             populatePublicRaceResultsSelect();
             renderPublicRaceResults();
+            renderCalendar();
         };
 
         async function saveData() {
@@ -1847,6 +1890,7 @@
                 renderAdminRidersTable();
                 renderAdminCategoriesTable();
                 renderAdminMotorsTable();
+                renderAdminCalendarTable();
                 filterMotorReferenceCatalog();
                 renderAdminTeamsGrid();
                 switchAdminSubTab(currentAdminSubTab);
@@ -1924,6 +1968,7 @@
             if (targetEl) targetEl.classList.remove('hidden');
             if (sub === 'skills') loadRiderSkillsToForm();
             if (sub === 'categories') renderAdminCategoriesTable();
+            if (sub === 'calendar') renderAdminCalendarTable();
             if (sub === 'motors') {
                 renderAdminMotorsTable();
                 filterMotorReferenceCatalog();
@@ -2228,24 +2273,49 @@
             }
         }
 
+        function normalizeRaceWebsiteUrl(rawUrl) {
+            const trimmed = String(rawUrl || '').trim();
+            if (!trimmed) return '';
+            if (/^https?:\/\//i.test(trimmed)) return trimmed;
+            return 'https://' + trimmed;
+        }
+
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
+            if (!grid) return;
             grid.innerHTML = '';
+
+            if (calendar.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-slate-500 italic p-6">V kalendáři zatím nejsou žádné závody.</div>`;
+                return;
+            }
+
             calendar.forEach((c, idx) => {
+                const startTimeText = c.startTime ? escapeHtml(c.startTime) : 'Upřesníme';
+                const safeUrl = normalizeRaceWebsiteUrl(c.website);
                 const card = document.createElement('div');
-                card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between hover:border-slate-700 transition";
+                card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between hover:border-amber-400/40 transition gap-4";
                 card.innerHTML = `
                     <div>
-                        <div class="flex justify-between items-start mb-3">
+                        <div class="flex justify-between items-center gap-2 mb-3 flex-wrap">
                             <span class="bg-amber-400/20 text-amber-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border border-amber-400/30">Závod #${idx + 1}</span>
-                            <span class="text-xs font-bold text-slate-400"><i class="fa-regular fa-calendar mr-1.5 text-amber-400"></i> ${c.date}</span>
+                            <div class="flex items-center gap-2 text-xs font-bold">
+                                <span class="text-slate-300"><i class="fa-regular fa-calendar mr-1 text-amber-400"></i> ${escapeHtml(c.date || '-')}</span>
+                                <span class="bg-amber-400/15 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-lg"><i class="fa-regular fa-clock mr-1"></i> ${startTimeText}</span>
+                            </div>
                         </div>
-                        <h4 class="text-base font-black text-white mb-1.5">${c.name}</h4>
-                        <p class="text-xs text-slate-400 font-medium mb-4 flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-amber-400"></i> ${c.location}</p>
+                        <h4 class="text-base font-black text-white mb-1.5">${escapeHtml(c.name)}</h4>
+                        <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-amber-400"></i> ${escapeHtml(c.location)}</p>
                     </div>
-                    <div class="pt-3.5 border-t border-slate-800 flex justify-between items-center text-xs">
-                        <span class="text-slate-400 font-bold">Trať:</span>
-                        <span class="font-extrabold text-white">${c.params}</span>
+                    <div class="space-y-3 pt-3.5 border-t border-slate-800">
+                        <div class="flex justify-between items-center text-xs gap-2">
+                            <span class="text-slate-400 font-bold">Trať:</span>
+                            <span class="font-extrabold text-white text-right">${escapeHtml(c.params || '-')}</span>
+                        </div>
+                        ${safeUrl ? `
+                        <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-3 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 rounded-xl text-xs font-black transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Web závodu / Více informací
+                        </a>` : ''}
                     </div>
                 `;
                 grid.appendChild(card);
@@ -3703,24 +3773,175 @@
             }
         }
 
-        function addNewRace() {
-            const name = document.getElementById('new-race-name').value.trim();
-            const location = document.getElementById('new-race-loc').value.trim();
-            const date = document.getElementById('new-race-date').value;
-            const params = document.getElementById('new-race-params').value.trim() || '50 km';
+        function renderAdminCalendarTable() {
+            const tbody = document.getElementById('admin-calendar-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (calendar.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="7" class="p-6 text-center text-slate-500 italic">V kalendáři zatím nejsou žádné závody.</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+
+            calendar.forEach((c, idx) => {
+                const safeUrl = normalizeRaceWebsiteUrl(c.website);
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
+                tr.innerHTML = `
+                    <td class="p-3 font-black text-amber-400">${idx + 1}.</td>
+                    <td class="p-3">
+                        <div class="font-bold text-white">${escapeHtml(c.name)}</div>
+                        <div class="text-[11px] text-slate-400 font-medium"><i class="fa-solid fa-location-dot text-amber-400 mr-1"></i>${escapeHtml(c.location)}</div>
+                    </td>
+                    <td class="p-3 text-slate-300 font-semibold whitespace-nowrap">${escapeHtml(c.date || '-')}</td>
+                    <td class="p-3 whitespace-nowrap">
+                        <input type="time" value="${escapeHtml(c.startTime || '')}" onchange="updateRaceStartTime('${escapeHtml(c.id)}', this.value)" class="bg-slate-800 border border-amber-400/40 text-amber-300 text-xs rounded-lg px-2.5 py-1.5 font-black outline-none focus:border-amber-400">
+                    </td>
+                    <td class="p-3 text-slate-300 text-xs font-semibold">${escapeHtml(c.params || '-')}</td>
+                    <td class="p-3 text-xs whitespace-nowrap">
+                        ${safeUrl
+                            ? `<a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 rounded-lg font-bold transition"><i class="fa-solid fa-arrow-up-right-from-square"></i> Otevřít web</a>`
+                            : '<span class="text-slate-500 italic">Neuvedeno</span>'}
+                    </td>
+                    <td class="p-3 text-right space-x-2 whitespace-nowrap">
+                        <button type="button" onclick="editRace('${escapeHtml(c.id)}')" class="px-3 py-1.5 bg-amber-400/20 text-amber-300 rounded-xl hover:bg-amber-400/30 transition font-bold text-xs border border-amber-400/30">Upravit</button>
+                        <button type="button" onclick="deleteRace('${escapeHtml(c.id)}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function addNewRace() {
+            const editIdEl = document.getElementById('edit-race-id');
+            const nameEl = document.getElementById('new-race-name');
+            const locEl = document.getElementById('new-race-loc');
+            const dateEl = document.getElementById('new-race-date');
+            const startTimeEl = document.getElementById('new-race-start-time');
+            const paramsEl = document.getElementById('new-race-params');
+            const websiteEl = document.getElementById('new-race-website');
+
+            const editId = editIdEl ? editIdEl.value.trim() : '';
+            const name = nameEl ? nameEl.value.trim() : '';
+            const location = locEl ? locEl.value.trim() : '';
+            const date = dateEl ? dateEl.value : '';
+            const startTime = startTimeEl ? startTimeEl.value.trim() : '';
+            const params = (paramsEl ? paramsEl.value.trim() : '') || '50 km';
+            const website = normalizeRaceWebsiteUrl(websiteEl ? websiteEl.value : '');
 
             if (!name || !location) {
                 showModal("Chyba", "Zadejte název a lokaci závodu!");
                 return;
             }
 
-            const newId = 'rc_' + Date.now();
-            calendar.push({ id: newId, name, location, date, params });
-            saveData();
+            if (editId) {
+                const existing = calendar.find(c => c.id === editId);
+                if (existing) {
+                    existing.name = name;
+                    existing.location = location;
+                    existing.date = date;
+                    existing.startTime = startTime;
+                    existing.params = params;
+                    existing.website = website;
+                }
+                cancelEditRace();
+                populateAdminSelects();
+                populatePublicRaceResultsSelect();
+                renderAdminCalendarTable();
+                renderCalendar();
+                renderPublicRaceResults();
+                const res = await saveData();
+                if (res.ok) {
+                    showModal("Úspěch", `Závod "${name}" byl upraven a uložen do Firebase databáze!`);
+                } else {
+                    showModal("Chyba databáze Firebase", `Změny závodu se neuložily (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
+            } else {
+                const newId = 'rc_' + Date.now();
+                calendar.push({ id: newId, name, location, date, startTime, params, website });
+                cancelEditRace();
+                populateAdminSelects();
+                populatePublicRaceResultsSelect();
+                renderAdminCalendarTable();
+                renderCalendar();
+                const res = await saveData();
+                if (res.ok) {
+                    showModal("Úspěch", `Závod "${name}" byl přidán do kalendáře a uložen do Firebase databáze!`);
+                } else {
+                    showModal("Chyba databáze Firebase", `Závod se neuložil do databáze (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
+            }
+        }
+
+        function editRace(id) {
+            const race = calendar.find(c => c.id === id);
+            if (!race) return;
+
+            document.getElementById('edit-race-id').value = race.id;
+            document.getElementById('new-race-name').value = race.name || '';
+            document.getElementById('new-race-loc').value = race.location || '';
+            document.getElementById('new-race-date').value = race.date || '2027-05-15';
+            document.getElementById('new-race-start-time').value = race.startTime || '09:30';
+            document.getElementById('new-race-params').value = race.params || '';
+            document.getElementById('new-race-website').value = race.website || '';
+
+            document.getElementById('btn-save-race').textContent = 'Uložit změny závodu';
+            document.getElementById('btn-cancel-edit-race').classList.remove('hidden');
+            document.getElementById('race-edit-badge').classList.remove('hidden');
+            document.getElementById('new-race-name').focus();
+        }
+
+        function cancelEditRace() {
+            const editIdEl = document.getElementById('edit-race-id');
+            if (editIdEl) editIdEl.value = '';
             document.getElementById('new-race-name').value = '';
             document.getElementById('new-race-loc').value = '';
-            populateAdminSelects();
-            showModal("Úspěch", "Závod byl přidán do kalendáře!");
+            document.getElementById('new-race-date').value = '2027-05-15';
+            document.getElementById('new-race-start-time').value = '09:30';
+            document.getElementById('new-race-params').value = '';
+            document.getElementById('new-race-website').value = '';
+
+            document.getElementById('btn-save-race').textContent = 'Přidat závod do kalendáře';
+            document.getElementById('btn-cancel-edit-race').classList.add('hidden');
+            document.getElementById('race-edit-badge').classList.add('hidden');
+        }
+
+        async function updateRaceStartTime(raceId, newTime) {
+            const race = calendar.find(c => c.id === raceId);
+            if (!race) return;
+            race.startTime = newTime;
+            renderCalendar();
+            const res = await saveData();
+            if (!res.ok) {
+                showModal("Chyba databáze Firebase", `Změna času startu se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function deleteRace(id) {
+            const race = calendar.find(c => c.id === id);
+            if (!race) return;
+            const hasResults = raceResults[id] && Object.keys(raceResults[id]).length > 0;
+            const msg = hasResults
+                ? `Opravdu chcete smazat závod "${race.name}"? Tento závod již obsahuje zapsané výsledky jezdců.`
+                : `Opravdu chcete smazat závod "${race.name}" z kalendáře?`;
+
+            if (confirm(msg)) {
+                if (document.getElementById('edit-race-id') && document.getElementById('edit-race-id').value === id) {
+                    cancelEditRace();
+                }
+                calendar = calendar.filter(c => c.id !== id);
+                populateAdminSelects();
+                populatePublicRaceResultsSelect();
+                renderAdminCalendarTable();
+                renderCalendar();
+                renderPublicRaceResults();
+                const res = await saveData();
+                if (!res.ok) {
+                    showModal("Chyba databáze Firebase", `Smazání závodu se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
+            }
         }
 
         function exportJSONData() {
@@ -3751,9 +3972,12 @@
                     saveData();
                     populateCategorySelects();
                     populateAdminSelects();
+                    populatePublicRaceResultsSelect();
                     renderAdminCategoriesTable();
                     renderAdminMotorsTable();
+                    renderAdminCalendarTable();
                     renderAdminRidersTable();
+                    renderCalendar();
                     renderPublicLeaderboards();
                     renderPublicRaceResults();
                     showModal("Úspěch", "Data byla úspěšně obnovena ze zálohy!");
@@ -3771,6 +3995,7 @@
                 populateAdminSelects();
                 renderPublicLeaderboards();
                 populatePublicRaceResultsSelect();
+                renderCalendar();
                 filterMotorReferenceCatalog();
             }, 300);
         };
