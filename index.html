@@ -400,7 +400,10 @@
                         <h2 class="text-xl sm:text-2xl font-black text-white flex items-center gap-3">
                             <i class="fa-solid fa-gears text-amber-400"></i> <span data-i18n="admin_panel_title">Administrátorský panel</span>
                         </h2>
-                        <p class="text-xs sm:text-sm text-slate-400 mt-1" id="admin-user-status-label">Přihlášen jako správce</p>
+                        <div class="flex flex-wrap items-center gap-2 mt-1">
+                            <p class="text-xs sm:text-sm text-slate-400" id="admin-user-status-label">Přihlášen jako správce</p>
+                            <span id="firebase-sync-status" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">Firebase: Připojuji…</span>
+                        </div>
                     </div>
                     <div class="flex items-center gap-3 flex-wrap">
                         <button onclick="exportJSONData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-sm">
@@ -1341,11 +1344,27 @@
                         if (loginCard) loginCard.classList.add('hidden');
                         if (dashboardWrapper) dashboardWrapper.classList.remove('hidden');
                         if (statusLabel) statusLabel.textContent = `Přihlášen jako: ${user.email}`;
+                        if (window._firestoreSyncFailed) {
+                            initFirebaseSync();
+                        }
                     } else {
                         if (loginCard) loginCard.classList.remove('hidden');
                         if (dashboardWrapper) dashboardWrapper.classList.add('hidden');
                     }
                 });
+            }
+        }
+
+        function setFirebaseStatus(text, type) {
+            const el = document.getElementById('firebase-sync-status');
+            if (!el) return;
+            el.textContent = text;
+            if (type === 'ok') {
+                el.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+            } else if (type === 'error') {
+                el.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40';
+            } else {
+                el.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40';
             }
         }
 
@@ -1386,31 +1405,39 @@
 
         function initFirebaseSync() {
             if (!window.db) {
+                setFirebaseStatus('Firebase: Offline (výchozí data)', 'error');
                 window.loadDefaultData();
                 return;
             }
+            if (typeof window._unsubFirestore === 'function') {
+                window._unsubFirestore();
+            }
             const { doc, onSnapshot } = window.firebaseModules;
             const docRef = doc(window.db, 'artifacts', window.appId);
+            window._firestoreSyncFailed = false;
 
-            onSnapshot(docRef, (docSnap) => {
+            window._unsubFirestore = onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if (data.teams && Array.isArray(data.teams)) teams = data.teams;
                     if (data.riders && Array.isArray(data.riders)) riders = data.riders;
                     if (data.calendar && Array.isArray(data.calendar)) calendar = data.calendar;
-                    if (data.ageCategories && Array.isArray(data.ageCategories) && data.ageCategories.length > 0) ageCategories = data.ageCategories;
+                    if (Array.isArray(data.ageCategories)) ageCategories = data.ageCategories;
                     if (data.raceResults) raceResults = data.raceResults;
                     if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
                     if (data.youtubeVideoId) youtubeVideoId = data.youtubeVideoId;
-                } else {
+                } else if (window.auth && window.auth.currentUser) {
                     saveData();
                 }
+                setFirebaseStatus('Firebase: Synchronizováno ✓', 'ok');
                 updateHeroVideoPlayer();
                 populateCategorySelects();
                 populateAdminSelects();
                 renderPublicLeaderboards();
                 populatePublicRaceResultsSelect();
+                renderPublicRaceResults();
+                renderTeamsAndRidersView();
                 if (!document.getElementById('view-admin').classList.contains('hidden')) {
                     renderAdminRidersTable();
                     renderAdminCategoriesTable();
@@ -1418,6 +1445,8 @@
                 }
             }, (error) => {
                 console.error("Firebase snapshot error:", error);
+                window._firestoreSyncFailed = true;
+                setFirebaseStatus(`Chyba čtení Firebase (${error.code || 'error'})`, 'error');
                 window.loadDefaultData();
             });
         }
@@ -1434,17 +1463,36 @@
             populateAdminSelects();
             renderPublicLeaderboards();
             populatePublicRaceResultsSelect();
+            renderPublicRaceResults();
         };
 
-        function saveData() {
-            if (window.db) {
+        async function saveData() {
+            if (!window.db || !window.firebaseModules) {
+                setFirebaseStatus('Chyba: Firebase není připojena', 'error');
+                return { ok: false, error: new Error('Databáze Firebase není inicializována.') };
+            }
+            try {
+                setFirebaseStatus('Firebase: Ukládám…', 'pending');
                 const { doc, setDoc } = window.firebaseModules;
                 const docRef = doc(window.db, 'artifacts', window.appId);
-                setDoc(docRef, { teams, riders, calendar, ageCategories, raceResults, availableBrands, availableMotors, youtubeVideoId }, { merge: true }).then(() => {
-                    console.log("Data successfully saved to Firebase Firestore.");
-                }).catch(err => {
-                    console.error("Error saving data to Firestore:", err);
-                });
+                const payload = JSON.parse(JSON.stringify({
+                    teams,
+                    riders,
+                    calendar,
+                    ageCategories,
+                    raceResults,
+                    availableBrands,
+                    availableMotors,
+                    youtubeVideoId
+                }));
+                await setDoc(docRef, payload, { merge: true });
+                console.log("Data successfully saved to Firebase Firestore.");
+                setFirebaseStatus('Firebase: Uloženo ✓', 'ok');
+                return { ok: true };
+            } catch (err) {
+                console.error("Error saving data to Firestore:", err);
+                setFirebaseStatus(`Chyba ukládání (${err.code || 'error'})`, 'error');
+                return { ok: false, error: err };
             }
         }
 
@@ -2344,7 +2392,7 @@
             });
         }
 
-        function saveAgeCategory() {
+        async function saveAgeCategory() {
             const editIdEl = document.getElementById('edit-category-id');
             const nameEl = document.getElementById('cat-name-input');
             const fromEl = document.getElementById('cat-age-from-input');
@@ -2379,14 +2427,18 @@
                     existing.ageTo = ageTo;
                 }
                 cancelEditAgeCategory();
-                saveData();
                 populateCategorySelects();
                 renderAdminCategoriesTable();
                 renderAdminRidersTable();
                 renderPublicLeaderboards();
                 renderPublicRaceResults();
                 renderTeamsAndRidersView();
-                showModal("Úspěch", `Věková kategorie "${name}" byla úspěšně upravena!`);
+                const res = await saveData();
+                if (res.ok) {
+                    showModal("Úspěch", `Věková kategorie "${name}" byla úspěšně upravena a uložena do Firebase databáze!`);
+                } else {
+                    showModal("Chyba databáze Firebase", `Změna se neuložila do databáze (${res.error?.code || res.error?.message || 'neznámá chyba'}). Zkontrolujte přihlášení a Firestore Rules.`);
+                }
             } else {
                 const newId = 'cat_' + Date.now();
                 ageCategories.push({
@@ -2398,13 +2450,17 @@
                 if (nameEl) nameEl.value = '';
                 if (fromEl) fromEl.value = '';
                 if (toEl) toEl.value = '';
-                saveData();
                 populateCategorySelects();
                 renderAdminCategoriesTable();
                 renderAdminRidersTable();
                 renderPublicLeaderboards();
                 renderPublicRaceResults();
-                showModal("Úspěch", `Nová věková kategorie "${name}" byla přidána a je ihned dostupná ve filtrech!`);
+                const res = await saveData();
+                if (res.ok) {
+                    showModal("Úspěch", `Nová věková kategorie "${name}" byla uložena do Firebase databáze a je dostupná ve filtrech!`);
+                } else {
+                    showModal("Chyba databáze Firebase", `Kategorie se neuložila do databáze (${res.error?.code || res.error?.message || 'neznámá chyba'}). Zkontrolujte přihlášení a Firestore Rules.`);
+                }
             }
         }
 
@@ -2434,7 +2490,7 @@
             document.getElementById('cat-edit-badge').classList.add('hidden');
         }
 
-        function deleteAgeCategory(id) {
+        async function deleteAgeCategory(id) {
             const cat = ageCategories.find(c => c.id === id);
             if (!cat) return;
             const assignedCount = riders.filter(r => riderMatchesCategory(r, id)).length;
@@ -2447,13 +2503,16 @@
                     cancelEditAgeCategory();
                 }
                 ageCategories = ageCategories.filter(c => c.id !== id);
-                saveData();
                 populateCategorySelects();
                 renderAdminCategoriesTable();
                 renderAdminRidersTable();
                 renderPublicLeaderboards();
                 renderPublicRaceResults();
                 renderTeamsAndRidersView();
+                const res = await saveData();
+                if (!res.ok) {
+                    showModal("Chyba databáze Firebase", `Smazání se neuložilo do databáze (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
             }
         }
 
