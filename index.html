@@ -433,6 +433,9 @@
                     <button onclick="switchAdminSubTab('categories')" id="admin-sub-btn-categories" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-layer-group"></i> <span data-i18n="admin_tab_categories">Věkové kategorie</span>
                     </button>
+                    <button onclick="switchAdminSubTab('motors')" id="admin-sub-btn-motors" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-bolt"></i> <span data-i18n="admin_tab_motors">Motory & Pohon</span>
+                    </button>
                     <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-shield"></i> <span data-i18n="admin_tab_teams">Správa týmů</span>
                     </button>
@@ -641,6 +644,120 @@
                     </div>
                 </div>
 
+                <!-- Admin Sub-Content: Manage Motors & Fair-Play Assistant -->
+                <div id="admin-sub-motors" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h3 class="text-base sm:text-lg font-black text-white">
+                            <i class="fa-solid fa-bolt mr-2 text-amber-400"></i>
+                            <span data-i18n="admin_motors_title">Správa motorů, pohonů a Fair-Play koeficientů</span>
+                        </h3>
+                        <span id="motor-edit-badge" class="hidden text-xs font-black bg-amber-400/20 text-amber-300 border border-amber-400/40 px-3 py-1 rounded-full">
+                            Režim úpravy motoru
+                        </span>
+                    </div>
+
+                    <!-- Fair-Play Online Lookup & Reference Assistant -->
+                    <div class="bg-gradient-to-br from-amber-500/10 via-[#0f172a] to-slate-900 p-5 rounded-2xl border border-amber-400/30 space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                            <div>
+                                <h4 class="text-sm font-black text-amber-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Fair-Play pomůcka &amp; vyhledávač parametrů motorů z internetu
+                                </h4>
+                                <p class="text-xs text-slate-400 mt-1">
+                                    Vyhledej e-MTB pohon v ověřené databázi (2024–2027) nebo online na internetu. Pomůcka podle špičkového výkonu (W), krouticího momentu (Nm), max. podpory (%) a hmotnosti (kg) spočítá férový koeficient do výsledků.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-2.5">
+                            <input type="text" id="motor-lookup-query" oninput="filterMotorReferenceCatalog()" onkeydown="if(event.key==='Enter'){event.preventDefault(); searchMotorOnline();}" class="flex-1 bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="Zadej název motoru (např. DJI Avinox M2S, Bosch CX Gen 5, Specialized 3.1, TQ HPR60...)">
+                            <button onclick="searchMotorOnline()" id="btn-motor-online-search" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2 whitespace-nowrap">
+                                <i class="fa-solid fa-globe"></i> Vyhledat online
+                            </button>
+                        </div>
+
+                        <!-- Live Online Search Result Box -->
+                        <div id="motor-online-results" class="hidden bg-slate-900/90 border border-slate-700 rounded-2xl p-4 space-y-3 text-xs"></div>
+
+                        <!-- Quick Reference Catalog Matches -->
+                        <div id="motor-catalog-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-72 overflow-y-auto pr-1"></div>
+                    </div>
+
+                    <!-- Add / Edit Motor Form + Live Fair-Play Calculator -->
+                    <input type="hidden" id="edit-motor-original-name" value="">
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název motoru &amp; pohonu</label>
+                                <input type="text" id="motor-name-input" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. Bosch CX Gen 5 (100 Nm)">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Moment (Nm)</label>
+                                <input type="number" id="motor-torque-input" min="20" max="200" step="1" oninput="updateFairPlayPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="85">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Špička (W)</label>
+                                <input type="number" id="motor-peakw-input" min="150" max="2500" step="5" oninput="updateFairPlayPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="600">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Podpora (%)</label>
+                                <input type="number" id="motor-assist-input" min="100" max="1000" step="10" oninput="updateFairPlayPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="400">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Hmotnost (kg)</label>
+                                <input type="number" id="motor-weight-input" min="1.0" max="6.0" step="0.05" oninput="updateFairPlayPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="2.80">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center pt-2 border-t border-slate-800">
+                            <div>
+                                <label class="block text-xs uppercase font-black text-amber-400 mb-1.5">Koeficient do výsledků (0.50 – 1.20)</label>
+                                <input type="number" id="motor-coeff-input" min="0.50" max="1.20" step="0.01" value="0.95" class="w-full bg-slate-800 border border-amber-400/50 text-amber-300 rounded-xl p-3 text-base font-black focus:border-amber-400 outline-none">
+                            </div>
+                            <div id="fairplay-live-box" class="lg:col-span-2 bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="space-y-0.5">
+                                    <div class="text-[11px] uppercase font-black text-slate-400 tracking-wider">Doporučení Fair-Play kalkulačky</div>
+                                    <div id="fairplay-live-summary" class="text-xs text-slate-300 font-semibold">Zadej parametry (Nm, W, %, kg) pro automatický výpočet férového koeficientu.</div>
+                                </div>
+                                <button onclick="applyCalculatedFairPlayCoeff()" id="btn-apply-fairplay-coeff" type="button" class="px-4 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-black transition whitespace-nowrap">
+                                    Použít doporučený
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button onclick="saveMotorEntry()" id="btn-save-motor" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                                Přidat motor a koeficient
+                            </button>
+                            <button onclick="cancelEditMotor()" id="btn-cancel-edit-motor" class="hidden w-full sm:w-auto px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs uppercase tracking-wider transition">
+                                Zrušit úpravu
+                            </button>
+                        </div>
+                        <button onclick="applyFairPlayToAllMotors()" class="w-full sm:w-auto px-4 py-3 bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 font-bold rounded-xl text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-scale-balanced"></i> Aplikovat Fair-Play koeficienty všem motorům
+                        </button>
+                    </div>
+
+                    <!-- Existing Motors Table -->
+                    <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-800">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
+                                    <th class="p-3">Motor / Pohon</th>
+                                    <th class="p-3">Parametry (Nm / W / % / kg)</th>
+                                    <th class="p-3">Aktuální koeficient</th>
+                                    <th class="p-3">Fair-Play doporučení</th>
+                                    <th class="p-3 text-center">Jezdců</th>
+                                    <th class="p-3 text-right">Akce</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-motors-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Admin Sub-Content: Manage Teams -->
                 <div id="admin-sub-teams" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
                     <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-solid fa-shield mr-2 text-amber-400"></i> <span data-i18n="admin_add_team_title">Přidat / Spravovat týmy a výrobce</span></h3>
@@ -831,6 +948,8 @@
                 admin_add_race_title: "Přidat / Spravovat závod",
                 admin_tab_categories: "Věkové kategorie",
                 admin_categories_title: "Správa věkových kategorií e-bikerů",
+                admin_tab_motors: "Motory & Pohon",
+                admin_motors_title: "Správa motorů, pohonů a Fair-Play koeficientů",
                 admin_tab_video: "Nastavení videa",
                 admin_video_title: "Nastavení prezentačního YouTube videa",
                 video_section_title: "Oficiální prezentační video"
@@ -896,6 +1015,8 @@
                 admin_add_race_title: "Pridať / Spravovať preteky",
                 admin_tab_categories: "Vekové kategórie",
                 admin_categories_title: "Správa vekových kategórií e-bikerov",
+                admin_tab_motors: "Motory & Pohon",
+                admin_motors_title: "Správa motorov, pohonov a Fair-Play koeficientov",
                 admin_tab_video: "Nastavenie videa",
                 admin_video_title: "Nastavenie prezentačného YouTube videa",
                 video_section_title: "Oficiálne prezentačné video"
@@ -961,6 +1082,8 @@
                 admin_add_race_title: "Dodaj wyścig",
                 admin_tab_categories: "Kategorie wiekowe",
                 admin_categories_title: "Zarządzanie kategoriami wiekowymi e-bikerów",
+                admin_tab_motors: "Silniki i Napęd",
+                admin_motors_title: "Zarządzanie silnikami i współczynnikami Fair-Play",
                 admin_tab_video: "Ustawienia wideo",
                 admin_video_title: "Ustawienia promocyjnego wideo YouTube",
                 video_section_title: "Oficjalne wideo promocyjne"
@@ -1026,6 +1149,8 @@
                 admin_add_race_title: "Rennen hinzufügen",
                 admin_tab_categories: "Altersklassen",
                 admin_categories_title: "Verwaltung der E-Biker-Altersklassen",
+                admin_tab_motors: "Motoren & Antrieb",
+                admin_motors_title: "Motoren, Antriebe & Fair-Play-Faktoren verwalten",
                 admin_tab_video: "Video-Einstellungen",
                 admin_video_title: "YouTube-Präsentationsvideo einstellen",
                 video_section_title: "Offizielles Präsentationsvideo"
@@ -1091,6 +1216,8 @@
                 admin_add_race_title: "Add Race",
                 admin_tab_categories: "Age Categories",
                 admin_categories_title: "Manage E-Biker Age Categories",
+                admin_tab_motors: "Motors & Drive",
+                admin_motors_title: "Manage E-Bike Motors & Fair-Play Coefficients",
                 admin_tab_video: "Video Settings",
                 admin_video_title: "YouTube Presentation Video Settings",
                 video_section_title: "Official Presentation Video"
@@ -1142,24 +1269,116 @@
             return `<img src="https://flagcdn.com/24x18/${code}.png" srcset="https://flagcdn.com/48x36/${code}.png 2x" width="20" height="15" alt="${code.toUpperCase()}" style="vertical-align: middle; border-radius: 2px; margin-right: 4px; display: inline-block;" />`;
         }
 
-        const motorHandicaps = {
+        const defaultMotorHandicaps = {
             'DJI Avinox': 0.75,
-            'DJI M1': 0.78,
-            'DJI M2S': 0.80,
+            'DJI M1': 0.77,
+            'DJI M2S': 0.68,
             'Bosch CX Race': 0.90,
             'Bosch Performance Line CX': 0.92,
-            'Bosch Performance SX': 0.95,
-            'Shimano EP801': 0.95,
-            'Shimano EP6': 0.98,
-            'Yamaha PW-X3': 0.95,
-            'Yamaha PW-S2': 0.97,
-            'Brose S Mag': 1.00,
-            'Brose Drive TF': 1.00,
-            'Panasonic GX Ultimate': 1.00,
-            'Specialized 2.2 (Brose)': 0.94,
-            'Mahle X20': 0.98,
-            'Tq HPR50': 1.00
+            'Bosch Performance SX': 0.96,
+            'Shimano EP801': 0.92,
+            'Shimano EP6': 0.96,
+            'Yamaha PW-X3': 0.93,
+            'Yamaha PW-S2': 0.99,
+            'Brose S Mag': 0.95,
+            'Brose Drive TF': 0.96,
+            'Panasonic GX Ultimate': 0.93,
+            'Specialized 2.2 (Brose)': 0.93,
+            'Mahle X20': 1.05,
+            'Tq HPR50': 1.05
         };
+
+        const defaultMotorSpecs = {
+            'DJI Avinox': { torque: 105, boostTorque: 120, peakW: 1000, assist: 800, weight: 2.52 },
+            'DJI M1': { torque: 105, boostTorque: 120, peakW: 1000, assist: 800, weight: 2.52 },
+            'DJI M2S': { torque: 130, boostTorque: 150, peakW: 1500, assist: 800, weight: 2.59 },
+            'Bosch CX Race': { torque: 85, peakW: 600, assist: 400, weight: 2.75 },
+            'Bosch Performance Line CX': { torque: 85, peakW: 600, assist: 340, weight: 2.90 },
+            'Bosch Performance SX': { torque: 55, peakW: 600, assist: 340, weight: 2.00 },
+            'Shimano EP801': { torque: 85, peakW: 600, assist: 400, weight: 2.70 },
+            'Shimano EP6': { torque: 85, peakW: 500, assist: 400, weight: 3.00 },
+            'Yamaha PW-X3': { torque: 85, peakW: 600, assist: 360, weight: 2.75 },
+            'Yamaha PW-S2': { torque: 75, peakW: 500, assist: 320, weight: 2.85 },
+            'Brose S Mag': { torque: 90, peakW: 520, assist: 410, weight: 2.90 },
+            'Brose Drive TF': { torque: 90, peakW: 520, assist: 380, weight: 3.40 },
+            'Panasonic GX Ultimate': { torque: 95, peakW: 600, assist: 300, weight: 2.95 },
+            'Specialized 2.2 (Brose)': { torque: 90, peakW: 565, assist: 410, weight: 2.90 },
+            'Mahle X20': { torque: 55, peakW: 250, assist: 200, weight: 1.40 },
+            'Tq HPR50': { torque: 50, peakW: 300, assist: 200, weight: 1.85 }
+        };
+
+        const motorReferenceCatalog = [
+            { name: 'DJI Avinox M2S', brand: 'DJI / Avinox', torque: 130, boostTorque: 150, peakW: 1500, assist: 800, weight: 2.59, note: '130 Nm / 150 Nm Boost, až 1500 W (2026)' },
+            { name: 'DJI Avinox M2', brand: 'DJI / Avinox', torque: 110, boostTorque: 125, peakW: 1100, assist: 800, weight: 2.65, note: '110 Nm / 125 Nm Boost, 1100 W (2026)' },
+            { name: 'DJI Avinox M1', brand: 'DJI / Avinox', torque: 105, boostTorque: 120, peakW: 1000, assist: 800, weight: 2.52, note: '105 Nm / 120 Nm Boost, 1000 W' },
+            { name: 'Bosch Performance Line CX-R Gen 5', brand: 'Bosch', torque: 120, peakW: 750, assist: 600, weight: 2.70, note: 'Update 2026 až 120 Nm / 750 W / 600%' },
+            { name: 'Bosch Performance Line CX Gen 5', brand: 'Bosch', torque: 100, peakW: 750, assist: 400, weight: 2.80, note: 'BDU384Y, 100 Nm (až 120 Nm s Updatem 2.0)' },
+            { name: 'Bosch CX Race (Gen 4)', brand: 'Bosch', torque: 85, peakW: 600, assist: 400, weight: 2.75, note: 'Závodní režim Race 400%, Extended Boost' },
+            { name: 'Bosch Performance Line CX (Gen 4)', brand: 'Bosch', torque: 85, peakW: 600, assist: 340, weight: 2.90, note: 'Klasický full-power standard 85 Nm / 600 W' },
+            { name: 'Bosch Performance SX', brand: 'Bosch', torque: 55, peakW: 600, assist: 340, weight: 2.00, note: 'Light e-MTB, vysoká špička při vysoké kadenci' },
+            { name: 'Specialized S-Works 3.1', brand: 'Specialized', torque: 111, peakW: 850, assist: 400, weight: 2.90, note: 'Turbo Levo 4 S-Works (2026 update)' },
+            { name: 'Specialized 3.1', brand: 'Specialized', torque: 105, peakW: 810, assist: 400, weight: 2.90, note: 'Turbo Levo 4 standard (2026 update)' },
+            { name: 'Specialized 2.2 (Brose)', brand: 'Specialized', torque: 90, peakW: 565, assist: 410, weight: 2.90, note: 'Turbo Levo Gen 3 (Brose hardware)' },
+            { name: 'Specialized SL 1.2', brand: 'Specialized', torque: 50, peakW: 320, assist: 200, weight: 1.95, note: 'Light e-MTB (Levo SL Gen 2)' },
+            { name: 'Shimano EP801', brand: 'Shimano', torque: 85, peakW: 600, assist: 400, weight: 2.70, note: 'DU-EP801, 85 Nm / 600 W, hořčíkové tělo' },
+            { name: 'Shimano EP6', brand: 'Shimano', torque: 85, peakW: 500, assist: 400, weight: 3.00, note: 'DU-EP600, 85 Nm / 500 W' },
+            { name: 'Yamaha PW-X3', brand: 'Yamaha', torque: 85, peakW: 600, assist: 360, weight: 2.75, note: 'Kompaktní full-power, okamžitá odezva' },
+            { name: 'Giant SyncDrive Pro 2', brand: 'Giant / Yamaha', torque: 85, peakW: 600, assist: 400, weight: 2.70, note: 'Yamaha PW-X3 hardware + Giant software' },
+            { name: 'Yamaha PW-S2', brand: 'Yamaha', torque: 75, peakW: 500, assist: 320, weight: 2.85, note: 'Univerzální trail/all-mountain pohon' },
+            { name: 'SRAM Eagle Powertrain', brand: 'SRAM / Brose', torque: 90, peakW: 680, assist: 400, weight: 2.90, note: 'Auto Shift + Coast Shift, 680 W špička' },
+            { name: 'Brose S Mag', brand: 'Brose', torque: 90, peakW: 520, assist: 410, weight: 2.90, note: 'Tichý řemenový pohon, přirozený projev' },
+            { name: 'Brose Drive TF', brand: 'Brose', torque: 90, peakW: 520, assist: 380, weight: 3.40, note: 'Robustní trekking / e-MTB jednotka' },
+            { name: 'Panasonic GX Ultimate', brand: 'Panasonic', torque: 95, peakW: 600, assist: 300, weight: 2.95, note: 'Vysoký moment 95 Nm (Kellys, Crussis)' },
+            { name: 'Pinion MGU E1.12', brand: 'Pinion', torque: 85, peakW: 600, assist: 400, weight: 4.10, note: 'Motor + 12rychlostní převodovka v jednom' },
+            { name: 'Sachs RS', brand: 'ZF / Sachs', torque: 112, peakW: 700, assist: 400, weight: 3.60, note: 'Extrémní krouticí moment 112 Nm' },
+            { name: 'Rocky Mountain Dyname 4.0', brand: 'Rocky Mountain', torque: 108, peakW: 700, assist: 350, weight: 3.00, note: '108 Nm, řetězový přenos síly' },
+            { name: 'Bafang M510', brand: 'Bafang', torque: 95, peakW: 550, assist: 400, weight: 2.90, note: '95 Nm full-power jednotka' },
+            { name: 'Fazua Ride 60', brand: 'Fazua', torque: 60, peakW: 450, assist: 350, weight: 1.96, note: 'Light e-MTB s Boost režimem 450 W' },
+            { name: 'TQ HPR60', brand: 'TQ', torque: 60, peakW: 350, assist: 200, weight: 1.92, note: 'Ultralehký a nejtišší pohon (2025/2026)' },
+            { name: 'Tq HPR50', brand: 'TQ', torque: 50, peakW: 300, assist: 200, weight: 1.85, note: 'Light e-MTB 50 Nm / 300 W' },
+            { name: 'Mahle X20', brand: 'Mahle', torque: 55, peakW: 250, assist: 200, weight: 1.40, note: 'Ultralehký nábojový systém (1.4 kg)' }
+        ];
+
+        function calculateFairPlayCoefficient(spec) {
+            if (!spec || (!spec.torque && !spec.peakW)) return null;
+            const torque = Number(spec.torque) || 85;
+            const boostTorque = Number(spec.boostTorque) || 0;
+            const peakW = Number(spec.peakW) || 550;
+            const assist = Number(spec.assist) || 350;
+            const weight = Number(spec.weight) || 2.90;
+
+            const effTorque = boostTorque > torque ? (torque * 0.65 + boostTorque * 0.35) : torque;
+            const powerRatio = peakW / 550;
+            const torqueRatio = effTorque / 85;
+            const assistRatio = Math.min(assist, 800) / 350;
+            const weightBonus = (2.90 - weight) * 0.04;
+            const perfIndex = (powerRatio * 0.50) + (torqueRatio * 0.30) + (assistRatio * 0.12) + 0.08 + weightBonus;
+            const rawCoeff = 0.95 / Math.pow(Math.max(perfIndex, 0.4), 0.42);
+            const coeff = Math.max(0.65, Math.min(1.05, Math.round(rawCoeff * 100) / 100));
+
+            let tier = 'Full-Power Standard';
+            let tierColor = 'text-sky-300';
+            if (perfIndex >= 1.50) {
+                tier = 'Hyper-Power (Extrémní výkon)';
+                tierColor = 'text-red-400';
+            } else if (perfIndex >= 1.18) {
+                tier = 'High-Power (Vysoký výkon)';
+                tierColor = 'text-amber-300';
+            } else if (perfIndex < 0.90) {
+                tier = 'Light e-MTB (Lehký pohon)';
+                tierColor = 'text-emerald-400';
+            }
+
+            return {
+                coeff,
+                perfIndex: Math.round(perfIndex * 100),
+                tier,
+                tierColor
+            };
+        }
+
+        let motorHandicaps = { ...defaultMotorHandicaps };
+        let motorSpecs = JSON.parse(JSON.stringify(defaultMotorSpecs));
 
         let availableBrands = [
             'Crussis', 'Kellys', 'CTM', 'AMFLOW', 'FOCUS', 'Specialized', 
@@ -1167,12 +1386,13 @@
             'Giant', 'Merida', 'Lapierre', 'Ghost', 'Rocky Mountain', 'Cannondale'
         ];
 
-        let availableMotors = [
+        const defaultAvailableMotors = [
             'DJI Avinox', 'DJI M1', 'DJI M2S', 'Bosch CX Race', 'Bosch Performance Line CX', 
             'Bosch Performance SX', 'Shimano EP801', 'Shimano EP6', 'Yamaha PW-X3', 
             'Yamaha PW-S2', 'Brose S Mag', 'Brose Drive TF', 'Panasonic GX Ultimate', 
             'Specialized 2.2 (Brose)', 'Mahle X20', 'Tq HPR50'
         ];
+        let availableMotors = [...defaultAvailableMotors];
 
         let defaultTeams = [
             { id: 't1', name: 'Tatry e-Bike Squad', country: 'SK', brand: 'CTM', featuredRiderId: '' },
@@ -1435,6 +1655,8 @@
                     if (data.raceResults) raceResults = data.raceResults;
                     if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
+                    if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
+                    if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
                     if (data.youtubeVideoId) youtubeVideoId = data.youtubeVideoId;
                 } else if (window.auth && window.auth.currentUser) {
                     saveData();
@@ -1450,6 +1672,7 @@
                 if (!document.getElementById('view-admin').classList.contains('hidden')) {
                     renderAdminRidersTable();
                     renderAdminCategoriesTable();
+                    renderAdminMotorsTable();
                     renderAdminTeamsGrid();
                 }
             }, (error) => {
@@ -1465,6 +1688,9 @@
             riders = defaultRiders;
             calendar = defaultCalendar;
             ageCategories = defaultAgeCategories.map(c => ({ ...c }));
+            availableMotors = [...defaultAvailableMotors];
+            motorHandicaps = { ...defaultMotorHandicaps };
+            motorSpecs = JSON.parse(JSON.stringify(defaultMotorSpecs));
             raceResults = {};
             youtubeVideoId = 'dQw4w9WgXcQ';
             updateHeroVideoPlayer();
@@ -1492,6 +1718,8 @@
                     raceResults,
                     availableBrands,
                     availableMotors,
+                    motorHandicaps,
+                    motorSpecs,
                     youtubeVideoId
                 }));
                 await setDoc(docRef, payload, { merge: true });
@@ -1564,6 +1792,8 @@
                 populateAdminSelects();
                 renderAdminRidersTable();
                 renderAdminCategoriesTable();
+                renderAdminMotorsTable();
+                filterMotorReferenceCatalog();
                 renderAdminTeamsGrid();
                 switchAdminSubTab(currentAdminSubTab);
             }
@@ -1626,7 +1856,7 @@
         function switchAdminSubTab(sub) {
             currentAdminSubTab = sub;
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'categories', 'teams', 'calendar', 'video'].forEach(s => {
+            ['results', 'skills', 'riders', 'categories', 'motors', 'teams', 'calendar', 'video'].forEach(s => {
                 const btn = document.getElementById(`admin-sub-btn-${s}`);
                 if (btn) {
                     if (s === sub) {
@@ -1640,6 +1870,11 @@
             if (targetEl) targetEl.classList.remove('hidden');
             if (sub === 'skills') loadRiderSkillsToForm();
             if (sub === 'categories') renderAdminCategoriesTable();
+            if (sub === 'motors') {
+                renderAdminMotorsTable();
+                filterMotorReferenceCatalog();
+                updateFairPlayPreview();
+            }
         }
 
         function showModal(title, message) {
@@ -2701,6 +2936,527 @@
             }
         }
 
+        function getMotorSpecForName(motorName) {
+            if (motorSpecs && motorSpecs[motorName]) return motorSpecs[motorName];
+            const lower = String(motorName || '').toLowerCase();
+            const found = motorReferenceCatalog.find(item => item.name.toLowerCase() === lower)
+                || motorReferenceCatalog.find(item => lower.includes(item.name.toLowerCase()) || item.name.toLowerCase().includes(lower));
+            if (found) {
+                return {
+                    torque: found.torque,
+                    boostTorque: found.boostTorque || null,
+                    peakW: found.peakW,
+                    assist: found.assist,
+                    weight: found.weight
+                };
+            }
+            return null;
+        }
+
+        function filterMotorReferenceCatalog() {
+            const container = document.getElementById('motor-catalog-results');
+            if (!container) return;
+            const queryEl = document.getElementById('motor-lookup-query');
+            const q = queryEl ? queryEl.value.trim().toLowerCase() : '';
+
+            const matches = motorReferenceCatalog
+                .map((m, idx) => ({ m, idx }))
+                .filter(({ m }) => !q || m.name.toLowerCase().includes(q) || m.brand.toLowerCase().includes(q) || (m.note && m.note.toLowerCase().includes(q)));
+
+            container.innerHTML = '';
+            if (matches.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-xs text-slate-400 italic p-3 bg-slate-900/60 rounded-xl border border-slate-800">V lokálním katalogu nebyl nalezen žádný motor pro "${escapeHtml(q)}". Klikni na <strong>Vyhledat online</strong> pro vyhledání na internetu nebo zadej parametry ručně níže.</div>`;
+                return;
+            }
+
+            matches.forEach(({ m, idx }) => {
+                const fp = calculateFairPlayCoefficient(m);
+                const card = document.createElement('div');
+                card.className = "bg-slate-900/90 border border-slate-800 hover:border-amber-400/50 rounded-xl p-3.5 flex flex-col justify-between gap-2.5 transition";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="text-xs font-black text-white">${escapeHtml(m.name)}</div>
+                                <div class="text-[10px] text-slate-400 font-semibold">${escapeHtml(m.brand)}</div>
+                            </div>
+                            <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-black px-2 py-0.5 rounded-lg whitespace-nowrap">Koef. ${fp ? fp.coeff.toFixed(2) : '1.00'}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5 mt-2 text-[10px] font-bold">
+                            <span class="bg-slate-800 text-amber-300 px-2 py-0.5 rounded">${m.torque}${m.boostTorque ? '/' + m.boostTorque : ''} Nm</span>
+                            <span class="bg-slate-800 text-sky-300 px-2 py-0.5 rounded">${m.peakW} W</span>
+                            <span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${m.assist}%</span>
+                            <span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${m.weight} kg</span>
+                        </div>
+                        ${m.note ? `<div class="text-[10px] text-slate-400 mt-1.5 leading-snug">${escapeHtml(m.note)}</div>` : ''}
+                    </div>
+                    <button type="button" onclick="loadMotorFromCatalog(${idx})" class="w-full py-2 bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 border border-amber-400/30 rounded-lg text-[11px] font-black transition">
+                        Načíst do formuláře
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function loadMotorFromCatalog(catalogIndex) {
+            const m = motorReferenceCatalog[catalogIndex];
+            if (!m) return;
+            const fp = calculateFairPlayCoefficient(m);
+            document.getElementById('motor-name-input').value = m.name;
+            document.getElementById('motor-torque-input').value = m.torque || '';
+            document.getElementById('motor-peakw-input').value = m.peakW || '';
+            document.getElementById('motor-assist-input').value = m.assist || '';
+            document.getElementById('motor-weight-input').value = m.weight || '';
+            if (fp) {
+                document.getElementById('motor-coeff-input').value = fp.coeff.toFixed(2);
+            }
+            updateFairPlayPreview();
+            document.getElementById('motor-name-input').focus();
+        }
+
+        async function searchMotorOnline() {
+            const queryInput = document.getElementById('motor-lookup-query');
+            const nameInput = document.getElementById('motor-name-input');
+            const resultBox = document.getElementById('motor-online-results');
+            const btn = document.getElementById('btn-motor-online-search');
+            if (!resultBox) return;
+
+            const query = (queryInput && queryInput.value.trim()) || (nameInput && nameInput.value.trim()) || '';
+            if (!query) {
+                showModal("Upozornění", "Zadejte prosím název motoru pro vyhledání online (např. Bosch CX Gen 5 nebo DJI Avinox M2S).");
+                return;
+            }
+
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = `<div class="flex items-center gap-2 text-amber-300 font-bold"><i class="fa-solid fa-spinner fa-spin"></i> Vyhledávám data motoru "${escapeHtml(query)}" online…</div>`;
+            if (btn) btn.disabled = true;
+
+            const encodedQ = encodeURIComponent(`${query} ebike motor torque Nm peak power watts weight`);
+            const encodedShort = encodeURIComponent(query);
+            const externalLinksHtml = `
+                <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-800">
+                    <a href="https://www.google.com/search?q=${encodedQ}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 rounded-lg font-bold transition inline-flex items-center gap-1.5">
+                        <i class="fa-brands fa-google"></i> Google specifikace (Nm / W / kg)
+                    </a>
+                    <a href="https://www.emtbforums.com/bike-finder/motors" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 rounded-lg font-bold transition inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-database"></i> EMTB Forums Motor DB
+                    </a>
+                    <a href="https://emtb-test.com/en/?s=${encodedShort}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 rounded-lg font-bold transition inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-gauge-high"></i> eMTB-Test.com
+                    </a>
+                </div>
+            `;
+
+            try {
+                const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query + ' e-bike motor')}&srlimit=3&format=json&origin=*`;
+                const response = await fetch(wikiUrl);
+                const json = await response.json();
+                const searchHits = (json && json.query && json.query.search) ? json.query.search : [];
+
+                let combinedText = '';
+                searchHits.forEach(hit => {
+                    combinedText += ' ' + String(hit.snippet || '').replace(/<[^>]+>/g, ' ');
+                });
+
+                const torqueMatch = combinedText.match(/(\d{2,3})\s*(?:Nm|N·m|N\.m)/i);
+                const wattMatch = combinedText.match(/(\d{3,4})\s*(?:W\b|watts?)/i);
+                const weightMatch = combinedText.match(/(\d[.,]\d{1,2})\s*kg/i);
+                const assistMatch = combinedText.match(/(\d{3})\s*%/);
+
+                const parsedTorque = torqueMatch ? parseInt(torqueMatch[1], 10) : null;
+                const parsedPeakW = wattMatch ? parseInt(wattMatch[1], 10) : null;
+                const parsedWeight = weightMatch ? parseFloat(weightMatch[1].replace(',', '.')) : null;
+                const parsedAssist = assistMatch ? parseInt(assistMatch[1], 10) : null;
+
+                let parsedHtml = '';
+                if (parsedTorque || parsedPeakW || parsedWeight) {
+                    const fp = calculateFairPlayCoefficient({
+                        torque: parsedTorque || 85,
+                        peakW: parsedPeakW || 550,
+                        assist: parsedAssist || 350,
+                        weight: parsedWeight || 2.9
+                    });
+                    window._lastOnlineParsedMotor = {
+                        name: query,
+                        torque: parsedTorque,
+                        peakW: parsedPeakW,
+                        assist: parsedAssist,
+                        weight: parsedWeight,
+                        coeff: fp ? fp.coeff : 0.95
+                    };
+                    parsedHtml = `
+                        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="space-y-1">
+                                <div class="font-black text-emerald-300">Automaticky rozpoznané parametry z webu:</div>
+                                <div class="text-slate-200 font-semibold">
+                                    ${parsedTorque ? `Moment: <strong>${parsedTorque} Nm</strong> · ` : ''}
+                                    ${parsedPeakW ? `Výkon: <strong>${parsedPeakW} W</strong> · ` : ''}
+                                    ${parsedAssist ? `Podpora: <strong>${parsedAssist}%</strong> · ` : ''}
+                                    ${parsedWeight ? `Hmotnost: <strong>${parsedWeight} kg</strong> · ` : ''}
+                                    Doporučený Fair-Play koeficient: <strong class="text-amber-300">${fp ? fp.coeff.toFixed(2) : '0.95'}</strong>
+                                </div>
+                            </div>
+                            <button type="button" onclick="applyOnlineParsedSpecs()" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-[11px] whitespace-nowrap transition">
+                                Přenést do formuláře
+                            </button>
+                        </div>
+                    `;
+                }
+
+                const hitsHtml = searchHits.length > 0
+                    ? `<div class="space-y-1.5">
+                        <div class="text-slate-400 font-bold uppercase text-[10px]">Nalezené online zdroje (Wikipedia):</div>
+                        ${searchHits.map(h => `
+                            <div class="bg-slate-800/70 p-2.5 rounded-lg border border-slate-700/60">
+                                <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(h.title.replace(/ /g, '_'))}" target="_blank" rel="noopener noreferrer" class="font-bold text-amber-300 hover:underline">${escapeHtml(h.title)}</a>
+                                <p class="text-slate-300 mt-0.5">${escapeHtml(String(h.snippet || '').replace(/<[^>]+>/g, ''))}…</p>
+                            </div>
+                        `).join('')}
+                       </div>`
+                    : `<div class="text-slate-400">Wikipedia nevrátila přímý článek pro "${escapeHtml(query)}" – použijte ověřený katalog níže nebo tlačítko <strong>Google specifikace</strong> a zadejte nalezené hodnoty (Nm, W, kg) do kalkulačky níže.</div>`;
+
+                resultBox.innerHTML = parsedHtml + hitsHtml + externalLinksHtml;
+            } catch (err) {
+                console.error("Online motor lookup error:", err);
+                resultBox.innerHTML = `
+                    <div class="text-amber-300 font-semibold">Přímé čtení z internetu nebylo dostupné – použijte katalog motorů níže nebo otevřete přímé vyhledání specifikací:</div>
+                    ${externalLinksHtml}
+                `;
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function applyOnlineParsedSpecs() {
+            const p = window._lastOnlineParsedMotor;
+            if (!p) return;
+            document.getElementById('motor-name-input').value = p.name || '';
+            if (p.torque) document.getElementById('motor-torque-input').value = p.torque;
+            if (p.peakW) document.getElementById('motor-peakw-input').value = p.peakW;
+            if (p.assist) document.getElementById('motor-assist-input').value = p.assist;
+            if (p.weight) document.getElementById('motor-weight-input').value = p.weight;
+            if (p.coeff) document.getElementById('motor-coeff-input').value = p.coeff.toFixed(2);
+            updateFairPlayPreview();
+        }
+
+        function updateFairPlayPreview() {
+            const summaryEl = document.getElementById('fairplay-live-summary');
+            const applyBtn = document.getElementById('btn-apply-fairplay-coeff');
+            if (!summaryEl) return;
+
+            const torque = parseFloat(document.getElementById('motor-torque-input')?.value);
+            const peakW = parseFloat(document.getElementById('motor-peakw-input')?.value);
+            const assist = parseFloat(document.getElementById('motor-assist-input')?.value);
+            const weight = parseFloat(document.getElementById('motor-weight-input')?.value);
+
+            if (!torque && !peakW) {
+                window._lastCalculatedFairPlayCoeff = null;
+                summaryEl.innerHTML = 'Zadej parametry (Nm, W, %, kg) pro automatický výpočet férového Fair-Play koeficientu.';
+                if (applyBtn) applyBtn.disabled = true;
+                return;
+            }
+
+            const fp = calculateFairPlayCoefficient({
+                torque: torque || 85,
+                peakW: peakW || 550,
+                assist: assist || 350,
+                weight: weight || 2.90
+            });
+            window._lastCalculatedFairPlayCoeff = fp.coeff;
+            if (applyBtn) applyBtn.disabled = false;
+            summaryEl.innerHTML = `
+                Doporučený koeficient: <strong class="text-emerald-300 text-sm">${fp.coeff.toFixed(2)}</strong>
+                <span class="mx-1.5 text-slate-600">|</span>
+                Index výkonu: <strong class="text-white">${fp.perfIndex} %</strong>
+                <span class="mx-1.5 text-slate-600">|</span>
+                <span class="${fp.tierColor} font-bold">${fp.tier}</span>
+            `;
+        }
+
+        function applyCalculatedFairPlayCoeff() {
+            if (window._lastCalculatedFairPlayCoeff) {
+                document.getElementById('motor-coeff-input').value = window._lastCalculatedFairPlayCoeff.toFixed(2);
+            } else {
+                showModal("Upozornění", "Nejprve vyplňte alespoň krouticí moment (Nm) nebo špičkový výkon (W).");
+            }
+        }
+
+        function renderAdminMotorsTable() {
+            const tbody = document.getElementById('admin-motors-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (availableMotors.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="6" class="p-6 text-center text-slate-500 italic">Zatím nejsou definované žádné motory.</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+
+            availableMotors.forEach((motorName, idx) => {
+                const currentCoeff = Number(motorHandicaps[motorName] ?? 1.00);
+                const spec = getMotorSpecForName(motorName);
+                const fp = spec ? calculateFairPlayCoefficient(spec) : null;
+                const riderCount = riders.filter(r => r.motor === motorName).length;
+                const diff = fp ? Math.abs(fp.coeff - currentCoeff) : 0;
+
+                const specsHtml = spec
+                    ? `<div class="flex flex-wrap gap-1.5 text-[11px] font-bold">
+                        <span class="bg-slate-800 text-amber-300 px-2 py-0.5 rounded">${spec.torque}${spec.boostTorque ? '/' + spec.boostTorque : ''} Nm</span>
+                        <span class="bg-slate-800 text-sky-300 px-2 py-0.5 rounded">${spec.peakW} W</span>
+                        ${spec.assist ? `<span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${spec.assist}%</span>` : ''}
+                        ${spec.weight ? `<span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded">${spec.weight} kg</span>` : ''}
+                       </div>`
+                    : `<span class="text-xs text-slate-500 italic">Parametry nezadány</span>`;
+
+                const fairPlayHtml = fp
+                    ? `<div class="flex items-center gap-2 flex-wrap">
+                        <span class="bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-black px-2.5 py-1 rounded-lg">${fp.coeff.toFixed(2)} <span class="font-semibold text-[10px] opacity-80">(PI ${fp.perfIndex}%)</span></span>
+                        ${diff >= 0.01 ? `<button type="button" onclick="applySingleMotorFairPlayByIndex(${idx})" class="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-[11px] font-bold transition">Použít</button>` : `<span class="text-[11px] text-emerald-400 font-bold"><i class="fa-solid fa-check"></i> Fair-Play</span>`}
+                       </div>`
+                    : `<span class="text-xs text-slate-500 italic">Doplň Nm / W</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-white whitespace-nowrap">${escapeHtml(motorName)}</td>
+                    <td class="p-3">${specsHtml}</td>
+                    <td class="p-3">
+                        <input type="number" step="0.01" min="0.50" max="1.20" value="${currentCoeff.toFixed(2)}" onchange="updateMotorHandicapByIndex(${idx}, this.value)" class="w-24 bg-slate-800 border border-amber-400/40 text-amber-300 text-xs rounded-lg p-2 font-black outline-none focus:border-amber-400">
+                    </td>
+                    <td class="p-3">${fairPlayHtml}</td>
+                    <td class="p-3 text-center font-bold text-slate-200">${riderCount}</td>
+                    <td class="p-3 text-right space-x-2 whitespace-nowrap">
+                        <button type="button" onclick="editMotorByIndex(${idx})" class="px-3 py-1.5 bg-amber-400/20 text-amber-300 rounded-xl hover:bg-amber-400/30 transition font-bold text-xs border border-amber-400/30">Upravit</button>
+                        <button type="button" onclick="deleteMotorByIndex(${idx})" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function updateMotorHandicapByIndex(idx, rawValue) {
+            const motorName = availableMotors[idx];
+            if (!motorName) return;
+            const val = parseFloat(rawValue);
+            if (isNaN(val) || val < 0.50 || val > 1.20) {
+                showModal("Chyba", "Koeficient musí být číslo v rozsahu 0.50 až 1.20.");
+                renderAdminMotorsTable();
+                return;
+            }
+            motorHandicaps[motorName] = Math.round(val * 100) / 100;
+            populateAdminSelects();
+            renderAdminRidersTable();
+            renderAdminMotorsTable();
+            renderPublicLeaderboards();
+            renderPublicRaceResults();
+            renderTeamsAndRidersView();
+            const res = await saveData();
+            if (!res.ok) {
+                showModal("Chyba databáze Firebase", `Změna koeficientu se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function applySingleMotorFairPlayByIndex(idx) {
+            const motorName = availableMotors[idx];
+            if (!motorName) return;
+            const spec = getMotorSpecForName(motorName);
+            const fp = spec ? calculateFairPlayCoefficient(spec) : null;
+            if (!fp) return;
+            motorHandicaps[motorName] = fp.coeff;
+            if (!motorSpecs[motorName]) motorSpecs[motorName] = spec;
+            populateAdminSelects();
+            renderAdminRidersTable();
+            renderAdminMotorsTable();
+            renderPublicLeaderboards();
+            renderPublicRaceResults();
+            const res = await saveData();
+            if (!res.ok) {
+                showModal("Chyba databáze Firebase", `Fair-Play koeficient se neuložil (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function applyFairPlayToAllMotors() {
+            if (!confirm("Opravdu chcete nastavit vypočtené Fair-Play koeficienty pro všechny motory se známými parametry? Výsledky Růžového dresu se ihned přepočítají.")) {
+                return;
+            }
+            let updatedCount = 0;
+            availableMotors.forEach(motorName => {
+                const spec = getMotorSpecForName(motorName);
+                const fp = spec ? calculateFairPlayCoefficient(spec) : null;
+                if (fp) {
+                    motorHandicaps[motorName] = fp.coeff;
+                    if (!motorSpecs[motorName]) motorSpecs[motorName] = spec;
+                    updatedCount++;
+                }
+            });
+            populateAdminSelects();
+            renderAdminRidersTable();
+            renderAdminMotorsTable();
+            renderPublicLeaderboards();
+            renderPublicRaceResults();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", `Fair-Play koeficienty byly aplikovány u ${updatedCount} motorů a uloženy do Firebase databáze!`);
+            } else {
+                showModal("Chyba databáze Firebase", `Koeficienty se neuložily do databáze (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function saveMotorEntry() {
+            const origNameEl = document.getElementById('edit-motor-original-name');
+            const nameEl = document.getElementById('motor-name-input');
+            const coeffEl = document.getElementById('motor-coeff-input');
+            const torqueEl = document.getElementById('motor-torque-input');
+            const peakWEl = document.getElementById('motor-peakw-input');
+            const assistEl = document.getElementById('motor-assist-input');
+            const weightEl = document.getElementById('motor-weight-input');
+
+            const origName = origNameEl ? origNameEl.value.trim() : '';
+            const name = nameEl ? nameEl.value.trim() : '';
+            const coeff = parseFloat(coeffEl ? coeffEl.value : '');
+            const torque = torqueEl && torqueEl.value.trim() !== '' ? parseFloat(torqueEl.value) : null;
+            const peakW = peakWEl && peakWEl.value.trim() !== '' ? parseFloat(peakWEl.value) : null;
+            const assist = assistEl && assistEl.value.trim() !== '' ? parseFloat(assistEl.value) : null;
+            const weight = weightEl && weightEl.value.trim() !== '' ? parseFloat(weightEl.value) : null;
+
+            if (!name) {
+                showModal("Chyba", "Zadejte prosím název motoru!");
+                return;
+            }
+            if (isNaN(coeff) || coeff < 0.50 || coeff > 1.20) {
+                showModal("Chyba", "Koeficient musí být číslo v rozsahu 0.50 až 1.20.");
+                return;
+            }
+
+            const roundedCoeff = Math.round(coeff * 100) / 100;
+            const specObj = (torque || peakW || assist || weight)
+                ? { torque: torque || 85, peakW: peakW || 550, assist: assist || 350, weight: weight || 2.9 }
+                : null;
+
+            if (origName) {
+                const idx = availableMotors.indexOf(origName);
+                if (origName !== name && availableMotors.includes(name)) {
+                    showModal("Chyba", `Motor s názvem "${name}" již v seznamu existuje.`);
+                    return;
+                }
+                if (idx !== -1) {
+                    availableMotors[idx] = name;
+                } else {
+                    availableMotors.push(name);
+                }
+                if (origName !== name) {
+                    delete motorHandicaps[origName];
+                    delete motorSpecs[origName];
+                    riders.forEach(r => {
+                        if (r.motor === origName) r.motor = name;
+                    });
+                }
+                motorHandicaps[name] = roundedCoeff;
+                if (specObj) {
+                    motorSpecs[name] = specObj;
+                }
+                cancelEditMotor();
+                populateAdminSelects();
+                renderAdminRidersTable();
+                renderAdminMotorsTable();
+                renderPublicLeaderboards();
+                renderPublicRaceResults();
+                renderTeamsAndRidersView();
+                const res = await saveData();
+                if (res.ok) {
+                    showModal("Úspěch", `Motor "${name}" (koef. ${roundedCoeff.toFixed(2)}) byl upraven a uložen do Firebase databáze!`);
+                } else {
+                    showModal("Chyba databáze Firebase", `Změny motoru se neuložily (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
+            } else {
+                if (availableMotors.includes(name)) {
+                    showModal("Upozornění", `Motor "${name}" již v seznamu existuje – pro změnu použijte tlačítko Upravit v tabulce.`);
+                    return;
+                }
+                availableMotors.push(name);
+                motorHandicaps[name] = roundedCoeff;
+                if (specObj) {
+                    motorSpecs[name] = specObj;
+                }
+                cancelEditMotor();
+                populateAdminSelects();
+                renderAdminRidersTable();
+                renderAdminMotorsTable();
+                renderPublicLeaderboards();
+                renderPublicRaceResults();
+                const res = await saveData();
+                if (res.ok) {
+                    showModal("Úspěch", `Nový motor "${name}" (koef. ${roundedCoeff.toFixed(2)}) byl přidán a uložen do Firebase databáze!`);
+                } else {
+                    showModal("Chyba databáze Firebase", `Nový motor se neuložil (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
+            }
+        }
+
+        function editMotorByIndex(idx) {
+            const motorName = availableMotors[idx];
+            if (!motorName) return;
+            const spec = getMotorSpecForName(motorName);
+            const coeff = Number(motorHandicaps[motorName] ?? 1.00);
+
+            document.getElementById('edit-motor-original-name').value = motorName;
+            document.getElementById('motor-name-input').value = motorName;
+            document.getElementById('motor-coeff-input').value = coeff.toFixed(2);
+            document.getElementById('motor-torque-input').value = spec && spec.torque ? spec.torque : '';
+            document.getElementById('motor-peakw-input').value = spec && spec.peakW ? spec.peakW : '';
+            document.getElementById('motor-assist-input').value = spec && spec.assist ? spec.assist : '';
+            document.getElementById('motor-weight-input').value = spec && spec.weight ? spec.weight : '';
+
+            document.getElementById('btn-save-motor').textContent = 'Uložit změny motoru';
+            document.getElementById('btn-cancel-edit-motor').classList.remove('hidden');
+            document.getElementById('motor-edit-badge').classList.remove('hidden');
+            updateFairPlayPreview();
+            document.getElementById('motor-name-input').focus();
+        }
+
+        function cancelEditMotor() {
+            document.getElementById('edit-motor-original-name').value = '';
+            document.getElementById('motor-name-input').value = '';
+            document.getElementById('motor-coeff-input').value = '0.95';
+            document.getElementById('motor-torque-input').value = '';
+            document.getElementById('motor-peakw-input').value = '';
+            document.getElementById('motor-assist-input').value = '';
+            document.getElementById('motor-weight-input').value = '';
+
+            document.getElementById('btn-save-motor').textContent = 'Přidat motor a koeficient';
+            document.getElementById('btn-cancel-edit-motor').classList.add('hidden');
+            document.getElementById('motor-edit-badge').classList.add('hidden');
+            updateFairPlayPreview();
+        }
+
+        async function deleteMotorByIndex(idx) {
+            const motorName = availableMotors[idx];
+            if (!motorName) return;
+            const usedCount = riders.filter(r => r.motor === motorName).length;
+            const msg = usedCount > 0
+                ? `Opravdu chcete smazat motor "${motorName}"? Aktuálně ho používá ${usedCount} jezdců.`
+                : `Opravdu chcete smazat motor "${motorName}"?`;
+
+            if (confirm(msg)) {
+                if (document.getElementById('edit-motor-original-name').value === motorName) {
+                    cancelEditMotor();
+                }
+                availableMotors = availableMotors.filter(m => m !== motorName);
+                delete motorHandicaps[motorName];
+                delete motorSpecs[motorName];
+                populateAdminSelects();
+                renderAdminRidersTable();
+                renderAdminMotorsTable();
+                renderPublicLeaderboards();
+                renderPublicRaceResults();
+                const res = await saveData();
+                if (!res.ok) {
+                    showModal("Chyba databáze Firebase", `Smazání motoru se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
+            }
+        }
+
         function addNewTeam() {
             const nameEl = document.getElementById('new-team-name');
             const countryEl = document.getElementById('new-team-country');
@@ -2807,7 +3563,7 @@
         }
 
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, raceResults };
+            const data = { teams, riders, calendar, ageCategories, availableMotors, motorHandicaps, motorSpecs, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2827,11 +3583,15 @@
                     if (data.riders) riders = data.riders;
                     if (data.calendar) calendar = data.calendar;
                     if (data.ageCategories && Array.isArray(data.ageCategories)) ageCategories = data.ageCategories;
+                    if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
+                    if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
+                    if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
                     if (data.raceResults) raceResults = data.raceResults;
                     saveData();
                     populateCategorySelects();
                     populateAdminSelects();
                     renderAdminCategoriesTable();
+                    renderAdminMotorsTable();
                     renderAdminRidersTable();
                     renderPublicLeaderboards();
                     renderPublicRaceResults();
@@ -2850,6 +3610,7 @@
                 populateAdminSelects();
                 renderPublicLeaderboards();
                 populatePublicRaceResultsSelect();
+                filterMotorReferenceCatalog();
             }, 300);
         };
     </script>
