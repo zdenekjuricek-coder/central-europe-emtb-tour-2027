@@ -250,6 +250,29 @@
 
         <!-- VIEW: PUBLIC -->
         <section id="view-public" class="space-y-4">
+            <!-- Public Top Running Website Partners Logo Slider (Left to Right, Optional Toggle) -->
+            <div id="public-web-partners-top-section" class="hidden bg-[#0f172a] border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl overflow-hidden">
+                <div class="partner-slider-caption flex items-center justify-between gap-3 flex-wrap">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-400 flex items-center justify-center text-sm shadow">
+                            <i class="fa-solid fa-award"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-sm sm:text-base font-black uppercase tracking-wider text-white" data-i18n="public_web_partners_title">Partneři webu</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">Oficiální partneři a podporovatelé Central Europe e-MTB Tour 2027</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-slate-500 hidden sm:inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrows-left-right text-amber-400/70"></i> Najetím myší pozastavíte
+                    </span>
+                </div>
+                <div class="partner-marquee-viewport py-1.5">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-16 bg-gradient-to-r from-[#0f172a] to-transparent z-10"></div>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-16 bg-gradient-to-l from-[#0f172a] to-transparent z-10"></div>
+                    <div id="public-web-partners-top-track" class="partner-marquee-track"></div>
+                </div>
+            </div>
+
             <div id="subview-leaderboards" class="space-y-3">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Yellow Jersey -->
@@ -1089,6 +1112,27 @@
                         </button>
                     </div>
 
+                    <!-- Special Slider Mode Toggle: Show Top Slider at Upper Part of Website -->
+                    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h4 class="text-sm font-black text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-angles-up text-amber-400"></i>
+                                    Speciální funkce slideru: Zobrazit slider také v horní části webu
+                                </h4>
+                                <span id="web-partners-top-slider-status" class="text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+                                    Neaktivní
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Při aktivaci poběží tentýž slider log partnerů (zleva doprava) <strong class="text-slate-200">i v horní části webu</strong> hned nad kartami dresů a žebříčky – stejně jako ve spodní části webu. Automaticky respektuje i nastavení skrytí textového popisku.
+                            </p>
+                        </div>
+                        <button type="button" id="btn-toggle-web-partners-top-slider" onclick="toggleWebPartnersTopSlider()" class="w-full md:w-auto shrink-0 px-5 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow">
+                            <i class="fa-solid fa-angles-up"></i> Aktivovat horní slider
+                        </button>
+                    </div>
+
                     <!-- Live Slider Preview in Admin -->
                     <div id="admin-web-partners-preview-box" class="hidden bg-[#0f172a] border border-slate-800 rounded-2xl p-4 space-y-3 overflow-hidden">
                         <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -1859,6 +1903,7 @@
         let ageCategories = defaultAgeCategories.map(c => ({ ...c }));
         let webPartners = [];
         let webPartnersHideCaptionUntilHover = false;
+        let webPartnersShowTopSlider = false;
         let youtubeVideoId = 'dQw4w9WgXcQ';
         let isVideoCollapsed = false;
 
@@ -2081,6 +2126,9 @@
                     if (typeof data.webPartnersHideCaptionUntilHover === 'boolean') {
                         webPartnersHideCaptionUntilHover = data.webPartnersHideCaptionUntilHover;
                     }
+                    if (typeof data.webPartnersShowTopSlider === 'boolean') {
+                        webPartnersShowTopSlider = data.webPartnersShowTopSlider;
+                    }
                     if (data.raceResults) raceResults = data.raceResults;
                     if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
@@ -2130,6 +2178,7 @@
             ageCategories = defaultAgeCategories.map(c => ({ ...c }));
             webPartners = [];
             webPartnersHideCaptionUntilHover = false;
+            webPartnersShowTopSlider = false;
             availableMotors = [...defaultAvailableMotors];
             motorHandicaps = { ...defaultMotorHandicaps };
             motorSpecs = JSON.parse(JSON.stringify(defaultMotorSpecs));
@@ -2161,6 +2210,7 @@
                     ageCategories,
                     webPartners,
                     webPartnersHideCaptionUntilHover,
+                    webPartnersShowTopSlider,
                     raceResults,
                     availableBrands,
                     availableMotors,
@@ -5039,6 +5089,7 @@
 
         function updateWebPartnersHoverCaptionUI() {
             const publicSection = document.getElementById('public-web-partners-section');
+            const publicTopSection = document.getElementById('public-web-partners-top-section');
             const previewCard = document.getElementById('admin-web-partners-preview-card');
             const statusEl = document.getElementById('web-partners-hover-mode-status');
             const btnEl = document.getElementById('btn-toggle-web-partners-hover-mode');
@@ -5046,6 +5097,9 @@
 
             if (publicSection) {
                 publicSection.classList.toggle('partner-slider-hover-caption', !!webPartnersHideCaptionUntilHover);
+            }
+            if (publicTopSection) {
+                publicTopSection.classList.toggle('partner-slider-hover-caption', !!webPartnersHideCaptionUntilHover);
             }
             if (previewCard) {
                 previewCard.classList.toggle('partner-slider-hover-caption', !!webPartnersHideCaptionUntilHover);
@@ -5075,6 +5129,30 @@
             }
         }
 
+        function updateWebPartnersTopSliderUI() {
+            const statusEl = document.getElementById('web-partners-top-slider-status');
+            const btnEl = document.getElementById('btn-toggle-web-partners-top-slider');
+
+            if (statusEl) {
+                if (webPartnersShowTopSlider) {
+                    statusEl.textContent = 'Aktivní';
+                    statusEl.className = 'text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                } else {
+                    statusEl.textContent = 'Neaktivní';
+                    statusEl.className = 'text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+                }
+            }
+            if (btnEl) {
+                if (webPartnersShowTopSlider) {
+                    btnEl.className = 'w-full md:w-auto shrink-0 px-5 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow';
+                    btnEl.innerHTML = '<i class="fa-solid fa-angles-down"></i> Deaktivovat horní slider';
+                } else {
+                    btnEl.className = 'w-full md:w-auto shrink-0 px-5 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow';
+                    btnEl.innerHTML = '<i class="fa-solid fa-angles-up"></i> Aktivovat horní slider';
+                }
+            }
+        }
+
         async function toggleWebPartnersHoverCaptionMode() {
             const prevState = webPartnersHideCaptionUntilHover;
             webPartnersHideCaptionUntilHover = !webPartnersHideCaptionUntilHover;
@@ -5094,17 +5172,41 @@
             }
         }
 
+        async function toggleWebPartnersTopSlider() {
+            const prevState = webPartnersShowTopSlider;
+            webPartnersShowTopSlider = !webPartnersShowTopSlider;
+            renderWebPartnersSlider();
+            const res = await saveData();
+            if (res.ok) {
+                showModal(
+                    "Nastavení horního slideru uloženo",
+                    webPartnersShowTopSlider
+                        ? "Horní slider partnerů webu byl AKTIVOVÁN. Loga partnerů nyní běží zleva doprava jak v horní části webu, tak dole pod žebříčky."
+                        : "Horní slider partnerů webu byl DEAKTIVOVÁN. Slider zůstává zobrazen pouze ve spodní části webu pod žebříčky."
+                );
+            } else {
+                webPartnersShowTopSlider = prevState;
+                renderWebPartnersSlider();
+                showModal("Chyba databáze Firebase", `Změna nastavení horního slideru se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
         function renderWebPartnersSlider() {
             const publicSection = document.getElementById('public-web-partners-section');
             const publicTrack = document.getElementById('public-web-partners-track');
+            const publicTopSection = document.getElementById('public-web-partners-top-section');
+            const publicTopTrack = document.getElementById('public-web-partners-top-track');
             const adminPreviewBox = document.getElementById('admin-web-partners-preview-box');
             const adminPreviewTrack = document.getElementById('admin-web-partners-preview-track');
 
             updateWebPartnersHoverCaptionUI();
+            updateWebPartnersTopSliderUI();
 
             if (!Array.isArray(webPartners) || webPartners.length === 0) {
                 if (publicSection) publicSection.classList.add('hidden');
                 if (publicTrack) publicTrack.innerHTML = '';
+                if (publicTopSection) publicTopSection.classList.add('hidden');
+                if (publicTopTrack) publicTopTrack.innerHTML = '';
                 if (adminPreviewBox) adminPreviewBox.classList.add('hidden');
                 if (adminPreviewTrack) adminPreviewTrack.innerHTML = '';
                 return;
@@ -5125,6 +5227,16 @@
                 publicTrack.style.setProperty('--marquee-duration', `${durationSec}s`);
                 publicTrack.innerHTML = fullTrackHtml;
             }
+            if (publicTopSection && publicTopTrack) {
+                if (webPartnersShowTopSlider) {
+                    publicTopSection.classList.remove('hidden');
+                    publicTopTrack.style.setProperty('--marquee-duration', `${durationSec}s`);
+                    publicTopTrack.innerHTML = fullTrackHtml;
+                } else {
+                    publicTopSection.classList.add('hidden');
+                    publicTopTrack.innerHTML = '';
+                }
+            }
             if (adminPreviewBox && adminPreviewTrack) {
                 adminPreviewBox.classList.remove('hidden');
                 adminPreviewTrack.style.setProperty('--marquee-duration', `${durationSec}s`);
@@ -5133,7 +5245,7 @@
         }
 
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, availableMotors, motorHandicaps, motorSpecs, raceResults };
+            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, availableMotors, motorHandicaps, motorSpecs, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -5156,6 +5268,9 @@
                     if (data.webPartners && Array.isArray(data.webPartners)) webPartners = data.webPartners;
                     if (typeof data.webPartnersHideCaptionUntilHover === 'boolean') {
                         webPartnersHideCaptionUntilHover = data.webPartnersHideCaptionUntilHover;
+                    }
+                    if (typeof data.webPartnersShowTopSlider === 'boolean') {
+                        webPartnersShowTopSlider = data.webPartnersShowTopSlider;
                     }
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
                     if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
