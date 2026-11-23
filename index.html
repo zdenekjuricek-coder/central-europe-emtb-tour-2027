@@ -787,6 +787,9 @@
                     <button onclick="switchAdminSubTab('video')" id="admin-sub-btn-video" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-brands fa-youtube"></i> <span data-i18n="admin_tab_video">Nastavení videa</span>
                     </button>
+                    <button onclick="switchAdminSubTab('footer')" id="admin-sub-btn-footer" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-window-minimize"></i> <span data-i18n="admin_tab_footer">Footer</span>
+                    </button>
                 </div>
 
                 <!-- Admin Sub-Content: Results Entry -->
@@ -1486,30 +1489,143 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Admin Sub-Content: Footer Editor -->
+                <div id="admin-sub-footer" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-black text-white">
+                                <i class="fa-solid fa-window-minimize mr-2 text-amber-400"></i>
+                                <span data-i18n="admin_footer_title">Správa a editace patičky webu (Footer)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Upravujte veškeré texty, popisky, copyright i jednotlivé odkazy (externí weby, sociální sítě, e-mail, telefon nebo sekce tohoto webu) zobrazené v patičce webu. Změny se okamžitě projeví dole na stránce a uloží do Firebase.
+                            </p>
+                        </div>
+                        <button type="button" onclick="resetFooterToDefault()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold rounded-xl text-xs transition shrink-0 flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-left text-amber-400"></i> Obnovit výchozí footer
+                        </button>
+                    </div>
+
+                    <!-- Footer Texts Editor -->
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
+                            <i class="fa-solid fa-font"></i> Texty a nadpis ve footeru
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Hlavní název (bílá část)</label>
+                                <input type="text" id="footer-edit-brand-title" oninput="previewFooterLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="Central Europe">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Zvýrazněný název (zlatá část)</label>
+                                <input type="text" id="footer-edit-brand-accent" oninput="previewFooterLive()" class="w-full bg-slate-800 border border-slate-700 text-amber-300 rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="e-MTB Tour">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Štítek / Ročník</label>
+                                <input type="text" id="footer-edit-brand-badge" oninput="previewFooterLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="2027">
+                            </div>
+                            <div class="md:col-span-3">
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Podtitulek / Popis pod názvem</label>
+                                <input type="text" id="footer-edit-subtitle" oninput="previewFooterLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-medium focus:border-amber-400 outline-none" placeholder="Oficiální šampionát elektrokoly v regionu CZ • SK • PL • DE • AT • HU">
+                            </div>
+                            <div class="md:col-span-3">
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Spodní text / Copyright</label>
+                                <input type="text" id="footer-edit-copyright" oninput="previewFooterLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-medium focus:border-amber-400 outline-none" placeholder="© 2027 Central Europe e-MTB Tour. Všechna práva vyhrazena.">
+                            </div>
+                        </div>
+                        <div class="pt-1">
+                            <button type="button" onclick="saveFooterTexts()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                                <i class="fa-solid fa-floppy-disk mr-1.5"></i> Uložit texty footeru
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Footer Links Editor -->
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-link"></i> Odkazy ve footeru (přidání, úprava, pořadí)
+                            </h4>
+                            <span id="footer-link-edit-badge" class="hidden text-xs font-black bg-amber-400/20 text-amber-300 border border-amber-400/40 px-3 py-1 rounded-full self-start sm:self-center">
+                                Režim úpravy odkazu
+                            </span>
+                        </div>
+
+                        <input type="hidden" id="edit-footer-link-id" value="">
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Text odkazu *</label>
+                                <input type="text" id="new-footer-link-label" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. Instagram, Kontakt, Pravidla">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Typ odkazu</label>
+                                <select id="new-footer-link-type" onchange="toggleFooterLinkTypeInputs()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none">
+                                    <option value="external">Externí web / E-mail / Telefon</option>
+                                    <option value="internal">Vnitřní sekce tohoto webu</option>
+                                </select>
+                            </div>
+                            <div id="footer-link-external-wrap">
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">URL adresa / E-mail / Telefon *</label>
+                                <input type="text" id="new-footer-link-url" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-medium focus:border-amber-400 outline-none" placeholder="https://..., mailto:info@..., tel:+420...">
+                            </div>
+                            <div id="footer-link-internal-wrap" class="hidden">
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Cílová sekce webu</label>
+                                <select id="new-footer-link-internal" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none">
+                                    <option value="rules">Pravidla bodování</option>
+                                    <option value="leaderboards">Žebříčky (Tours)</option>
+                                    <option value="race_results">Výsledky dle závodů</option>
+                                    <option value="calendar">Kalendář 2027</option>
+                                    <option value="teams">Týmy a Jezdci</option>
+                                    <option value="video">Prezentační video</option>
+                                    <option value="admin">Administrace</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button type="button" onclick="addOrUpdateFooterLink()" id="btn-save-footer-link" class="w-full sm:w-auto px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                                Přidat odkaz do footeru
+                            </button>
+                            <button type="button" onclick="cancelEditFooterLink()" id="btn-cancel-edit-footer-link" class="hidden w-full sm:w-auto px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs uppercase tracking-wider transition">
+                                Zrušit úpravu
+                            </button>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-800 space-y-2.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <h5 class="text-xs font-bold text-slate-300">Aktivní odkazy ve footeru</h5>
+                                <span id="admin-footer-links-count" class="text-[11px] font-bold text-slate-400"></span>
+                            </div>
+                            <div id="admin-footer-links-list" class="divide-y divide-slate-800 rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- Universal Footer present on every view and tab -->
-        <footer class="bg-[#0f172a] border-t border-slate-800 py-8 px-4 sm:px-6 mt-12 rounded-3xl shadow-2xl">
+        <footer id="site-footer" class="bg-[#0f172a] border-t border-slate-800 py-8 px-4 sm:px-6 mt-12 rounded-3xl shadow-2xl">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
                 <div class="flex items-center space-x-3">
-                    <div class="bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 p-2.5 rounded-xl font-black text-lg shadow-md flex items-center justify-center transform -rotate-2">
+                    <div class="bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 p-2.5 rounded-xl font-black text-lg shadow-md flex items-center justify-center transform -rotate-2 shrink-0">
                         <i class="fa-solid fa-bolt"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm font-black tracking-wider uppercase text-white">Central Europe <span class="text-amber-400">e-MTB Tour</span> <span class="text-[10px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded font-bold ml-1">2027</span></h3>
-                        <p class="text-[11px] text-slate-400 font-semibold">Oficiální šampionát elektrokoly v regionu CZ • SK • PL • DE • AT • HU</p>
+                        <h3 id="site-footer-brand" class="text-sm font-black tracking-wider uppercase text-white">Central Europe <span class="text-amber-400">e-MTB Tour</span> <span class="text-[10px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded font-bold ml-1">2027</span></h3>
+                        <p id="site-footer-subtitle" class="text-[11px] text-slate-400 font-semibold">Oficiální šampionát elektrokoly v regionu CZ • SK • PL • DE • AT • HU</p>
                     </div>
                 </div>
 
-                <div class="flex flex-wrap justify-center gap-6 text-xs text-slate-400 font-semibold">
+                <div id="site-footer-links" class="flex flex-wrap justify-center gap-6 text-xs text-slate-400 font-semibold">
                     <a href="#" onclick="switchMainTab('rules'); return false;" class="hover:text-amber-400 transition">Pravidla bodování</a>
                     <a href="#" onclick="switchMainTab('public'); switchPublicSubTab('calendar'); return false;" class="hover:text-amber-400 transition">Kalendář 2027</a>
                     <a href="#" onclick="switchMainTab('public'); switchPublicSubTab('teams'); return false;" class="hover:text-amber-400 transition">Týmy a jezdci</a>
                     <a href="#" onclick="handleAdminNavClick(); return false;" class="hover:text-amber-400 transition">Administrace</a>
                 </div>
 
-                <div class="text-xs text-slate-500 font-medium">
+                <div id="site-footer-copyright" class="text-xs text-slate-500 font-medium">
                     &copy; 2027 Central Europe e-MTB Tour. Všechna práva vyhrazena. Powered by Firebase & GitHub Pages.
                 </div>
             </div>
@@ -1624,7 +1740,9 @@
                 admin_tab_video: "Nastavení videa",
                 admin_video_title: "Nastavení prezentačního YouTube videa",
                 video_section_title: "Oficiální prezentační video",
-                menu_promo_video: "Prezentační video"
+                menu_promo_video: "Prezentační video",
+                admin_tab_footer: "Footer",
+                admin_footer_title: "Správa a editace patičky webu (Footer)"
             },
             sk: {
                 nav_rules: "Pravidlá bodovania",
@@ -1697,7 +1815,9 @@
                 admin_tab_video: "Nastavenie videa",
                 admin_video_title: "Nastavenie prezentačného YouTube videa",
                 video_section_title: "Oficiálne prezentačné video",
-                menu_promo_video: "Prezentačné video"
+                menu_promo_video: "Prezentačné video",
+                admin_tab_footer: "Footer",
+                admin_footer_title: "Správa a editácia pätičky webu (Footer)"
             },
             pl: {
                 nav_rules: "Zasady punktacji",
@@ -1770,7 +1890,9 @@
                 admin_tab_video: "Ustawienia wideo",
                 admin_video_title: "Ustawienia promocyjnego wideo YouTube",
                 video_section_title: "Oficjalne wideo promocyjne",
-                menu_promo_video: "Wideo promocyjne"
+                menu_promo_video: "Wideo promocyjne",
+                admin_tab_footer: "Stopka (Footer)",
+                admin_footer_title: "Zarządzanie i edycja stopki strony (Footer)"
             },
             de: {
                 nav_rules: "Reglement",
@@ -1843,7 +1965,9 @@
                 admin_tab_video: "Video-Einstellungen",
                 admin_video_title: "YouTube-Präsentationsvideo einstellen",
                 video_section_title: "Offizielles Präsentationsvideo",
-                menu_promo_video: "Präsentationsvideo"
+                menu_promo_video: "Präsentationsvideo",
+                admin_tab_footer: "Footer",
+                admin_footer_title: "Fußzeile (Footer) verwalten und bearbeiten"
             },
             en: {
                 nav_rules: "Scoring Rules",
@@ -1916,7 +2040,9 @@
                 admin_tab_video: "Video Settings",
                 admin_video_title: "YouTube Presentation Video Settings",
                 video_section_title: "Official Presentation Video",
-                menu_promo_video: "Promo Video"
+                menu_promo_video: "Promo Video",
+                admin_tab_footer: "Footer",
+                admin_footer_title: "Website Footer Text & Links Editor"
             }
         };
 
@@ -2137,6 +2263,21 @@
         let youtubeVideoId = 'dQw4w9WgXcQ';
         let isHeroVideoEnabled = true;
         let isVideoCollapsed = false;
+
+        const defaultFooterConfig = {
+            brandTitle: 'Central Europe',
+            brandAccent: 'e-MTB Tour',
+            brandBadge: '2027',
+            subtitle: 'Oficiální šampionát elektrokoly v regionu CZ • SK • PL • DE • AT • HU',
+            copyright: '© 2027 Central Europe e-MTB Tour. Všechna práva vyhrazena. Powered by Firebase & GitHub Pages.',
+            links: [
+                { id: 'fl1', label: 'Pravidla bodování', type: 'internal', target: 'rules' },
+                { id: 'fl2', label: 'Kalendář 2027', type: 'internal', target: 'calendar' },
+                { id: 'fl3', label: 'Týmy a jezdci', type: 'internal', target: 'teams' },
+                { id: 'fl4', label: 'Administrace', type: 'internal', target: 'admin' }
+            ]
+        };
+        let footerConfig = JSON.parse(JSON.stringify(defaultFooterConfig));
 
         function formatAgeCategoryRange(cat) {
             if (!cat) return '';
@@ -2370,6 +2511,15 @@
                     if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
                     if (data.youtubeVideoId !== undefined) youtubeVideoId = data.youtubeVideoId;
                     if (typeof data.isHeroVideoEnabled === 'boolean') isHeroVideoEnabled = data.isHeroVideoEnabled;
+                    if (data.footerConfig && typeof data.footerConfig === 'object') {
+                        footerConfig = {
+                            ...JSON.parse(JSON.stringify(defaultFooterConfig)),
+                            ...data.footerConfig,
+                            links: Array.isArray(data.footerConfig.links)
+                                ? data.footerConfig.links
+                                : JSON.parse(JSON.stringify(defaultFooterConfig.links))
+                        };
+                    }
                 } else if (window.auth && window.auth.currentUser) {
                     saveData();
                 }
@@ -2384,6 +2534,7 @@
                 renderCalendar();
                 renderTeamsAndRidersView();
                 renderWebPartnersSlider();
+                renderFooter();
                 if (!document.getElementById('view-admin').classList.contains('hidden')) {
                     const activeEl = document.activeElement;
                     const isEditingIn = (containerId) => {
@@ -2398,6 +2549,7 @@
                     if (!isEditingIn('admin-sponsors-teams-grid')) renderAdminSponsorsTeams();
                     if (!isEditingIn('admin-sponsors-riders-grid')) renderAdminSponsorsRiders();
                     renderAdminWebPartnersGrid();
+                    if (!isEditingIn('admin-sub-footer')) renderAdminFooterEditor();
                 }
             }, (error) => {
                 console.error("Firebase snapshot error:", error);
@@ -2422,6 +2574,7 @@
             raceResults = {};
             youtubeVideoId = 'dQw4w9WgXcQ';
             isHeroVideoEnabled = true;
+            footerConfig = JSON.parse(JSON.stringify(defaultFooterConfig));
             updateHeroVideoPlayer();
             updateSponsorsHoverModeUI();
             populateCategorySelects();
@@ -2431,6 +2584,7 @@
             renderPublicRaceResults();
             renderCalendar();
             renderWebPartnersSlider();
+            renderFooter();
         };
 
         async function saveData() {
@@ -2457,7 +2611,8 @@
                     motorHandicaps,
                     motorSpecs,
                     youtubeVideoId,
-                    isHeroVideoEnabled
+                    isHeroVideoEnabled,
+                    footerConfig
                 }));
                 await setDoc(docRef, payload, { merge: true });
                 console.log("Data successfully saved to Firebase Firestore.");
@@ -2607,6 +2762,7 @@
                 renderAdminTeamsGrid();
                 renderAdminSponsorsSection();
                 renderAdminWebPartnersGrid();
+                renderAdminFooterEditor();
                 switchAdminSubTab(currentAdminSubTab);
             }
         }
@@ -2668,7 +2824,7 @@
         function switchAdminSubTab(sub) {
             currentAdminSubTab = sub;
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'categories', 'motors', 'teams', 'sponsors', 'web-partners', 'calendar', 'video'].forEach(s => {
+            ['results', 'skills', 'riders', 'categories', 'motors', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'footer'].forEach(s => {
                 const btn = document.getElementById(`admin-sub-btn-${s}`);
                 if (btn) {
                     if (s === sub) {
@@ -2689,6 +2845,7 @@
             }
             if (sub === 'calendar') renderAdminCalendarTable();
             if (sub === 'video') updateHeroVideoPlayer();
+            if (sub === 'footer') renderAdminFooterEditor();
             if (sub === 'motors') {
                 renderAdminMotorsTable();
                 filterMotorReferenceCatalog();
@@ -5753,8 +5910,324 @@
             }
         }
 
+        const footerInternalTargetLabels = {
+            rules: 'Pravidla bodování',
+            leaderboards: 'Žebříčky (Tours)',
+            race_results: 'Výsledky dle závodů',
+            calendar: 'Kalendář 2027',
+            teams: 'Týmy a Jezdci',
+            video: 'Prezentační video',
+            admin: 'Administrace'
+        };
+
+        function normalizeFooterExternalUrl(raw) {
+            const val = String(raw || '').trim();
+            if (!val) return '';
+            if (/^javascript:/i.test(val) || /^data:/i.test(val)) return '';
+            if (/^(https?:\/\/|mailto:|tel:)/i.test(val)) return val;
+            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'mailto:' + val;
+            if (/^\+?[\d\s()-]{6,}$/.test(val)) return 'tel:' + val.replace(/\s+/g, '');
+            return 'https://' + val;
+        }
+
+        function handleFooterInternalLink(target) {
+            if (target === 'rules') {
+                switchMainTab('rules');
+            } else if (target === 'leaderboards' || target === 'race_results' || target === 'calendar' || target === 'teams') {
+                switchMainTab('public');
+                switchPublicSubTab(target);
+            } else if (target === 'video') {
+                openHeroVideoModal();
+                return;
+            } else if (target === 'admin') {
+                handleAdminNavClick();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderFooter(overrideTexts) {
+            const cfg = overrideTexts ? { ...footerConfig, ...overrideTexts } : footerConfig;
+            const brandEl = document.getElementById('site-footer-brand');
+            const subEl = document.getElementById('site-footer-subtitle');
+            const linksEl = document.getElementById('site-footer-links');
+            const copyEl = document.getElementById('site-footer-copyright');
+
+            if (brandEl) {
+                const mainPart = escapeHtml(cfg.brandTitle || '');
+                const accentPart = escapeHtml(cfg.brandAccent || '');
+                const badgePart = escapeHtml(cfg.brandBadge || '');
+                brandEl.innerHTML = `${mainPart}${mainPart && accentPart ? ' ' : ''}${accentPart ? `<span class="text-amber-400">${accentPart}</span>` : ''}${badgePart ? ` <span class="text-[10px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded font-bold ml-1">${badgePart}</span>` : ''}`;
+            }
+            if (subEl) {
+                subEl.textContent = cfg.subtitle || '';
+                subEl.classList.toggle('hidden', !String(cfg.subtitle || '').trim());
+            }
+            if (copyEl) {
+                copyEl.textContent = cfg.copyright || '';
+                copyEl.classList.toggle('hidden', !String(cfg.copyright || '').trim());
+            }
+            if (linksEl) {
+                const links = Array.isArray(cfg.links) ? cfg.links : [];
+                if (links.length === 0) {
+                    linksEl.innerHTML = '';
+                    linksEl.classList.add('hidden');
+                } else {
+                    linksEl.classList.remove('hidden');
+                    linksEl.innerHTML = links.map(link => {
+                        const label = escapeHtml(link.label || 'Odkaz');
+                        if (link.type === 'internal') {
+                            const safeTarget = footerInternalTargetLabels[link.target] ? link.target : 'rules';
+                            return `<a href="#" onclick="handleFooterInternalLink('${escapeHtml(safeTarget)}'); return false;" class="hover:text-amber-400 transition">${label}</a>`;
+                        }
+                        const safeHref = normalizeFooterExternalUrl(link.target);
+                        if (!safeHref) {
+                            return `<span class="text-slate-500">${label}</span>`;
+                        }
+                        const isWeb = /^https?:\/\//i.test(safeHref);
+                        return `<a href="${escapeHtml(safeHref)}" ${isWeb ? 'target="_blank" rel="noopener noreferrer"' : ''} class="hover:text-amber-400 transition inline-flex items-center gap-1">${label}${isWeb ? ' <i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-65"></i>' : ''}</a>`;
+                    }).join('');
+                }
+            }
+        }
+
+        function previewFooterLive() {
+            const brandTitle = document.getElementById('footer-edit-brand-title')?.value ?? footerConfig.brandTitle;
+            const brandAccent = document.getElementById('footer-edit-brand-accent')?.value ?? footerConfig.brandAccent;
+            const brandBadge = document.getElementById('footer-edit-brand-badge')?.value ?? footerConfig.brandBadge;
+            const subtitle = document.getElementById('footer-edit-subtitle')?.value ?? footerConfig.subtitle;
+            const copyright = document.getElementById('footer-edit-copyright')?.value ?? footerConfig.copyright;
+            renderFooter({ brandTitle, brandAccent, brandBadge, subtitle, copyright });
+        }
+
+        async function saveFooterTexts() {
+            footerConfig.brandTitle = (document.getElementById('footer-edit-brand-title')?.value || '').trim();
+            footerConfig.brandAccent = (document.getElementById('footer-edit-brand-accent')?.value || '').trim();
+            footerConfig.brandBadge = (document.getElementById('footer-edit-brand-badge')?.value || '').trim();
+            footerConfig.subtitle = (document.getElementById('footer-edit-subtitle')?.value || '').trim();
+            footerConfig.copyright = (document.getElementById('footer-edit-copyright')?.value || '').trim();
+            renderFooter();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", "Texty ve footeru byly uloženy do Firebase a okamžitě aktualizovány na webu!");
+            } else {
+                showModal("Chyba databáze Firebase", `Texty footeru se neuložily (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function resetFooterToDefault() {
+            if (!confirm("Opravdu chcete obnovit všechny texty a odkazy ve footeru do výchozího nastavení?")) return;
+            footerConfig = JSON.parse(JSON.stringify(defaultFooterConfig));
+            cancelEditFooterLink();
+            renderFooter();
+            renderAdminFooterEditor();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Obnoveno", "Footer byl obnoven do výchozího nastavení a uložen do Firebase.");
+            } else {
+                showModal("Chyba databáze Firebase", `Obnovení footeru se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        function toggleFooterLinkTypeInputs() {
+            const typeEl = document.getElementById('new-footer-link-type');
+            const extWrap = document.getElementById('footer-link-external-wrap');
+            const intWrap = document.getElementById('footer-link-internal-wrap');
+            if (!typeEl) return;
+            if (typeEl.value === 'internal') {
+                if (extWrap) extWrap.classList.add('hidden');
+                if (intWrap) intWrap.classList.remove('hidden');
+            } else {
+                if (extWrap) extWrap.classList.remove('hidden');
+                if (intWrap) intWrap.classList.add('hidden');
+            }
+        }
+
+        async function addOrUpdateFooterLink() {
+            const editId = document.getElementById('edit-footer-link-id')?.value.trim() || '';
+            const label = document.getElementById('new-footer-link-label')?.value.trim() || '';
+            const type = document.getElementById('new-footer-link-type')?.value || 'external';
+            const rawUrl = document.getElementById('new-footer-link-url')?.value.trim() || '';
+            const internalTarget = document.getElementById('new-footer-link-internal')?.value || 'rules';
+
+            if (!label) {
+                showModal("Chyba", "Zadejte prosím text odkazu!");
+                return;
+            }
+
+            let target = internalTarget;
+            if (type === 'external') {
+                target = normalizeFooterExternalUrl(rawUrl);
+                if (!target) {
+                    showModal("Chyba", "Zadejte prosím platnou URL adresu, e-mail nebo telefonní číslo!");
+                    return;
+                }
+            }
+
+            if (!Array.isArray(footerConfig.links)) footerConfig.links = [];
+
+            if (editId) {
+                const existing = footerConfig.links.find(l => l.id === editId);
+                if (existing) {
+                    existing.label = label;
+                    existing.type = type;
+                    existing.target = target;
+                }
+            } else {
+                footerConfig.links.push({
+                    id: 'fl_' + Date.now(),
+                    label: label,
+                    type: type,
+                    target: target
+                });
+            }
+
+            cancelEditFooterLink();
+            renderFooter();
+            renderAdminFooterEditor();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", editId ? `Odkaz "${label}" byl upraven a uložen do Firebase!` : `Odkaz "${label}" byl přidán do footeru a uložen do Firebase!`);
+            } else {
+                showModal("Chyba databáze Firebase", `Změna odkazu ve footeru se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        function editFooterLink(id) {
+            const link = (footerConfig.links || []).find(l => l.id === id);
+            if (!link) return;
+            document.getElementById('edit-footer-link-id').value = link.id;
+            document.getElementById('new-footer-link-label').value = link.label || '';
+            document.getElementById('new-footer-link-type').value = link.type === 'internal' ? 'internal' : 'external';
+            toggleFooterLinkTypeInputs();
+            if (link.type === 'internal') {
+                document.getElementById('new-footer-link-internal').value = link.target || 'rules';
+                document.getElementById('new-footer-link-url').value = '';
+            } else {
+                document.getElementById('new-footer-link-url').value = link.target || '';
+            }
+            document.getElementById('btn-save-footer-link').textContent = 'Uložit změny odkazu';
+            document.getElementById('btn-cancel-edit-footer-link').classList.remove('hidden');
+            document.getElementById('footer-link-edit-badge').classList.remove('hidden');
+            document.getElementById('new-footer-link-label').focus();
+        }
+
+        function cancelEditFooterLink() {
+            const editIdEl = document.getElementById('edit-footer-link-id');
+            const labelEl = document.getElementById('new-footer-link-label');
+            const typeEl = document.getElementById('new-footer-link-type');
+            const urlEl = document.getElementById('new-footer-link-url');
+            const intEl = document.getElementById('new-footer-link-internal');
+            const btnSave = document.getElementById('btn-save-footer-link');
+            const btnCancel = document.getElementById('btn-cancel-edit-footer-link');
+            const badge = document.getElementById('footer-link-edit-badge');
+
+            if (editIdEl) editIdEl.value = '';
+            if (labelEl) labelEl.value = '';
+            if (typeEl) typeEl.value = 'external';
+            if (urlEl) urlEl.value = '';
+            if (intEl) intEl.value = 'rules';
+            toggleFooterLinkTypeInputs();
+            if (btnSave) btnSave.textContent = 'Přidat odkaz do footeru';
+            if (btnCancel) btnCancel.classList.add('hidden');
+            if (badge) badge.classList.add('hidden');
+        }
+
+        async function moveFooterLink(id, direction) {
+            if (!Array.isArray(footerConfig.links)) return;
+            const idx = footerConfig.links.findIndex(l => l.id === id);
+            if (idx === -1) return;
+            const targetIdx = idx + direction;
+            if (targetIdx < 0 || targetIdx >= footerConfig.links.length) return;
+            const tmp = footerConfig.links[idx];
+            footerConfig.links[idx] = footerConfig.links[targetIdx];
+            footerConfig.links[targetIdx] = tmp;
+            renderFooter();
+            renderAdminFooterEditor();
+            const res = await saveData();
+            if (!res.ok) {
+                showModal("Chyba databáze Firebase", `Změna pořadí odkazů se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function deleteFooterLink(id) {
+            const link = (footerConfig.links || []).find(l => l.id === id);
+            if (!link) return;
+            if (confirm(`Opravdu chcete odstranit odkaz "${link.label}" z footeru?`)) {
+                if (document.getElementById('edit-footer-link-id')?.value === id) {
+                    cancelEditFooterLink();
+                }
+                footerConfig.links = footerConfig.links.filter(l => l.id !== id);
+                renderFooter();
+                renderAdminFooterEditor();
+                const res = await saveData();
+                if (!res.ok) {
+                    showModal("Chyba databáze Firebase", `Smazání odkazu se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
+            }
+        }
+
+        function renderAdminFooterEditor() {
+            const setInputSafe = (id, value) => {
+                const el = document.getElementById(id);
+                if (el && document.activeElement !== el) {
+                    el.value = value ?? '';
+                }
+            };
+            setInputSafe('footer-edit-brand-title', footerConfig.brandTitle);
+            setInputSafe('footer-edit-brand-accent', footerConfig.brandAccent);
+            setInputSafe('footer-edit-brand-badge', footerConfig.brandBadge);
+            setInputSafe('footer-edit-subtitle', footerConfig.subtitle);
+            setInputSafe('footer-edit-copyright', footerConfig.copyright);
+            toggleFooterLinkTypeInputs();
+
+            const listEl = document.getElementById('admin-footer-links-list');
+            const countEl = document.getElementById('admin-footer-links-count');
+            const links = Array.isArray(footerConfig.links) ? footerConfig.links : [];
+
+            if (countEl) countEl.textContent = `Celkem odkazů: ${links.length}`;
+            if (!listEl) return;
+            listEl.innerHTML = '';
+
+            if (links.length === 0) {
+                listEl.innerHTML = '<div class="p-5 text-center text-xs text-slate-500 italic">Ve footeru zatím nejsou žádné odkazy. Přidejte první odkaz výše.</div>';
+                return;
+            }
+
+            links.forEach((link, idx) => {
+                const isInternal = link.type === 'internal';
+                const targetDisplay = isInternal
+                    ? `Sekce webu: ${footerInternalTargetLabels[link.target] || link.target}`
+                    : link.target;
+                const row = document.createElement('div');
+                row.className = "flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 hover:bg-slate-800/50 transition";
+                row.innerHTML = `
+                    <div class="min-w-0 space-y-0.5">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-[10px] font-black text-amber-300 bg-amber-400/15 border border-amber-400/30 px-2 py-0.5 rounded-lg">#${idx + 1}</span>
+                            <span class="text-sm font-black text-white">${escapeHtml(link.label)}</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg border ${isInternal ? 'bg-sky-500/15 text-sky-300 border-sky-500/30' : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'}">
+                                ${isInternal ? 'Sekce webu' : 'Externí / Kontakt'}
+                            </span>
+                        </div>
+                        <div class="text-xs text-slate-400 truncate">${escapeHtml(targetDisplay)}</div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button type="button" onclick="moveFooterLink('${escapeHtml(link.id)}', -1)" ${idx === 0 ? 'disabled' : ''} title="Posunout nahoru" class="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-35 disabled:cursor-not-allowed transition">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </button>
+                        <button type="button" onclick="moveFooterLink('${escapeHtml(link.id)}', 1)" ${idx === links.length - 1 ? 'disabled' : ''} title="Posunout dolů" class="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-35 disabled:cursor-not-allowed transition">
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </button>
+                        <button type="button" onclick="editFooterLink('${escapeHtml(link.id)}')" class="px-3 py-1.5 bg-amber-400/20 text-amber-300 rounded-xl hover:bg-amber-400/30 transition font-bold text-xs border border-amber-400/30">Upravit</button>
+                        <button type="button" onclick="deleteFooterLink('${escapeHtml(link.id)}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
+                    </div>
+                `;
+                listEl.appendChild(row);
+            });
+        }
+
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, availableMotors, motorHandicaps, motorSpecs, raceResults };
+            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, footerConfig, availableMotors, motorHandicaps, motorSpecs, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -5788,6 +6261,15 @@
                     if (typeof data.isHeroVideoEnabled === 'boolean') {
                         isHeroVideoEnabled = data.isHeroVideoEnabled;
                     }
+                    if (data.footerConfig && typeof data.footerConfig === 'object') {
+                        footerConfig = {
+                            ...JSON.parse(JSON.stringify(defaultFooterConfig)),
+                            ...data.footerConfig,
+                            links: Array.isArray(data.footerConfig.links)
+                                ? data.footerConfig.links
+                                : JSON.parse(JSON.stringify(defaultFooterConfig.links))
+                        };
+                    }
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
                     if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
                     if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
@@ -5805,11 +6287,13 @@
                     renderAdminTeamsGrid();
                     renderAdminSponsorsSection();
                     renderAdminWebPartnersGrid();
+                    renderAdminFooterEditor();
                     renderCalendar();
                     renderPublicLeaderboards();
                     renderPublicRaceResults();
                     renderTeamsAndRidersView();
                     renderWebPartnersSlider();
+                    renderFooter();
                     showModal("Úspěch", "Data byla úspěšně obnovena ze zálohy!");
                 } catch(err) {
                     showModal("Chyba", "Neplatný formát JSON souboru.");
@@ -5828,6 +6312,7 @@
                 populatePublicRaceResultsSelect();
                 renderCalendar();
                 renderWebPartnersSlider();
+                renderFooter();
                 filterMotorReferenceCatalog();
             }, 300);
         };
