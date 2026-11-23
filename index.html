@@ -347,65 +347,137 @@
             </div>
 
             <div id="subview-leaderboards" class="space-y-3">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
                     <!-- Yellow Jersey -->
-                    <div class="bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border border-amber-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
+                    <div onclick="switchLeaderboardTab('yellow')" class="cursor-pointer group bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border border-amber-500/40 hover:border-amber-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
                         <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="bg-amber-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase">Žlutý dres</span>
-                                <i class="fa-solid fa-medal text-amber-400 text-lg"></i>
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div class="min-w-0 space-y-1">
+                                    <span class="inline-block bg-amber-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Žlutý dres</span>
+                                    <div class="text-[11px] font-bold text-amber-300/80 truncate">Celkové pořadí</div>
+                                </div>
+                                <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(250,204,21,0.35)] transition-transform duration-300 group-hover:scale-105" aria-label="Žlutý dres">
+                                    <defs>
+                                        <linearGradient id="jersey-yellow-grad" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#fde047"/>
+                                            <stop offset="100%" stop-color="#eab308"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="url(#jersey-yellow-grad)" stroke="#fef08a" stroke-width="1.6" stroke-linejoin="round"/>
+                                    <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#854d0e" stroke-width="2.2" stroke-linecap="round"/>
+                                    <line x1="32" y1="15.5" x2="32" y2="34" stroke="#a16207" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <path d="M18 52 L46 52" stroke="#ca8a04" stroke-width="2" opacity="0.6"/>
+                                </svg>
                             </div>
-                            <div id="hero-yellow-name" class="text-base font-black text-white">--</div>
-                            <div id="hero-yellow-team" class="text-xs text-slate-400 font-semibold">--</div>
+                            <div id="hero-yellow-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                            <div id="hero-yellow-team" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">--</div>
                         </div>
-                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold">Celkem bodů</span>
-                            <span id="hero-yellow-pts" class="text-xl font-black text-amber-400">0 b.</span>
+                        <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">Celkem bodů</span>
+                            <span id="hero-yellow-pts" class="text-xl font-black text-amber-400 tabular-nums whitespace-nowrap">0 b.</span>
                         </div>
                     </div>
+
                     <!-- Green Jersey -->
-                    <div class="bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
+                    <div onclick="switchLeaderboardTab('green')" class="cursor-pointer group bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 hover:border-emerald-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
                         <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase">Zelený dres</span>
-                                <i class="fa-solid fa-bolt text-emerald-400 text-lg"></i>
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div class="min-w-0 space-y-1">
+                                    <span class="inline-block bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Zelený dres</span>
+                                    <div class="text-[11px] font-bold text-emerald-300/80 truncate">Sprinty</div>
+                                </div>
+                                <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(16,185,129,0.35)] transition-transform duration-300 group-hover:scale-105" aria-label="Zelený dres">
+                                    <defs>
+                                        <linearGradient id="jersey-green-grad" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#34d399"/>
+                                            <stop offset="100%" stop-color="#059669"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="url(#jersey-green-grad)" stroke="#a7f3d0" stroke-width="1.6" stroke-linejoin="round"/>
+                                    <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#064e3b" stroke-width="2.2" stroke-linecap="round"/>
+                                    <line x1="32" y1="15.5" x2="32" y2="34" stroke="#065f46" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <path d="M18 52 L46 52" stroke="#047857" stroke-width="2" opacity="0.6"/>
+                                </svg>
                             </div>
-                            <div id="hero-green-name" class="text-base font-black text-white">--</div>
-                            <div id="hero-green-team" class="text-xs text-slate-400 font-semibold">--</div>
+                            <div id="hero-green-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                            <div id="hero-green-team" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">--</div>
                         </div>
-                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold">Sprint Body</span>
-                            <span id="hero-green-pts" class="text-xl font-black text-emerald-400">0 b.</span>
+                        <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">Sprint body</span>
+                            <span id="hero-green-pts" class="text-xl font-black text-emerald-400 tabular-nums whitespace-nowrap">0 b.</span>
                         </div>
                     </div>
-                    <!-- Polka Dot -->
-                    <div class="bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between polka-dot">
-                        <div class="bg-[#111827]/90 p-3 rounded-2xl">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="bg-red-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase">Král hor</span>
-                                <i class="fa-solid fa-mountain text-red-500 text-lg"></i>
+
+                    <!-- Mountain / Polka Dot Jersey -->
+                    <div onclick="switchLeaderboardTab('polka')" class="cursor-pointer group bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 hover:border-red-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
+                        <div>
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div class="min-w-0 space-y-1">
+                                    <span class="inline-block bg-red-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Horský dres</span>
+                                    <div class="text-[11px] font-bold text-red-300/80 truncate">Král hor (KOM)</div>
+                                </div>
+                                <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(239,68,68,0.4)] transition-transform duration-300 group-hover:scale-105" aria-label="Horský puntíkovaný dres">
+                                    <defs>
+                                        <clipPath id="jersey-polka-clip">
+                                            <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z"/>
+                                        </clipPath>
+                                    </defs>
+                                    <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="#f8fafc"/>
+                                    <g clip-path="url(#jersey-polka-clip)" fill="#ef4444">
+                                        <circle cx="14" cy="20" r="3.4"/>
+                                        <circle cx="25" cy="21" r="3.4"/>
+                                        <circle cx="39" cy="21" r="3.4"/>
+                                        <circle cx="51" cy="21" r="3.4"/>
+                                        <circle cx="20" cy="31" r="3.4"/>
+                                        <circle cx="32" cy="31" r="3.4"/>
+                                        <circle cx="44" cy="31" r="3.4"/>
+                                        <circle cx="25" cy="42" r="3.4"/>
+                                        <circle cx="39" cy="42" r="3.4"/>
+                                        <circle cx="20" cy="52" r="3.4"/>
+                                        <circle cx="32" cy="52" r="3.4"/>
+                                        <circle cx="44" cy="52" r="3.4"/>
+                                    </g>
+                                    <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="none" stroke="#fca5a5" stroke-width="1.6" stroke-linejoin="round"/>
+                                    <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round"/>
+                                    <line x1="32" y1="15.5" x2="32" y2="33" stroke="#991b1b" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
+                                </svg>
                             </div>
-                            <div id="hero-polka-name" class="text-base font-black text-white">--</div>
-                            <div id="hero-polka-team" class="text-xs text-slate-400 font-semibold">--</div>
+                            <div id="hero-polka-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                            <div id="hero-polka-team" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">--</div>
                         </div>
-                        <div class="mt-4 pt-3 border-t border-slate-800 bg-[#111827]/90 px-3 py-2 rounded-xl flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold">KOM Body</span>
-                            <span id="hero-polka-pts" class="text-xl font-black text-red-500">0 b.</span>
+                        <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">KOM body</span>
+                            <span id="hero-polka-pts" class="text-xl font-black text-red-400 tabular-nums whitespace-nowrap">0 b.</span>
                         </div>
                     </div>
+
                     <!-- Pink Jersey -->
-                    <div class="bg-gradient-to-br from-pink-500/20 via-[#111827] to-[#0f172a] border border-pink-500/40 rounded-3xl p-5 shadow-2xl flex flex-col justify-between">
+                    <div onclick="switchLeaderboardTab('pink')" class="cursor-pointer group bg-gradient-to-br from-pink-500/20 via-[#111827] to-[#0f172a] border border-pink-500/40 hover:border-pink-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
                         <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="bg-pink-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase">Růžový dres</span>
-                                <i class="fa-solid fa-industry text-pink-400 text-lg"></i>
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div class="min-w-0 space-y-1">
+                                    <span class="inline-block bg-pink-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Růžový dres</span>
+                                    <div class="text-[11px] font-bold text-pink-300/80 truncate">Konstruktéři</div>
+                                </div>
+                                <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(236,72,153,0.4)] transition-transform duration-300 group-hover:scale-105" aria-label="Růžový dres">
+                                    <defs>
+                                        <linearGradient id="jersey-pink-grad" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#f472b6"/>
+                                            <stop offset="100%" stop-color="#db2777"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="url(#jersey-pink-grad)" stroke="#fbcfe8" stroke-width="1.6" stroke-linejoin="round"/>
+                                    <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#831843" stroke-width="2.2" stroke-linecap="round"/>
+                                    <line x1="32" y1="15.5" x2="32" y2="34" stroke="#9d174d" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <path d="M18 52 L46 52" stroke="#be185d" stroke-width="2" opacity="0.6"/>
+                                </svg>
                             </div>
-                            <div id="hero-pink-name" class="text-base font-black text-white">--</div>
-                            <div id="hero-pink-brand" class="text-xs text-slate-400 font-semibold">--</div>
+                            <div id="hero-pink-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                            <div id="hero-pink-brand" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">--</div>
                         </div>
-                        <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-end">
-                            <span class="text-[11px] text-slate-400 uppercase font-bold">Tovární Body</span>
-                            <span id="hero-pink-pts" class="text-xl font-black text-pink-400">0 b.</span>
+                        <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">Tovární body</span>
+                            <span id="hero-pink-pts" class="text-xl font-black text-pink-400 tabular-nums whitespace-nowrap">0 b.</span>
                         </div>
                     </div>
                 </div>
@@ -2707,8 +2779,10 @@
             let polkaSorted = [...arr].sort((a, b) => b.totalPolka - a.totalPolka);
             let pinkSorted = [...arr].sort((a, b) => b.totalPink - a.totalPink);
 
+            const formatHeroRiderHtml = (rider) => `<span class="shrink-0">${getFlagIcon(rider.country)}</span><span class="truncate">${escapeHtml(rider.name)}</span>`;
+
             if (yellowSorted.length > 0) {
-                document.getElementById('hero-yellow-name').innerHTML = `${getFlagIcon(yellowSorted[0].rider.country)} ${yellowSorted[0].rider.name}`;
+                document.getElementById('hero-yellow-name').innerHTML = formatHeroRiderHtml(yellowSorted[0].rider);
                 document.getElementById('hero-yellow-team').textContent = yellowSorted[0].rider.team || 'Bez týmu';
                 document.getElementById('hero-yellow-pts').textContent = yellowSorted[0].totalYellow + ' b.';
             } else {
@@ -2717,7 +2791,7 @@
                 document.getElementById('hero-yellow-pts').textContent = '0 b.';
             }
             if (greenSorted.length > 0) {
-                document.getElementById('hero-green-name').innerHTML = `${getFlagIcon(greenSorted[0].rider.country)} ${greenSorted[0].rider.name}`;
+                document.getElementById('hero-green-name').innerHTML = formatHeroRiderHtml(greenSorted[0].rider);
                 document.getElementById('hero-green-team').textContent = greenSorted[0].rider.team || 'Bez týmu';
                 document.getElementById('hero-green-pts').textContent = greenSorted[0].totalGreen + ' b.';
             } else {
@@ -2726,7 +2800,7 @@
                 document.getElementById('hero-green-pts').textContent = '0 b.';
             }
             if (polkaSorted.length > 0) {
-                document.getElementById('hero-polka-name').innerHTML = `${getFlagIcon(polkaSorted[0].rider.country)} ${polkaSorted[0].rider.name}`;
+                document.getElementById('hero-polka-name').innerHTML = formatHeroRiderHtml(polkaSorted[0].rider);
                 document.getElementById('hero-polka-team').textContent = polkaSorted[0].rider.team || 'Bez týmu';
                 document.getElementById('hero-polka-pts').textContent = polkaSorted[0].totalPolka + ' b.';
             } else {
@@ -2735,7 +2809,7 @@
                 document.getElementById('hero-polka-pts').textContent = '0 b.';
             }
             if (pinkSorted.length > 0) {
-                document.getElementById('hero-pink-name').innerHTML = `${getFlagIcon(pinkSorted[0].rider.country)} ${pinkSorted[0].rider.name}`;
+                document.getElementById('hero-pink-name').innerHTML = formatHeroRiderHtml(pinkSorted[0].rider);
                 document.getElementById('hero-pink-brand').textContent = `${pinkSorted[0].rider.ebike} (${pinkSorted[0].rider.motor})`;
                 document.getElementById('hero-pink-pts').textContent = pinkSorted[0].totalPink + ' b.';
             } else {
