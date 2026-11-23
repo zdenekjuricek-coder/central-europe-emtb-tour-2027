@@ -108,12 +108,54 @@
             transform: translateY(0);
             pointer-events: auto;
         }
+        .sponsor-badges-reveal {
+            max-height: 260px;
+            opacity: 1;
+            overflow: hidden;
+            transform: translateY(0);
+            transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.35s ease, padding-top 0.35s ease, padding-bottom 0.35s ease, border-color 0.3s ease, transform 0.3s ease;
+        }
+        .sponsors-hover-mode .sponsor-badges-reveal {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            border-color: transparent !important;
+            transform: translateY(-4px);
+            pointer-events: none;
+        }
+        .sponsors-hover-mode .sponsor-reveal-row:hover .sponsor-badges-reveal,
+        .sponsors-hover-mode .sponsor-reveal-row:focus-within .sponsor-badges-reveal {
+            max-height: 260px;
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .sponsors-hover-mode .sponsor-reveal-row:hover .sponsor-badges-reveal.sponsor-reveal-panel,
+        .sponsors-hover-mode .sponsor-reveal-row:focus-within .sponsor-badges-reveal.sponsor-reveal-panel {
+            margin-top: 0.75rem !important;
+            padding-top: 0.65rem !important;
+            padding-bottom: 0.65rem !important;
+            border-color: rgba(251, 191, 36, 0.25) !important;
+        }
+        .sponsors-hover-mode .sponsor-reveal-row:hover .sponsor-badges-reveal.sponsor-reveal-divider,
+        .sponsors-hover-mode .sponsor-reveal-row:focus-within .sponsor-badges-reveal.sponsor-reveal-divider {
+            margin-top: 0.75rem !important;
+            padding-top: 0.75rem !important;
+            border-color: rgba(30, 41, 59, 0.9) !important;
+        }
+        .sponsors-hover-mode .sponsor-reveal-row:hover .sponsor-badges-reveal.sponsor-reveal-compact,
+        .sponsors-hover-mode .sponsor-reveal-row:focus-within .sponsor-badges-reveal.sponsor-reveal-compact {
+            margin-top: 0.35rem !important;
+        }
         @media (prefers-reduced-motion: reduce) {
             .partner-marquee-track {
                 animation: none;
                 transform: translateX(0);
             }
-            .partner-slider-caption {
+            .partner-slider-caption,
+            .sponsor-badges-reveal {
                 transition: none;
             }
         }
@@ -491,13 +533,50 @@
 
             <!-- Teams & Riders Subview -->
             <div id="subview-teams" class="hidden space-y-8">
-                <div class="space-y-6">
-                    <h3 class="text-xl font-black text-white" data-i18n="teams_roster_title">Týmy seriálu a jejich soupisky</h3>
-                    <div id="teams-roster-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div class="bg-[#111827] border border-slate-800 p-5 sm:p-6 rounded-3xl shadow-2xl space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h3 class="text-xl font-black text-white flex items-center gap-3">
+                            <i class="fa-solid fa-shield text-amber-400"></i>
+                            <span data-i18n="teams_roster_title">Týmy seriálu a jejich soupisky</span>
+                        </h3>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <span id="public-teams-hover-hint" class="hidden text-[11px] font-bold text-amber-300/80 items-center gap-1.5">
+                                <i class="fa-solid fa-arrow-pointer"></i> Najetím myší na řádek zobrazíte sponzory
+                            </span>
+                            <span id="public-teams-count" class="text-xs font-bold text-slate-400"></span>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden shadow-xl">
+                        <div class="hidden lg:grid lg:grid-cols-12 gap-4 px-5 py-3.5 bg-slate-900/90 border-b border-slate-800 text-[11px] uppercase font-black tracking-wider text-slate-400">
+                            <div class="col-span-3">Tým &amp; Značka</div>
+                            <div class="col-span-1 text-center">Jezdců</div>
+                            <div class="col-span-8">Soupiska jezdců (E-Bike &amp; Motor)</div>
+                        </div>
+                        <div id="teams-roster-grid" class="divide-y divide-slate-800/80"></div>
+                    </div>
                 </div>
-                <div class="space-y-6 pt-6 border-t border-slate-800">
-                    <h3 class="text-xl font-black text-white" data-i18n="riders_profiles_title">Jednotliví jezdci a jejich profily</h3>
-                    <div id="riders-profiles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+                <div class="bg-[#111827] border border-slate-800 p-5 sm:p-6 rounded-3xl shadow-2xl space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h3 class="text-xl font-black text-white flex items-center gap-3">
+                            <i class="fa-solid fa-person-biking text-amber-400"></i>
+                            <span data-i18n="riders_profiles_title">Jednotliví jezdci a jejich profily</span>
+                        </h3>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <span id="public-riders-hover-hint" class="hidden text-[11px] font-bold text-sky-300/80 items-center gap-1.5">
+                                <i class="fa-solid fa-arrow-pointer"></i> Najetím myší na řádek zobrazíte sponzory
+                            </span>
+                            <span id="public-riders-count" class="text-xs font-bold text-slate-400"></span>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden shadow-xl">
+                        <div class="hidden lg:grid lg:grid-cols-12 gap-4 px-5 py-3.5 bg-slate-900/90 border-b border-slate-800 text-[11px] uppercase font-black tracking-wider text-slate-400">
+                            <div class="col-span-3">Jezdec, Tým &amp; Kategorie</div>
+                            <div class="col-span-3">E-Bike &amp; Motor</div>
+                            <div class="col-span-6">Profil dovedností (1–10)</div>
+                        </div>
+                        <div id="riders-profiles-grid" class="divide-y divide-slate-800/80"></div>
+                    </div>
                 </div>
             </div>
 
@@ -987,9 +1066,30 @@
                                 <span data-i18n="admin_sponsors_title">Sponzoři a partneři týmů i jednotlivých e-bikerů</span>
                             </h3>
                             <p class="text-xs text-slate-400 mt-1">
-                                Napište ke každému týmu nebo jezdci značky, které jej podporují (oddělujte čárkou, středníkem nebo novým řádkem). Divákům se automaticky zobrazí přehledné štítky u týmu, na kartě jezdce i v žebříčcích.
+                                Napište ke každému týmu nebo jezdci značky, které jej podporují (oddělujte čárkou, středníkem nebo novým řádkem). Divákům se automaticky zobrazí přehledné štítky u týmu, na řádku jezdce i v žebříčcích.
                             </p>
                         </div>
+                    </div>
+
+                    <!-- Special Feature Toggle: Hide Sponsor & Partner Badges Until Hover -->
+                    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h4 class="text-sm font-black text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                                    Speciální funkce: Skrytí textových štítků sponzorů bez najetí myší
+                                </h4>
+                                <span id="sponsors-hover-mode-status" class="text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+                                    Neaktivní
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Při aktivaci jsou textové štítky sponzorů a partnerů u jednotlivých e-bikerů a týmů (v sekci <strong class="text-slate-200">Týmy a Jezdci</strong>, v žebříčcích i výsledcích) skryté pro maximální přehlednost a plynule se objeví až po najetí šipkou myši na daný řádek jezdce nebo týmu.
+                            </p>
+                        </div>
+                        <button type="button" id="btn-toggle-sponsors-hover-mode" onclick="toggleSponsorsHoverMode()" class="w-full md:w-auto shrink-0 px-5 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow">
+                            <i class="fa-solid fa-eye-slash"></i> Aktivovat skrytí štítků
+                        </button>
                     </div>
 
                     <div class="bg-amber-400/10 border border-amber-400/30 rounded-2xl p-4 text-xs text-amber-200 flex items-start gap-3">
@@ -1935,6 +2035,7 @@
         let webPartners = [];
         let webPartnersHideCaptionUntilHover = false;
         let webPartnersShowTopSlider = false;
+        let sponsorsHideBadgesUntilHover = false;
         let youtubeVideoId = 'dQw4w9WgXcQ';
         let isHeroVideoEnabled = true;
         let isVideoCollapsed = false;
@@ -2161,6 +2262,9 @@
                     if (typeof data.webPartnersShowTopSlider === 'boolean') {
                         webPartnersShowTopSlider = data.webPartnersShowTopSlider;
                     }
+                    if (typeof data.sponsorsHideBadgesUntilHover === 'boolean') {
+                        sponsorsHideBadgesUntilHover = data.sponsorsHideBadgesUntilHover;
+                    }
                     if (data.raceResults) raceResults = data.raceResults;
                     if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
@@ -2173,6 +2277,7 @@
                 }
                 setFirebaseStatus('Firebase: Synchronizováno ✓', 'ok');
                 updateHeroVideoPlayer();
+                updateSponsorsHoverModeUI();
                 populateCategorySelects();
                 populateAdminSelects();
                 renderPublicLeaderboards();
@@ -2212,6 +2317,7 @@
             webPartners = [];
             webPartnersHideCaptionUntilHover = false;
             webPartnersShowTopSlider = false;
+            sponsorsHideBadgesUntilHover = false;
             availableMotors = [...defaultAvailableMotors];
             motorHandicaps = { ...defaultMotorHandicaps };
             motorSpecs = JSON.parse(JSON.stringify(defaultMotorSpecs));
@@ -2219,6 +2325,7 @@
             youtubeVideoId = 'dQw4w9WgXcQ';
             isHeroVideoEnabled = true;
             updateHeroVideoPlayer();
+            updateSponsorsHoverModeUI();
             populateCategorySelects();
             populateAdminSelects();
             renderPublicLeaderboards();
@@ -2245,6 +2352,7 @@
                     webPartners,
                     webPartnersHideCaptionUntilHover,
                     webPartnersShowTopSlider,
+                    sponsorsHideBadgesUntilHover,
                     raceResults,
                     availableBrands,
                     availableMotors,
@@ -2625,13 +2733,13 @@
                 `;
                 yellowSorted.forEach((item, index) => {
                     const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
                     const sponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
                     tr.innerHTML = `
                         <td class="p-4 font-black text-amber-400">${index + 1}.</td>
                         <td class="p-4 font-bold text-white">
                             <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
-                            ${sponsorBadges ? `<div class="flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
+                            ${sponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
                         </td>
                         <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
                         <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
@@ -2651,13 +2759,13 @@
                 `;
                 greenSorted.forEach((item, index) => {
                     const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
                     const sponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
                     tr.innerHTML = `
                         <td class="p-4 font-black text-emerald-400">${index + 1}.</td>
                         <td class="p-4 font-bold text-white">
                             <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
-                            ${sponsorBadges ? `<div class="flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
+                            ${sponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
                         </td>
                         <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
                         <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
@@ -2677,13 +2785,13 @@
                 `;
                 polkaSorted.forEach((item, index) => {
                     const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
                     const sponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
                     tr.innerHTML = `
                         <td class="p-4 font-black text-red-500">${index + 1}.</td>
                         <td class="p-4 font-bold text-white">
                             <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
-                            ${sponsorBadges ? `<div class="flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
+                            ${sponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
                         </td>
                         <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
                         <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
@@ -2779,13 +2887,13 @@
 
                 tArr.forEach((tItem, index) => {
                     const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
                     const teamSponsorBadges = renderSponsorBadges(tItem.team.sponsors, { variant: 'team', compact: true });
                     tr.innerHTML = `
                         <td class="p-4 font-black text-amber-400">${index + 1}.</td>
                         <td class="p-4 font-bold text-white text-base">
                             <div>${escapeHtml(tItem.team.name)}</div>
-                            ${teamSponsorBadges ? `<div class="flex flex-wrap items-center gap-1 mt-1">${teamSponsorBadges}</div>` : ''}
+                            ${teamSponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${teamSponsorBadges}</div>` : ''}
                         </td>
                         <td class="p-4">${getFlagIcon(tItem.team.country)}</td>
                         <td class="p-4 text-slate-400 font-medium">${tItem.count} celkem (Top 3 počítáno)</td>
@@ -3127,14 +3235,14 @@
                 }
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
                 const riderSponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
                 tr.innerHTML = `
                     <td class="p-4 font-black ${rankColor}">${rankText}</td>
                     <td class="p-4 font-bold text-white">
                         <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
                         <div class="text-[11px] text-amber-300/80 font-semibold mt-0.5">${escapeHtml(getCategoryLabelById(item.rider.category))}</div>
-                        ${riderSponsorBadges ? `<div class="flex flex-wrap items-center gap-1 mt-1">${riderSponsorBadges}</div>` : ''}
+                        ${riderSponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${riderSponsorBadges}</div>` : ''}
                     </td>
                     <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
                     <td class="p-4 text-slate-200 text-xs font-bold">${escapeHtml(item.rider.ebike)} <span class="text-slate-400">(${escapeHtml(item.rider.motor)})</span></td>
@@ -3186,121 +3294,233 @@
             el.innerHTML = html || '<span class="text-[11px] text-slate-500 italic">Zatím bez zadaných sponzorů</span>';
         }
 
+        function updateSponsorsHoverModeUI() {
+            const viewPublic = document.getElementById('view-public');
+            const statusEl = document.getElementById('sponsors-hover-mode-status');
+            const btnEl = document.getElementById('btn-toggle-sponsors-hover-mode');
+            const teamsHint = document.getElementById('public-teams-hover-hint');
+            const ridersHint = document.getElementById('public-riders-hover-hint');
+
+            if (viewPublic) {
+                viewPublic.classList.toggle('sponsors-hover-mode', !!sponsorsHideBadgesUntilHover);
+            }
+            if (teamsHint) {
+                if (sponsorsHideBadgesUntilHover) {
+                    teamsHint.classList.remove('hidden');
+                    teamsHint.classList.add('inline-flex');
+                } else {
+                    teamsHint.classList.add('hidden');
+                    teamsHint.classList.remove('inline-flex');
+                }
+            }
+            if (ridersHint) {
+                if (sponsorsHideBadgesUntilHover) {
+                    ridersHint.classList.remove('hidden');
+                    ridersHint.classList.add('inline-flex');
+                } else {
+                    ridersHint.classList.add('hidden');
+                    ridersHint.classList.remove('inline-flex');
+                }
+            }
+            if (statusEl) {
+                if (sponsorsHideBadgesUntilHover) {
+                    statusEl.textContent = 'Aktivní';
+                    statusEl.className = 'text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                } else {
+                    statusEl.textContent = 'Neaktivní';
+                    statusEl.className = 'text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+                }
+            }
+            if (btnEl) {
+                if (sponsorsHideBadgesUntilHover) {
+                    btnEl.className = 'w-full md:w-auto shrink-0 px-5 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow';
+                    btnEl.innerHTML = '<i class="fa-solid fa-eye"></i> Deaktivovat skrytí štítků';
+                } else {
+                    btnEl.className = 'w-full md:w-auto shrink-0 px-5 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow';
+                    btnEl.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Aktivovat skrytí štítků';
+                }
+            }
+        }
+
+        async function toggleSponsorsHoverMode() {
+            const prevState = sponsorsHideBadgesUntilHover;
+            sponsorsHideBadgesUntilHover = !sponsorsHideBadgesUntilHover;
+            updateSponsorsHoverModeUI();
+            const res = await saveData();
+            if (res.ok) {
+                showModal(
+                    "Nastavení sponzorů uloženo",
+                    sponsorsHideBadgesUntilHover
+                        ? "Speciální funkce byla AKTIVOVÁNA. Textové štítky sponzorů a partnerů u e-bikerů a týmů jsou skryté a zobrazí se až po najetí šipkou myši na daný řádek."
+                        : "Speciální funkce byla DEAKTIVOVÁNA. Textové štítky sponzorů a partnerů u e-bikerů a týmů jsou opět trvale viditelné."
+                );
+            } else {
+                sponsorsHideBadgesUntilHover = prevState;
+                updateSponsorsHoverModeUI();
+                showModal("Chyba databáze Firebase", `Změna nastavení skrytí štítků se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
         function renderTeamsAndRidersView() {
+            updateSponsorsHoverModeUI();
+
             const teamsGrid = document.getElementById('teams-roster-grid');
+            const teamsCountEl = document.getElementById('public-teams-count');
+            if (teamsCountEl) {
+                teamsCountEl.textContent = teams.length > 0 ? `Celkem ${teams.length} týmů` : '';
+            }
             if (teamsGrid) {
                 teamsGrid.innerHTML = '';
-                teams.forEach(t => {
-                    let teamRiders = riders.filter(r => r.team === t.name);
-                    const teamSponsorBadges = renderSponsorBadges(t.sponsors, { variant: 'team', compact: false });
-                    let div = document.createElement('div');
-                    div.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3.5";
-                    div.innerHTML = `
-                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                            <h4 class="font-black text-white text-base flex items-center gap-2.5">
-                                ${getFlagIcon(t.country)} ${escapeHtml(t.name)}
-                            </h4>
-                            <span class="bg-amber-400/20 text-amber-300 text-[10px] font-black px-2.5 py-1 rounded-full border border-amber-400/30">${teamRiders.length} jezdců</span>
-                        </div>
-                        ${teamSponsorBadges ? `
-                        <div class="bg-amber-400/5 border border-amber-400/20 rounded-xl p-3 space-y-1.5">
-                            <div class="text-[10px] uppercase tracking-wider font-black text-amber-300 flex items-center gap-1.5">
-                                <i class="fa-solid fa-handshake"></i> Sponzoři a partneři týmu
-                            </div>
-                            <div class="flex flex-wrap gap-1.5">${teamSponsorBadges}</div>
-                        </div>` : ''}
-                        <ul class="space-y-2.5">
-                            ${teamRiders.length === 0 ? '<li class="text-xs text-slate-500 italic">Žádní jezdci v týmu</li>' : teamRiders.map(r => {
-                                const rSponsorBadges = renderSponsorBadges(r.sponsors, { variant: 'rider', compact: true });
-                                return `
-                                <li class="text-xs bg-slate-800/70 p-3 rounded-xl border border-slate-700/60 shadow-sm space-y-1.5">
-                                    <div class="flex justify-between items-center gap-2">
-                                        <span class="font-bold text-white flex items-center gap-2">${getFlagIcon(r.country)} ${escapeHtml(r.name)}</span>
-                                        <span class="text-slate-300 font-semibold text-right">${escapeHtml(r.ebike)} (${escapeHtml(r.motor)})</span>
+                if (teams.length === 0) {
+                    teamsGrid.innerHTML = '<div class="text-center text-slate-500 italic p-8 text-sm">Zatím nejsou zaregistrovány žádné týmy.</div>';
+                } else {
+                    teams.forEach(t => {
+                        let teamRiders = riders.filter(r => r.team === t.name);
+                        const teamSponsorBadges = renderSponsorBadges(t.sponsors, { variant: 'team', compact: false });
+                        const hasTeamOrRiderSponsors = !!teamSponsorBadges || teamRiders.some(r => parseSponsorsList(r.sponsors).length > 0);
+                        let row = document.createElement('div');
+                        row.className = "sponsor-reveal-row px-4 sm:px-5 py-4 hover:bg-slate-800/45 transition";
+                        row.innerHTML = `
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4 items-start lg:items-center">
+                                <!-- Team Name, Flag & Brand -->
+                                <div class="lg:col-span-3 min-w-0 space-y-1">
+                                    <div class="flex items-center justify-between lg:justify-start gap-2">
+                                        <h4 class="font-black text-white text-sm sm:text-base flex items-center gap-2 min-w-0">
+                                            ${getFlagIcon(t.country)} <span class="truncate">${escapeHtml(t.name)}</span>
+                                        </h4>
+                                        <span class="lg:hidden bg-amber-400/20 text-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-400/30 shrink-0">${teamRiders.length} jezdců</span>
                                     </div>
-                                    ${rSponsorBadges ? `
-                                    <div class="flex flex-wrap items-center gap-1 pt-1 border-t border-slate-700/50">
-                                        <span class="text-[10px] text-slate-400 font-bold mr-1">Partneři:</span>
-                                        ${rSponsorBadges}
-                                    </div>` : ''}
-                                </li>`;
-                            }).join('')}
-                        </ul>
-                    `;
-                    teamsGrid.appendChild(div);
-                });
+                                    <div class="flex items-center gap-2 flex-wrap text-xs text-slate-400">
+                                        <span>Značka: <strong class="text-amber-300">${escapeHtml(t.brand || 'Neuvedeno')}</strong></span>
+                                        ${hasTeamOrRiderSponsors ? `<span class="text-[10px] text-amber-400/70 inline-flex items-center gap-1" title="Tým nebo jeho jezdci mají partnery"><i class="fa-solid fa-handshake"></i></span>` : ''}
+                                    </div>
+                                </div>
+
+                                <!-- Rider Count (Desktop) -->
+                                <div class="hidden lg:flex lg:col-span-1 justify-center">
+                                    <span class="bg-amber-400/20 text-amber-300 text-xs font-black px-2.5 py-1 rounded-xl border border-amber-400/30 whitespace-nowrap">${teamRiders.length}</span>
+                                </div>
+
+                                <!-- Team Roster Horizontal Chips -->
+                                <div class="lg:col-span-8">
+                                    ${teamRiders.length === 0
+                                        ? '<span class="text-xs text-slate-500 italic">Žádní jezdci v týmu</span>'
+                                        : `<div class="flex flex-wrap gap-2">${teamRiders.map(r => {
+                                            const rSponsorBadges = renderSponsorBadges(r.sponsors, { variant: 'rider', compact: true });
+                                            return `
+                                            <div class="text-xs bg-slate-800/75 px-3 py-2 rounded-xl border border-slate-700/70 shadow-sm">
+                                                <div class="flex items-center gap-2 flex-wrap">
+                                                    <span class="font-bold text-white inline-flex items-center gap-1.5">${getFlagIcon(r.country)} ${escapeHtml(r.name)}</span>
+                                                    <span class="text-[11px] text-slate-400 font-semibold">${escapeHtml(r.ebike)} (${escapeHtml(r.motor)})</span>
+                                                </div>
+                                                ${rSponsorBadges ? `
+                                                <div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1.5">
+                                                    <span class="text-[10px] text-slate-400 font-bold mr-0.5">Partneři:</span>
+                                                    ${rSponsorBadges}
+                                                </div>` : ''}
+                                            </div>`;
+                                        }).join('')}</div>`}
+                                </div>
+                            </div>
+                            ${teamSponsorBadges ? `
+                            <div class="sponsor-badges-reveal sponsor-reveal-panel mt-3 bg-amber-400/5 border border-amber-400/20 rounded-xl px-3.5 py-2.5 flex flex-wrap items-center gap-2">
+                                <span class="text-[10px] uppercase tracking-wider font-black text-amber-300 inline-flex items-center gap-1.5 shrink-0">
+                                    <i class="fa-solid fa-handshake"></i> Sponzoři a partneři týmu:
+                                </span>
+                                <div class="flex flex-wrap gap-1.5">${teamSponsorBadges}</div>
+                            </div>` : ''}
+                        `;
+                        teamsGrid.appendChild(row);
+                    });
+                }
             }
 
             const ridersGrid = document.getElementById('riders-profiles-grid');
+            const ridersCountEl = document.getElementById('public-riders-count');
+            if (ridersCountEl) {
+                ridersCountEl.textContent = riders.length > 0 ? `Celkem ${riders.length} jezdců` : '';
+            }
             if (ridersGrid) {
                 ridersGrid.innerHTML = '';
-                riders.forEach(r => {
-                    let sk = r.skills || { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 };
-                    const personalSponsorBadges = renderSponsorBadges(r.sponsors, { variant: 'rider', compact: false });
-                    const riderTeamObj = r.team ? teams.find(t => t.name === r.team) : null;
-                    const teamSponsorBadges = riderTeamObj ? renderSponsorBadges(riderTeamObj.sponsors, { variant: 'team', compact: true }) : '';
-                    let card = document.createElement('div');
-                    card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4";
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start border-b border-slate-800 pb-3">
-                            <div>
-                                <h4 class="font-black text-white text-base flex items-center gap-2.5">
-                                    ${getFlagIcon(r.country)} ${escapeHtml(r.name)}
-                                </h4>
-                                <p class="text-xs text-slate-400 font-medium">${escapeHtml(r.team || 'Individuální jezdec')} | Kat: <span class="font-bold text-white">${escapeHtml(getCategoryLabelById(r.category))}</span>${r.birthYear ? ` | Ročník: <span class="font-bold text-slate-200">${r.birthYear}</span>` : ''}</p>
+                if (riders.length === 0) {
+                    ridersGrid.innerHTML = '<div class="text-center text-slate-500 italic p-8 text-sm">Zatím nejsou zaregistrováni žádní jezdci.</div>';
+                } else {
+                    const renderSkillCell = (label, val) => `
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">${label}</span>
+                                <span class="text-white">${val}/10</span>
                             </div>
-                            <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-lg">${escapeHtml(r.ebike)}</span>
-                        </div>
-                        <div class="space-y-2.5 text-xs">
-                            <div class="flex justify-between items-center font-medium">
-                                <span class="text-slate-400">Kondice / Výdrž:</span>
-                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.cond * 10}%"></div></div>
-                                <span class="font-bold text-white">${sk.cond}/10</span>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden border border-slate-700/80">
+                                <div class="bg-amber-400 h-full" style="width: ${Math.min(10, Math.max(0, val)) * 10}%"></div>
                             </div>
-                            <div class="flex justify-between items-center font-medium">
-                                <span class="text-slate-400">Technika sjezdu:</span>
-                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.tech * 10}%"></div></div>
-                                <span class="font-bold text-white">${sk.tech}/10</span>
-                            </div>
-                            <div class="flex justify-between items-center font-medium">
-                                <span class="text-slate-400">Práce s baterií:</span>
-                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.battery * 10}%"></div></div>
-                                <span class="font-bold text-white">${sk.battery}/10</span>
-                            </div>
-                            <div class="flex justify-between items-center font-medium">
-                                <span class="text-slate-400">Sprint / Výbušnost:</span>
-                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.sprint * 10}%"></div></div>
-                                <span class="font-bold text-white">${sk.sprint}/10</span>
-                            </div>
-                            <div class="flex justify-between items-center font-medium">
-                                <span class="text-slate-400">Kopce / KOM:</span>
-                                <div class="w-32 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700"><div class="bg-amber-400 h-full" style="width: ${sk.kom * 10}%"></div></div>
-                                <span class="font-bold text-white">${sk.kom}/10</span>
-                            </div>
-                        </div>
-                        ${(personalSponsorBadges || teamSponsorBadges) ? `
-                        <div class="pt-3 border-t border-slate-800 space-y-2">
-                            ${personalSponsorBadges ? `
-                            <div class="space-y-1.5">
-                                <div class="text-[10px] uppercase tracking-wider font-black text-sky-300 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-handshake"></i> Sponzoři a partneři jezdce
-                                </div>
-                                <div class="flex flex-wrap gap-1.5">${personalSponsorBadges}</div>
-                            </div>` : ''}
-                            ${teamSponsorBadges ? `
-                            <div class="space-y-1">
-                                <div class="text-[10px] uppercase tracking-wider font-black text-amber-300/80 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-shield"></i> Partneři týmu (${escapeHtml(riderTeamObj.name)})
-                                </div>
-                                <div class="flex flex-wrap gap-1">${teamSponsorBadges}</div>
-                            </div>` : ''}
-                        </div>` : ''}
-                        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex justify-between font-semibold">
-                            <span>Motor: <strong class="text-white">${escapeHtml(r.motor)}</strong></span>
                         </div>
                     `;
-                    ridersGrid.appendChild(card);
-                });
+                    riders.forEach(r => {
+                        let sk = r.skills || { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 };
+                        const personalSponsorBadges = renderSponsorBadges(r.sponsors, { variant: 'rider', compact: false });
+                        const riderTeamObj = r.team ? teams.find(t => t.name === r.team) : null;
+                        const teamSponsorBadges = riderTeamObj ? renderSponsorBadges(riderTeamObj.sponsors, { variant: 'team', compact: true }) : '';
+                        const hasAnySponsors = !!(personalSponsorBadges || teamSponsorBadges);
+
+                        let row = document.createElement('div');
+                        row.className = "sponsor-reveal-row px-4 sm:px-5 py-4 hover:bg-slate-800/45 transition";
+                        row.innerHTML = `
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4 items-start lg:items-center">
+                                <!-- Rider Identity, Team & Age Category -->
+                                <div class="lg:col-span-3 min-w-0 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="font-black text-white text-sm sm:text-base flex items-center gap-2 min-w-0">
+                                            ${getFlagIcon(r.country)} <span class="truncate">${escapeHtml(r.name)}</span>
+                                        </h4>
+                                        ${hasAnySponsors ? `<i class="fa-solid fa-handshake text-[11px] text-sky-400/75 shrink-0" title="Jezdec má uvedené sponzory / partnery"></i>` : ''}
+                                    </div>
+                                    <div class="flex items-center gap-1.5 flex-wrap text-[11px] text-slate-400 font-medium">
+                                        <span class="text-slate-300 font-semibold">${escapeHtml(r.team || 'Individuální jezdec')}</span>
+                                        <span>•</span>
+                                        <span class="bg-slate-800 text-amber-300 border border-slate-700 px-1.5 py-0.5 rounded font-bold text-[10px]">${escapeHtml(getCategoryLabelById(r.category))}</span>
+                                        ${r.birthYear ? `<span class="text-slate-400">(${r.birthYear})</span>` : ''}
+                                    </div>
+                                </div>
+
+                                <!-- E-Bike & Motor -->
+                                <div class="lg:col-span-3 flex flex-wrap lg:flex-col items-center lg:items-start gap-2 lg:gap-1">
+                                    <span class="bg-amber-400 text-slate-950 text-[11px] font-black px-2.5 py-0.5 rounded-lg">${escapeHtml(r.ebike)}</span>
+                                    <span class="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
+                                        <i class="fa-solid fa-bolt text-amber-400 text-[10px]"></i> ${escapeHtml(r.motor)}
+                                    </span>
+                                </div>
+
+                                <!-- Compact 5-Skill Horizontal Profile -->
+                                <div class="lg:col-span-6 grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                                    ${renderSkillCell('Kondice', sk.cond ?? 8)}
+                                    ${renderSkillCell('Technika', sk.tech ?? 8)}
+                                    ${renderSkillCell('Baterie', sk.battery ?? 8)}
+                                    ${renderSkillCell('Sprint', sk.sprint ?? 8)}
+                                    ${renderSkillCell('KOM', sk.kom ?? 8)}
+                                </div>
+                            </div>
+                            ${hasAnySponsors ? `
+                            <div class="sponsor-badges-reveal sponsor-reveal-divider mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center gap-2.5 flex-wrap">
+                                ${personalSponsorBadges ? `
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span class="text-[10px] uppercase tracking-wider font-black text-sky-300 inline-flex items-center gap-1 mr-0.5">
+                                        <i class="fa-solid fa-handshake"></i> Sponzoři jezdce:
+                                    </span>
+                                    ${personalSponsorBadges}
+                                </div>` : ''}
+                                ${teamSponsorBadges ? `
+                                <div class="flex flex-wrap items-center gap-1">
+                                    <span class="text-[10px] uppercase tracking-wider font-black text-amber-300/80 inline-flex items-center gap-1 mr-0.5">
+                                        <i class="fa-solid fa-shield"></i> Partneři týmu:
+                                    </span>
+                                    ${teamSponsorBadges}
+                                </div>` : ''}
+                            </div>` : ''}
+                        `;
+                        ridersGrid.appendChild(row);
+                    });
+                }
             }
         }
 
@@ -4608,6 +4828,7 @@
         }
 
         function renderAdminSponsorsSection() {
+            updateSponsorsHoverModeUI();
             renderAdminSponsorsTeams();
             renderAdminSponsorsRiders();
         }
@@ -5392,7 +5613,7 @@
         }
 
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, youtubeVideoId, isHeroVideoEnabled, availableMotors, motorHandicaps, motorSpecs, raceResults };
+            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, availableMotors, motorHandicaps, motorSpecs, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -5419,6 +5640,9 @@
                     if (typeof data.webPartnersShowTopSlider === 'boolean') {
                         webPartnersShowTopSlider = data.webPartnersShowTopSlider;
                     }
+                    if (typeof data.sponsorsHideBadgesUntilHover === 'boolean') {
+                        sponsorsHideBadgesUntilHover = data.sponsorsHideBadgesUntilHover;
+                    }
                     if (data.youtubeVideoId !== undefined) youtubeVideoId = data.youtubeVideoId;
                     if (typeof data.isHeroVideoEnabled === 'boolean') {
                         isHeroVideoEnabled = data.isHeroVideoEnabled;
@@ -5429,6 +5653,7 @@
                     if (data.raceResults) raceResults = data.raceResults;
                     saveData();
                     updateHeroVideoPlayer();
+                    updateSponsorsHoverModeUI();
                     populateCategorySelects();
                     populateAdminSelects();
                     populatePublicRaceResultsSelect();
@@ -5455,6 +5680,7 @@
         window.onload = function() {
             setTimeout(() => {
                 updateHeroVideoPlayer();
+                updateSponsorsHoverModeUI();
                 populateCategorySelects();
                 populateAdminSelects();
                 renderPublicLeaderboards();
