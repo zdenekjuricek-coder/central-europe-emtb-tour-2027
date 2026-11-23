@@ -469,11 +469,23 @@
 
             <!-- Calendar Subview -->
             <div id="subview-calendar" class="hidden space-y-6">
-                <div class="bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-6">
-                    <h3 class="text-xl font-black text-white flex items-center gap-3">
-                        <i class="fa-regular fa-calendar-days text-amber-400"></i> <span data-i18n="cal_title">Kalendář závodu Central Europe e-MTB Tour 2027</span>
-                    </h3>
-                    <div id="calendar-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                <div class="bg-[#111827] border border-slate-800 p-5 sm:p-6 rounded-3xl shadow-2xl space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <h3 class="text-xl font-black text-white flex items-center gap-3">
+                            <i class="fa-regular fa-calendar-days text-amber-400"></i> <span data-i18n="cal_title">Kalendář závodu Central Europe e-MTB Tour 2027</span>
+                        </h3>
+                        <span id="calendar-races-count" class="text-xs font-bold text-slate-400"></span>
+                    </div>
+                    <div class="rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden shadow-xl">
+                        <div class="hidden lg:grid lg:grid-cols-12 gap-4 px-5 py-3.5 bg-slate-900/90 border-b border-slate-800 text-[11px] uppercase font-black tracking-wider text-slate-400">
+                            <div class="col-span-1">Kolo</div>
+                            <div class="col-span-2">Datum &amp; Start</div>
+                            <div class="col-span-4">Závod &amp; Lokalita</div>
+                            <div class="col-span-3">Trať / Parametry</div>
+                            <div class="col-span-2 text-right">Info &amp; Video</div>
+                        </div>
+                        <div id="calendar-grid" class="divide-y divide-slate-800/80"></div>
+                    </div>
                 </div>
             </div>
 
@@ -2855,57 +2867,97 @@
             if (modal) modal.classList.add('hidden');
         }
 
+        function formatCalendarDateDisplay(rawDate) {
+            const val = String(rawDate || '').trim();
+            if (!val) return '-';
+            const m = val.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (m) {
+                return `${parseInt(m[3], 10)}. ${parseInt(m[2], 10)}. ${m[1]}`;
+            }
+            return val;
+        }
+
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
+            const countEl = document.getElementById('calendar-races-count');
             if (!grid) return;
             grid.innerHTML = '';
 
+            if (countEl) {
+                countEl.textContent = calendar.length > 0 ? `Celkem ${calendar.length} závodů v sezóně` : '';
+            }
+
             if (calendar.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center text-slate-500 italic p-6">V kalendáři zatím nejsou žádné závody.</div>`;
+                grid.innerHTML = `<div class="text-center text-slate-500 italic p-8 text-sm">V kalendáři zatím nejsou žádné závody.</div>`;
                 return;
             }
 
             calendar.forEach((c, idx) => {
+                const dateText = escapeHtml(formatCalendarDateDisplay(c.date));
                 const startTimeText = c.startTime ? escapeHtml(c.startTime) : 'Upřesníme';
                 const safeUrl = normalizeRaceWebsiteUrl(c.website);
                 const safeYtUrl = normalizeYouTubeWatchUrl(c.youtubeUrl);
                 const hasYtVideoId = !!extractYouTubeVideoId(c.youtubeUrl);
-                const card = document.createElement('div');
-                card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between hover:border-amber-400/40 transition gap-4";
-                card.innerHTML = `
-                    <div>
-                        <div class="flex justify-between items-center gap-2 mb-3 flex-wrap">
-                            <span class="bg-amber-400/20 text-amber-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border border-amber-400/30">Závod #${idx + 1}</span>
-                            <div class="flex items-center gap-2 text-xs font-bold">
-                                <span class="text-slate-300"><i class="fa-regular fa-calendar mr-1 text-amber-400"></i> ${escapeHtml(c.date || '-')}</span>
-                                <span class="bg-amber-400/15 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-lg"><i class="fa-regular fa-clock mr-1"></i> ${startTimeText}</span>
-                            </div>
+
+                const row = document.createElement('div');
+                row.className = "grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4 items-start lg:items-center px-4 sm:px-5 py-4 hover:bg-slate-800/45 transition";
+                row.innerHTML = `
+                    <!-- Column 1: Round # (plus mobile date/time inline) -->
+                    <div class="lg:col-span-1 flex items-center justify-between lg:justify-start gap-2">
+                        <span class="inline-flex items-center justify-center min-w-[44px] bg-amber-400/20 text-amber-300 text-xs font-black uppercase px-2.5 py-1 rounded-xl border border-amber-400/30">
+                            #${idx + 1}
+                        </span>
+                        <div class="flex lg:hidden items-center gap-2 text-xs font-bold">
+                            <span class="text-slate-200"><i class="fa-regular fa-calendar mr-1 text-amber-400"></i> ${dateText}</span>
+                            <span class="bg-amber-400/15 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-lg"><i class="fa-regular fa-clock mr-1"></i> ${startTimeText}</span>
                         </div>
-                        <h4 class="text-base font-black text-white mb-1.5">${escapeHtml(c.name)}</h4>
-                        <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-amber-400"></i> ${escapeHtml(c.location)}</p>
                     </div>
-                    <div class="space-y-2.5 pt-3.5 border-t border-slate-800">
-                        <div class="flex justify-between items-center text-xs gap-2">
-                            <span class="text-slate-400 font-bold">Trať:</span>
-                            <span class="font-extrabold text-white text-right">${escapeHtml(c.params || '-')}</span>
-                        </div>
-                        ${(safeUrl || safeYtUrl) ? `
-                        <div class="flex flex-col sm:flex-row gap-2 pt-1">
-                            ${safeUrl ? `
-                            <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 py-2.5 px-3 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 whitespace-nowrap">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Web závodu
-                            </a>` : ''}
-                            ${safeYtUrl ? (hasYtVideoId ? `
-                            <button type="button" onclick="openRaceVideoModal('${escapeHtml(c.id)}')" class="flex-1 py-2.5 px-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 whitespace-nowrap">
-                                <i class="fa-brands fa-youtube text-red-500 text-sm"></i> Video závodu
-                            </button>` : `
-                            <a href="${escapeHtml(safeYtUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 py-2.5 px-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 whitespace-nowrap">
-                                <i class="fa-brands fa-youtube text-red-500 text-sm"></i> Video závodu
-                            </a>`) : ''}
-                        </div>` : ''}
+
+                    <!-- Column 2: Date & Start Time (Desktop) -->
+                    <div class="hidden lg:flex lg:col-span-2 flex-col items-start gap-1">
+                        <span class="text-sm font-black text-white flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fa-regular fa-calendar text-amber-400 text-xs"></i> ${dateText}
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-[11px] font-bold bg-amber-400/15 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-lg">
+                            <i class="fa-regular fa-clock text-[10px]"></i> Start ${startTimeText}
+                        </span>
+                    </div>
+
+                    <!-- Column 3: Race Name & Location -->
+                    <div class="lg:col-span-4 min-w-0 space-y-0.5">
+                        <h4 class="text-sm sm:text-base font-black text-white leading-snug">${escapeHtml(c.name)}</h4>
+                        <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+                            <i class="fa-solid fa-location-dot text-amber-400 shrink-0"></i>
+                            <span class="truncate">${escapeHtml(c.location || '-')}</span>
+                        </p>
+                    </div>
+
+                    <!-- Column 4: Track Parameters -->
+                    <div class="lg:col-span-3 flex items-center gap-2 text-xs">
+                        <span class="lg:hidden text-slate-500 font-bold uppercase text-[10px]">Trať:</span>
+                        <span class="inline-flex items-center gap-1.5 font-bold text-slate-200 bg-slate-800/70 border border-slate-700/70 px-3 py-1.5 rounded-xl">
+                            <i class="fa-solid fa-route text-amber-400/80 text-[11px] shrink-0"></i>
+                            <span>${escapeHtml(c.params || '-')}</span>
+                        </span>
+                    </div>
+
+                    <!-- Column 5: Actions (Web & Video) -->
+                    <div class="lg:col-span-2 flex items-center justify-start lg:justify-end gap-2 flex-wrap">
+                        ${safeUrl ? `
+                        <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="px-3 py-2 bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 rounded-xl text-xs font-black transition inline-flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Web
+                        </a>` : ''}
+                        ${safeYtUrl ? (hasYtVideoId ? `
+                        <button type="button" onclick="openRaceVideoModal('${escapeHtml(c.id)}')" class="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-xl text-xs font-black transition inline-flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fa-brands fa-youtube text-red-500 text-sm"></i> Video
+                        </button>` : `
+                        <a href="${escapeHtml(safeYtUrl)}" target="_blank" rel="noopener noreferrer" class="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-xl text-xs font-black transition inline-flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fa-brands fa-youtube text-red-500 text-sm"></i> Video
+                        </a>`) : ''}
+                        ${(!safeUrl && !safeYtUrl) ? `<span class="text-xs text-slate-600 font-semibold hidden lg:inline">–</span>` : ''}
                     </div>
                 `;
-                grid.appendChild(card);
+                grid.appendChild(row);
             });
         }
 
