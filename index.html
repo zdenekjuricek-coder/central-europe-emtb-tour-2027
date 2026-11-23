@@ -181,18 +181,23 @@
 
     <!-- Sub Navigation (Public View) -->
     <nav id="public-subnav" class="bg-[#111827] text-slate-300 border-b border-slate-800 shadow-md sticky top-0 z-30 backdrop-blur-md bg-opacity-95">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 flex space-x-2 overflow-x-auto py-2.5 scrollbar-none">
-            <button onclick="switchPublicSubTab('leaderboards')" id="sub-btn-leaderboards" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm">
-                <i class="fa-solid fa-trophy"></i> <span data-i18n="sub_leaderboards">Žebříčky (Tours)</span>
-            </button>
-            <button onclick="switchPublicSubTab('race_results')" id="sub-btn-race-results" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
-                <i class="fa-solid fa-list-check text-amber-400"></i> <span data-i18n="sub_race_results">Výsledky dle závodů</span>
-            </button>
-            <button onclick="switchPublicSubTab('calendar')" id="sub-btn-calendar" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
-                <i class="fa-solid fa-calendar-days text-amber-400"></i> <span data-i18n="sub_calendar">Kalendář 2027</span>
-            </button>
-            <button onclick="switchPublicSubTab('teams')" id="sub-btn-teams" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
-                <i class="fa-solid fa-users text-amber-400"></i> <span data-i18n="sub_teams">Týmy a Jezdci</span>
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between gap-2 overflow-x-auto py-2.5 scrollbar-none">
+            <div class="flex items-center space-x-2 shrink-0">
+                <button onclick="switchPublicSubTab('leaderboards')" id="sub-btn-leaderboards" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm">
+                    <i class="fa-solid fa-trophy"></i> <span data-i18n="sub_leaderboards">Žebříčky (Tours)</span>
+                </button>
+                <button onclick="switchPublicSubTab('race_results')" id="sub-btn-race-results" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
+                    <i class="fa-solid fa-list-check text-amber-400"></i> <span data-i18n="sub_race_results">Výsledky dle závodů</span>
+                </button>
+                <button onclick="switchPublicSubTab('calendar')" id="sub-btn-calendar" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
+                    <i class="fa-solid fa-calendar-days text-amber-400"></i> <span data-i18n="sub_calendar">Kalendář 2027</span>
+                </button>
+                <button onclick="switchPublicSubTab('teams')" id="sub-btn-teams" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
+                    <i class="fa-solid fa-users text-amber-400"></i> <span data-i18n="sub_teams">Týmy a Jezdci</span>
+                </button>
+            </div>
+            <button type="button" id="menu-btn-hero-video" onclick="openHeroVideoModal()" class="ml-auto px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 transition flex items-center gap-2 whitespace-nowrap shadow-sm shrink-0">
+                <i class="fa-brands fa-youtube text-red-500 text-base"></i> <span data-i18n="menu_promo_video">Prezentační video</span>
             </button>
         </div>
     </nav>
@@ -364,22 +369,6 @@
                             </thead>
                             <tbody id="public-table-body" class="divide-y divide-slate-800/60 bg-[#0f172a]"></tbody>
                         </table>
-                    </div>
-                </div>
-
-                <!-- Video -->
-                <div class="bg-[#111827] border border-slate-800 p-5 rounded-3xl shadow-2xl mt-8">
-                    <div class="flex items-center justify-between mb-4 px-2 cursor-pointer select-none" onclick="toggleHeroVideoCollapse()">
-                        <div class="flex items-center gap-2 text-xs font-black uppercase text-amber-400 tracking-wider">
-                            <i class="fa-solid fa-circle-play text-red-500 animate-pulse"></i> <span data-i18n="video_section_title">Oficiální prezentační video</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs text-slate-400 font-semibold">
-                            <span id="video-collapse-label">Sbalit video</span>
-                            <i id="video-collapse-icon" class="fa-solid fa-chevron-up transition-transform duration-300"></i>
-                        </div>
-                    </div>
-                    <div id="hero-video-container" class="relative w-full rounded-2xl overflow-hidden shadow-xl" style="padding-bottom: 56.25%; height: 0;">
-                        <iframe id="hero-youtube-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&mute=0&loop=1" class="absolute top-0 left-0 w-full h-full border-0" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
@@ -1249,16 +1238,41 @@
                 <!-- Admin Sub-Content: Video Settings -->
                 <div id="admin-sub-video" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
                     <h3 class="text-base sm:text-lg font-black text-white"><i class="fa-brands fa-youtube mr-2 text-red-500"></i> <span data-i18n="admin_video_title">Nastavení prezentačního YouTube videa</span></h3>
+
+                    <!-- Activation / Deactivation Toggle for Website Video Display -->
+                    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h4 class="text-sm font-black text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-power-off text-amber-400"></i>
+                                    Zobrazení prezentačního videa na webu
+                                </h4>
+                                <span id="hero-video-enabled-status" class="text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                                    Aktivní
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Při aktivaci se na pravé straně v liště hlavního menu zobrazí tlačítko <strong class="text-red-300">Prezentační video</strong>, které divákům otevře video ve vyskakovacím okně stejně jako videa u závodů v kalendáři. Při deaktivaci se položka videa na webu skryje.
+                            </p>
+                        </div>
+                        <button type="button" id="btn-toggle-hero-video-enabled" onclick="toggleHeroVideoEnabled()" class="w-full md:w-auto shrink-0 px-5 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow">
+                            <i class="fa-solid fa-eye-slash"></i> Deaktivovat video na webu
+                        </button>
+                    </div>
+
                     <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
                         <div>
-                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">YouTube Video ID (např. <code class="text-amber-400">dQw4w9WgXcQ</code> nebo celý odkaz)</label>
-                            <input type="text" id="admin-youtube-id-input" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold" placeholder="dQw4w9WgXcQ">
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">YouTube Video ID nebo celý odkaz (např. <code class="text-amber-400">https://www.youtube.com/watch?v=...</code>)</label>
+                            <input type="text" id="admin-youtube-id-input" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="https://www.youtube.com/watch?v=... nebo ID videa">
                         </div>
-                        <p class="text-xs text-slate-400">Zadejte ID videa z YouTube (kód za <code class="text-amber-400">watch?v=</code> v URL odkazu). Změna se po uložení okamžitě projeví na hlavním webu.</p>
+                        <p class="text-xs text-slate-400">Můžete vložit celý odkaz z YouTube (<code class="text-amber-400">watch?v=</code>, <code class="text-amber-400">youtu.be/</code>, <code class="text-amber-400">shorts/</code>) nebo samotné 11znakové ID videa. Změna se po uložení okamžitě propíše do Firebase a na web.</p>
                     </div>
-                    <div>
+                    <div class="flex flex-wrap items-center gap-3">
                         <button onclick="saveYouTubeVideoId()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
                             Uložit YouTube video
+                        </button>
+                        <button type="button" onclick="openHeroVideoModal(true)" class="w-full sm:w-auto px-5 py-3.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-youtube text-red-500 text-sm"></i> Vyzkoušet přehrát v okně
                         </button>
                     </div>
                 </div>
@@ -1399,7 +1413,8 @@
                 public_web_partners_title: "Partneři webu",
                 admin_tab_video: "Nastavení videa",
                 admin_video_title: "Nastavení prezentačního YouTube videa",
-                video_section_title: "Oficiální prezentační video"
+                video_section_title: "Oficiální prezentační video",
+                menu_promo_video: "Prezentační video"
             },
             sk: {
                 nav_rules: "Pravidlá bodovania",
@@ -1471,7 +1486,8 @@
                 public_web_partners_title: "Partneri webu",
                 admin_tab_video: "Nastavenie videa",
                 admin_video_title: "Nastavenie prezentačného YouTube videa",
-                video_section_title: "Oficiálne prezentačné video"
+                video_section_title: "Oficiálne prezentačné video",
+                menu_promo_video: "Prezentačné video"
             },
             pl: {
                 nav_rules: "Zasady punktacji",
@@ -1543,7 +1559,8 @@
                 public_web_partners_title: "Partnerzy serwisu",
                 admin_tab_video: "Ustawienia wideo",
                 admin_video_title: "Ustawienia promocyjnego wideo YouTube",
-                video_section_title: "Oficjalne wideo promocyjne"
+                video_section_title: "Oficjalne wideo promocyjne",
+                menu_promo_video: "Wideo promocyjne"
             },
             de: {
                 nav_rules: "Reglement",
@@ -1615,7 +1632,8 @@
                 public_web_partners_title: "Webseiten-Partner",
                 admin_tab_video: "Video-Einstellungen",
                 admin_video_title: "YouTube-Präsentationsvideo einstellen",
-                video_section_title: "Offizielles Präsentationsvideo"
+                video_section_title: "Offizielles Präsentationsvideo",
+                menu_promo_video: "Präsentationsvideo"
             },
             en: {
                 nav_rules: "Scoring Rules",
@@ -1687,7 +1705,8 @@
                 public_web_partners_title: "Website Partners",
                 admin_tab_video: "Video Settings",
                 admin_video_title: "YouTube Presentation Video Settings",
-                video_section_title: "Official Presentation Video"
+                video_section_title: "Official Presentation Video",
+                menu_promo_video: "Promo Video"
             }
         };
 
@@ -1905,6 +1924,7 @@
         let webPartnersHideCaptionUntilHover = false;
         let webPartnersShowTopSlider = false;
         let youtubeVideoId = 'dQw4w9WgXcQ';
+        let isHeroVideoEnabled = true;
         let isVideoCollapsed = false;
 
         function formatAgeCategoryRange(cat) {
@@ -2134,7 +2154,8 @@
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
                     if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
                     if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
-                    if (data.youtubeVideoId) youtubeVideoId = data.youtubeVideoId;
+                    if (data.youtubeVideoId !== undefined) youtubeVideoId = data.youtubeVideoId;
+                    if (typeof data.isHeroVideoEnabled === 'boolean') isHeroVideoEnabled = data.isHeroVideoEnabled;
                 } else if (window.auth && window.auth.currentUser) {
                     saveData();
                 }
@@ -2184,6 +2205,7 @@
             motorSpecs = JSON.parse(JSON.stringify(defaultMotorSpecs));
             raceResults = {};
             youtubeVideoId = 'dQw4w9WgXcQ';
+            isHeroVideoEnabled = true;
             updateHeroVideoPlayer();
             populateCategorySelects();
             populateAdminSelects();
@@ -2216,7 +2238,8 @@
                     availableMotors,
                     motorHandicaps,
                     motorSpecs,
-                    youtubeVideoId
+                    youtubeVideoId,
+                    isHeroVideoEnabled
                 }));
                 await setDoc(docRef, payload, { merge: true });
                 console.log("Data successfully saved to Firebase Firestore.");
@@ -2230,30 +2253,101 @@
         }
 
         function updateHeroVideoPlayer() {
-            const iframe = document.getElementById('hero-youtube-iframe');
-            if (iframe) {
-                let cleanId = youtubeVideoId.trim();
-                if (cleanId.includes('youtube.com/watch?v=')) {
-                    const urlParams = new URLSearchParams(new URL(cleanId).search);
-                    cleanId = urlParams.get('v') || 'dQw4w9WgXcQ';
-                } else if (cleanId.includes('youtu.be/')) {
-                    cleanId = cleanId.split('youtu.be/')[1].split('?')[0];
+            const hasValidVideo = !!String(youtubeVideoId || '').trim();
+            const menuBtn = document.getElementById('menu-btn-hero-video');
+            if (menuBtn) {
+                if (isHeroVideoEnabled && hasValidVideo) {
+                    menuBtn.classList.remove('hidden');
+                } else {
+                    menuBtn.classList.add('hidden');
                 }
-                iframe.src = `https://www.youtube.com/embed/${cleanId}?autoplay=0&mute=0&loop=1`;
             }
+
+            const statusEl = document.getElementById('hero-video-enabled-status');
+            if (statusEl) {
+                if (isHeroVideoEnabled) {
+                    statusEl.textContent = 'Aktivní';
+                    statusEl.className = 'text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                } else {
+                    statusEl.textContent = 'Neaktivní';
+                    statusEl.className = 'text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+                }
+            }
+
+            const toggleBtn = document.getElementById('btn-toggle-hero-video-enabled');
+            if (toggleBtn) {
+                if (isHeroVideoEnabled) {
+                    toggleBtn.className = 'w-full md:w-auto shrink-0 px-5 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow';
+                    toggleBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Deaktivovat video na webu';
+                } else {
+                    toggleBtn.className = 'w-full md:w-auto shrink-0 px-5 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow';
+                    toggleBtn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Aktivovat video na webu';
+                }
+            }
+
             const input = document.getElementById('admin-youtube-id-input');
-            if (input) {
-                input.value = youtubeVideoId;
+            if (input && document.activeElement !== input) {
+                input.value = youtubeVideoId || '';
             }
         }
 
-        function saveYouTubeVideoId() {
-            const input = document.getElementById('admin-youtube-id-input');
-            if (input && input.value.trim() !== '') {
-                youtubeVideoId = input.value.trim();
-                saveData();
+        function openHeroVideoModal(fromAdminPreview = false) {
+            const adminInputVal = document.getElementById('admin-youtube-id-input')?.value?.trim() || '';
+            const rawSource = (fromAdminPreview && adminInputVal) ? adminInputVal : String(youtubeVideoId || '').trim();
+            if (!rawSource) {
+                showModal("Upozornění", "Zatím není zadán odkaz ani ID prezentačního YouTube videa.");
+                return;
+            }
+            const videoId = extractYouTubeVideoId(rawSource);
+            const watchUrl = normalizeYouTubeWatchUrl(rawSource);
+            if (!videoId) {
+                if (watchUrl) window.open(watchUrl, '_blank', 'noopener,noreferrer');
+                return;
+            }
+            const modal = document.getElementById('race-video-modal');
+            const titleEl = document.getElementById('race-video-modal-title');
+            const iframe = document.getElementById('race-video-modal-iframe');
+            const ytLink = document.getElementById('race-video-modal-yt-link');
+            const langDict = translations[currentLang] || translations.cs;
+            if (titleEl) titleEl.textContent = langDict.video_section_title || 'Oficiální prezentační video';
+            if (ytLink) ytLink.href = watchUrl;
+            if (iframe) iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        async function toggleHeroVideoEnabled() {
+            const prevState = isHeroVideoEnabled;
+            isHeroVideoEnabled = !isHeroVideoEnabled;
+            updateHeroVideoPlayer();
+            const res = await saveData();
+            if (res.ok) {
+                showModal(
+                    "Nastavení videa uloženo",
+                    isHeroVideoEnabled
+                        ? "Prezentační video bylo AKTIVOVÁNO. Na pravé straně v liště hlavního menu se divákům zobrazuje tlačítko pro přehrání videa."
+                        : "Prezentační video bylo DEAKTIVOVÁNO a skryto z veřejného webu."
+                );
+            } else {
+                isHeroVideoEnabled = prevState;
                 updateHeroVideoPlayer();
-                showModal("Úspěch", "YouTube video bylo úspěšně aktualizováno!");
+                showModal("Chyba databáze Firebase", `Změna viditelnosti videa se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function saveYouTubeVideoId() {
+            const input = document.getElementById('admin-youtube-id-input');
+            const val = input ? input.value.trim() : '';
+            if (!val) {
+                showModal("Chyba", "Zadejte prosím YouTube odkaz nebo ID videa!");
+                return;
+            }
+            youtubeVideoId = val;
+            updateHeroVideoPlayer();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", "Prezentační YouTube video bylo uloženo do Firebase databáze!");
+            } else {
+                showModal("Chyba databáze Firebase", `Video se nepodařilo uložit (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
             }
         }
 
@@ -2376,6 +2470,7 @@
                 renderWebPartnersSlider();
             }
             if (sub === 'calendar') renderAdminCalendarTable();
+            if (sub === 'video') updateHeroVideoPlayer();
             if (sub === 'motors') {
                 renderAdminMotorsTable();
                 filterMotorReferenceCatalog();
@@ -5245,7 +5340,7 @@
         }
 
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, availableMotors, motorHandicaps, motorSpecs, raceResults };
+            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, youtubeVideoId, isHeroVideoEnabled, availableMotors, motorHandicaps, motorSpecs, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -5272,11 +5367,16 @@
                     if (typeof data.webPartnersShowTopSlider === 'boolean') {
                         webPartnersShowTopSlider = data.webPartnersShowTopSlider;
                     }
+                    if (data.youtubeVideoId !== undefined) youtubeVideoId = data.youtubeVideoId;
+                    if (typeof data.isHeroVideoEnabled === 'boolean') {
+                        isHeroVideoEnabled = data.isHeroVideoEnabled;
+                    }
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
                     if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
                     if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
                     if (data.raceResults) raceResults = data.raceResults;
                     saveData();
+                    updateHeroVideoPlayer();
                     populateCategorySelects();
                     populateAdminSelects();
                     populatePublicRaceResultsSelect();
