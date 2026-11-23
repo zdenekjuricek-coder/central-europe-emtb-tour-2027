@@ -59,6 +59,38 @@
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        @keyframes partner-marquee-ltr {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+        .partner-marquee-viewport {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+        .partner-marquee-track {
+            display: flex;
+            align-items: center;
+            width: max-content;
+            animation: partner-marquee-ltr var(--marquee-duration, 28s) linear infinite;
+            will-change: transform;
+        }
+        .partner-marquee-viewport:hover .partner-marquee-track {
+            animation-play-state: paused;
+        }
+        .partner-marquee-group {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding-right: 1.25rem;
+            flex-shrink: 0;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .partner-marquee-track {
+                animation: none;
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 h-full flex flex-col antialiased">
@@ -418,6 +450,29 @@
                     <div id="riders-profiles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
             </div>
+
+            <!-- Public Running Website Partners Logo Slider (Left to Right) -->
+            <div id="public-web-partners-section" class="hidden mt-10 bg-[#0f172a] border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 overflow-hidden">
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-400 flex items-center justify-center text-sm shadow">
+                            <i class="fa-solid fa-award"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-sm sm:text-base font-black uppercase tracking-wider text-white" data-i18n="public_web_partners_title">Partneři webu</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">Oficiální partneři a podporovatelé Central Europe e-MTB Tour 2027</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-slate-500 hidden sm:inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrows-left-right text-amber-400/70"></i> Najetím myší pozastavíte
+                    </span>
+                </div>
+                <div class="partner-marquee-viewport py-2">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-16 bg-gradient-to-r from-[#0f172a] to-transparent z-10"></div>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-16 bg-gradient-to-l from-[#0f172a] to-transparent z-10"></div>
+                    <div id="public-web-partners-track" class="partner-marquee-track"></div>
+                </div>
+            </div>
         </section>
 
         <!-- VIEW: ADMIN -->
@@ -495,6 +550,9 @@
                     </button>
                     <button onclick="switchAdminSubTab('sponsors')" id="admin-sub-btn-sponsors" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-handshake"></i> <span data-i18n="admin_tab_sponsors">Sponzoři & Partneři</span>
+                    </button>
+                    <button onclick="switchAdminSubTab('web-partners')" id="admin-sub-btn-web-partners" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-images"></i> <span data-i18n="admin_tab_web_partners">Partneři webu</span>
                     </button>
                     <button onclick="switchAdminSubTab('calendar')" id="admin-sub-btn-calendar" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-calendar-days"></i> <span data-i18n="admin_tab_calendar">Správa kalendáře</span>
@@ -919,6 +977,96 @@
                     </div>
                 </div>
 
+                <!-- Admin Sub-Content: Manage Website Partners (Logo Slider) -->
+                <div id="admin-sub-web-partners" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-black text-white">
+                                <i class="fa-solid fa-images mr-2 text-amber-400"></i>
+                                <span data-i18n="admin_web_partners_title">Partneři webu – Správa log do běžícího slideru</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Vložte loga partnerů webu (nahráním obrázku z disku nebo vložením URL adresy loga). Divákům se automaticky zobrazí na spodní části webu pod žebříčky jako plynule běžící slider zleva doprava.
+                            </p>
+                        </div>
+                        <span id="web-partner-edit-badge" class="hidden text-xs font-black bg-amber-400/20 text-amber-300 border border-amber-400/40 px-3 py-1 rounded-full self-start sm:self-center">
+                            Režim úpravy partnera
+                        </span>
+                    </div>
+
+                    <input type="hidden" id="edit-web-partner-id" value="">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-[#0f172a] p-5 rounded-2xl border border-slate-800">
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název partnera *</label>
+                            <input type="text" id="new-web-partner-name" oninput="updateWebPartnerLogoPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. Crussis, Bosch, Nutrend">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Web partnera (volitelné – proklik z loga)</label>
+                            <input type="url" id="new-web-partner-website" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-medium focus:border-amber-400 outline-none" placeholder="např. https://www.crussis.cz">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Pozadí karty loga ve slideru</label>
+                            <select id="new-web-partner-bg" onchange="updateWebPartnerLogoPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none">
+                                <option value="dark">Tmavé pozadí (pro světlá / barevná loga)</option>
+                                <option value="light">Světlé / bílé pozadí (pro tmavá / černá loga)</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2 lg:col-span-2 space-y-2">
+                            <label class="block text-xs uppercase font-black text-slate-400">URL adresa obrázku loga NEBO nahrajte soubor níže *</label>
+                            <input type="text" id="new-web-partner-logo-url" oninput="updateWebPartnerLogoPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-medium focus:border-amber-400 outline-none" placeholder="https://... (PNG, SVG, WebP, JPG) nebo použijte tlačítko Nahrát logo">
+                            <div class="flex flex-wrap items-center gap-3 pt-1">
+                                <label class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/40 font-black rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-sm">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Nahrát logo z počítače / mobilu
+                                    <input type="file" id="new-web-partner-file" accept="image/*" onchange="handleWebPartnerFileUpload(event)" class="hidden">
+                                </label>
+                                <span id="new-web-partner-file-info" class="text-[11px] text-slate-400 font-medium">Obrázky se automaticky optimalizují pro rychlé načítání ve Firebase.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col justify-between">
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Náhled loga ve slideru</label>
+                            <div id="new-web-partner-preview" class="h-24 rounded-2xl border border-dashed border-slate-700 bg-slate-900/70 flex items-center justify-center p-3 overflow-hidden">
+                                <span class="text-xs text-slate-500 italic">Zde se zobrazí náhled loga</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="addOrUpdateWebPartner()" id="btn-save-web-partner" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                            Přidat logo partnera
+                        </button>
+                        <button onclick="cancelEditWebPartner()" id="btn-cancel-edit-web-partner" class="hidden w-full sm:w-auto px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs uppercase tracking-wider transition">
+                            Zrušit úpravu
+                        </button>
+                    </div>
+
+                    <!-- Live Slider Preview in Admin -->
+                    <div id="admin-web-partners-preview-box" class="hidden bg-[#0f172a] border border-slate-800 rounded-2xl p-4 space-y-3 overflow-hidden">
+                        <div class="flex items-center justify-between gap-2">
+                            <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-eye"></i> Živý náhled běžícího slideru (zleva doprava →)
+                            </h4>
+                            <span class="text-[11px] text-slate-400">Takto uvidí loga diváci na spodu webu pod žebříčky</span>
+                        </div>
+                        <div class="partner-marquee-viewport py-1">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-[#0f172a] to-transparent z-10"></div>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-[#0f172a] to-transparent z-10"></div>
+                            <div id="admin-web-partners-preview-track" class="partner-marquee-track"></div>
+                        </div>
+                    </div>
+
+                    <!-- List of Existing Website Partners -->
+                    <div class="space-y-3 pt-2">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
+                            <h4 class="text-sm font-bold text-slate-300">Vložená loga partnerů webu</h4>
+                            <span id="admin-web-partners-count" class="text-xs font-bold text-slate-400"></span>
+                        </div>
+                        <div id="admin-web-partners-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
+                </div>
+
                 <!-- Admin Sub-Content: Manage Calendar -->
                 <div id="admin-sub-calendar" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -1139,6 +1287,9 @@
                 admin_motors_title: "Správa motorů, pohonů a Fair-Play koeficientů",
                 admin_tab_sponsors: "Sponzoři & Partneři",
                 admin_sponsors_title: "Sponzoři a partneři týmů i jednotlivých e-bikerů",
+                admin_tab_web_partners: "Partneři webu",
+                admin_web_partners_title: "Partneři webu – Správa log do běžícího slideru",
+                public_web_partners_title: "Partneři webu",
                 admin_tab_video: "Nastavení videa",
                 admin_video_title: "Nastavení prezentačního YouTube videa",
                 video_section_title: "Oficiální prezentační video"
@@ -1208,6 +1359,9 @@
                 admin_motors_title: "Správa motorov, pohonov a Fair-Play koeficientov",
                 admin_tab_sponsors: "Sponzori & Partneri",
                 admin_sponsors_title: "Sponzori a partneri tímov aj jednotlivých e-bikerov",
+                admin_tab_web_partners: "Partneri webu",
+                admin_web_partners_title: "Partneri webu – Správa log do bežiaceho slidera",
+                public_web_partners_title: "Partneri webu",
                 admin_tab_video: "Nastavenie videa",
                 admin_video_title: "Nastavenie prezentačného YouTube videa",
                 video_section_title: "Oficiálne prezentačné video"
@@ -1277,6 +1431,9 @@
                 admin_motors_title: "Zarządzanie silnikami i współczynnikami Fair-Play",
                 admin_tab_sponsors: "Sponsorzy i Partnerzy",
                 admin_sponsors_title: "Sponsorzy i partnerzy zespołów oraz e-bikerów",
+                admin_tab_web_partners: "Partnerzy serwisu",
+                admin_web_partners_title: "Partnerzy serwisu – Zarządzanie logo w sliderze",
+                public_web_partners_title: "Partnerzy serwisu",
                 admin_tab_video: "Ustawienia wideo",
                 admin_video_title: "Ustawienia promocyjnego wideo YouTube",
                 video_section_title: "Oficjalne wideo promocyjne"
@@ -1346,6 +1503,9 @@
                 admin_motors_title: "Motoren, Antriebe & Fair-Play-Faktoren verwalten",
                 admin_tab_sponsors: "Sponsoren & Partner",
                 admin_sponsors_title: "Sponsoren & Partner der Teams und einzelnen E-Biker",
+                admin_tab_web_partners: "Webseiten-Partner",
+                admin_web_partners_title: "Webseiten-Partner – Logos für den laufenden Slider verwalten",
+                public_web_partners_title: "Webseiten-Partner",
                 admin_tab_video: "Video-Einstellungen",
                 admin_video_title: "YouTube-Präsentationsvideo einstellen",
                 video_section_title: "Offizielles Präsentationsvideo"
@@ -1415,6 +1575,9 @@
                 admin_motors_title: "Manage E-Bike Motors & Fair-Play Coefficients",
                 admin_tab_sponsors: "Sponsors & Partners",
                 admin_sponsors_title: "Sponsors & Partners of Teams and Individual E-Bikers",
+                admin_tab_web_partners: "Website Partners",
+                admin_web_partners_title: "Website Partners – Manage Logos for Running Slider",
+                public_web_partners_title: "Website Partners",
                 admin_tab_video: "Video Settings",
                 admin_video_title: "YouTube Presentation Video Settings",
                 video_section_title: "Official Presentation Video"
@@ -1631,6 +1794,7 @@
         let riders = defaultRiders;
         let calendar = defaultCalendar;
         let ageCategories = defaultAgeCategories.map(c => ({ ...c }));
+        let webPartners = [];
         let youtubeVideoId = 'dQw4w9WgXcQ';
         let isVideoCollapsed = false;
 
@@ -1849,6 +2013,7 @@
                     if (data.riders && Array.isArray(data.riders)) riders = data.riders;
                     if (data.calendar && Array.isArray(data.calendar)) calendar = data.calendar;
                     if (Array.isArray(data.ageCategories)) ageCategories = data.ageCategories;
+                    if (Array.isArray(data.webPartners)) webPartners = data.webPartners;
                     if (data.raceResults) raceResults = data.raceResults;
                     if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
@@ -1867,6 +2032,7 @@
                 renderPublicRaceResults();
                 renderCalendar();
                 renderTeamsAndRidersView();
+                renderWebPartnersSlider();
                 if (!document.getElementById('view-admin').classList.contains('hidden')) {
                     const activeEl = document.activeElement;
                     const isEditingIn = (containerId) => {
@@ -1880,6 +2046,7 @@
                     if (!isEditingIn('admin-teams-grid')) renderAdminTeamsGrid();
                     if (!isEditingIn('admin-sponsors-teams-grid')) renderAdminSponsorsTeams();
                     if (!isEditingIn('admin-sponsors-riders-grid')) renderAdminSponsorsRiders();
+                    renderAdminWebPartnersGrid();
                 }
             }, (error) => {
                 console.error("Firebase snapshot error:", error);
@@ -1894,6 +2061,7 @@
             riders = defaultRiders;
             calendar = defaultCalendar.map(c => ({ ...c }));
             ageCategories = defaultAgeCategories.map(c => ({ ...c }));
+            webPartners = [];
             availableMotors = [...defaultAvailableMotors];
             motorHandicaps = { ...defaultMotorHandicaps };
             motorSpecs = JSON.parse(JSON.stringify(defaultMotorSpecs));
@@ -1906,6 +2074,7 @@
             populatePublicRaceResultsSelect();
             renderPublicRaceResults();
             renderCalendar();
+            renderWebPartnersSlider();
         };
 
         async function saveData() {
@@ -1922,6 +2091,7 @@
                     riders,
                     calendar,
                     ageCategories,
+                    webPartners,
                     raceResults,
                     availableBrands,
                     availableMotors,
@@ -1992,6 +2162,7 @@
                 document.getElementById('public-subnav').classList.remove('hidden');
                 document.getElementById('btn-tab-public').className = "text-xs font-black px-3.5 py-2.5 rounded-xl bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg";
                 switchPublicSubTab(currentPublicSubTab);
+                renderWebPartnersSlider();
             } else if (tab === 'admin') {
                 document.getElementById('view-admin').classList.remove('hidden');
                 document.getElementById('btn-tab-admin').className = "text-xs font-black px-3.5 py-2.5 rounded-xl bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-lg";
@@ -2004,6 +2175,7 @@
                 filterMotorReferenceCatalog();
                 renderAdminTeamsGrid();
                 renderAdminSponsorsSection();
+                renderAdminWebPartnersGrid();
                 switchAdminSubTab(currentAdminSubTab);
             }
         }
@@ -2065,7 +2237,7 @@
         function switchAdminSubTab(sub) {
             currentAdminSubTab = sub;
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'categories', 'motors', 'teams', 'sponsors', 'calendar', 'video'].forEach(s => {
+            ['results', 'skills', 'riders', 'categories', 'motors', 'teams', 'sponsors', 'web-partners', 'calendar', 'video'].forEach(s => {
                 const btn = document.getElementById(`admin-sub-btn-${s}`);
                 if (btn) {
                     if (s === sub) {
@@ -2080,6 +2252,10 @@
             if (sub === 'skills') loadRiderSkillsToForm();
             if (sub === 'categories') renderAdminCategoriesTable();
             if (sub === 'sponsors') renderAdminSponsorsSection();
+            if (sub === 'web-partners') {
+                renderAdminWebPartnersGrid();
+                renderWebPartnersSlider();
+            }
             if (sub === 'calendar') renderAdminCalendarTable();
             if (sub === 'motors') {
                 renderAdminMotorsTable();
@@ -4484,8 +4660,352 @@
             }
         }
 
+        function normalizeLogoUrl(rawUrl) {
+            const val = String(rawUrl || '').trim();
+            if (!val) return '';
+            if (/^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,/i.test(val)) return val;
+            if (/^https?:\/\//i.test(val)) return val;
+            if (/^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(val)) return 'https://' + val;
+            return '';
+        }
+
+        function handleWebPartnerFileUpload(event) {
+            const file = event && event.target && event.target.files ? event.target.files[0] : null;
+            if (!file) return;
+            const infoEl = document.getElementById('new-web-partner-file-info');
+            const urlInput = document.getElementById('new-web-partner-logo-url');
+
+            if (!file.type || !file.type.startsWith('image/')) {
+                showModal("Chyba", "Vyberte prosím obrázkový soubor (PNG, JPG, WebP nebo SVG).");
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const rawDataUrl = e.target.result;
+                // Keep small SVG logos crisp without rasterizing
+                if (file.type === 'image/svg+xml' && rawDataUrl.length <= 65000) {
+                    if (urlInput) urlInput.value = rawDataUrl;
+                    if (infoEl) infoEl.textContent = `Načteno SVG logo (${Math.round(rawDataUrl.length / 1024)} KB) ✓`;
+                    updateWebPartnerLogoPreview();
+                    event.target.value = '';
+                    return;
+                }
+
+                const img = new Image();
+                img.onload = function() {
+                    const maxW = 360;
+                    const maxH = 140;
+                    const scale = Math.min(1, maxW / img.width, maxH / img.height);
+                    const targetW = Math.max(1, Math.round(img.width * scale));
+                    const targetH = Math.max(1, Math.round(img.height * scale));
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = targetW;
+                    canvas.height = targetH;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, targetW, targetH);
+                    ctx.drawImage(img, 0, 0, targetW, targetH);
+
+                    let optimized = canvas.toDataURL('image/webp', 0.86);
+                    if (!optimized.startsWith('data:image/webp')) {
+                        optimized = canvas.toDataURL('image/png');
+                    }
+                    if (optimized.length > 160000) {
+                        optimized = canvas.toDataURL('image/webp', 0.65);
+                    }
+                    if (urlInput) urlInput.value = optimized;
+                    if (infoEl) {
+                        const kb = Math.max(1, Math.round((optimized.length * 0.75) / 1024));
+                        infoEl.textContent = `Logo optimalizováno (${targetW}×${targetH} px, cca ${kb} KB) ✓`;
+                    }
+                    updateWebPartnerLogoPreview();
+                    event.target.value = '';
+                };
+                img.onerror = function() {
+                    showModal("Chyba", "Nepodařilo se načíst vybraný obrázek loga.");
+                    event.target.value = '';
+                };
+                img.src = rawDataUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateWebPartnerLogoPreview() {
+            const previewEl = document.getElementById('new-web-partner-preview');
+            if (!previewEl) return;
+            const nameVal = (document.getElementById('new-web-partner-name')?.value || '').trim() || 'Partner';
+            const rawUrl = document.getElementById('new-web-partner-logo-url')?.value || '';
+            const bgStyle = document.getElementById('new-web-partner-bg')?.value || 'dark';
+            const safeLogo = normalizeLogoUrl(rawUrl);
+
+            const bgClasses = bgStyle === 'light'
+                ? 'h-24 rounded-2xl border border-slate-300 bg-white flex items-center justify-center p-3 overflow-hidden shadow-inner'
+                : 'h-24 rounded-2xl border border-slate-700 bg-slate-900/90 flex items-center justify-center p-3 overflow-hidden shadow-inner';
+            previewEl.className = bgClasses;
+
+            if (!safeLogo) {
+                previewEl.innerHTML = `<span class="text-xs ${bgStyle === 'light' ? 'text-slate-500' : 'text-slate-500'} italic">Zde se zobrazí náhled loga</span>`;
+                return;
+            }
+            previewEl.innerHTML = `<img src="${escapeHtml(safeLogo)}" alt="${escapeHtml(nameVal)}" class="max-h-16 max-w-full w-auto h-auto object-contain" onerror="this.outerHTML='<span class=&quot;text-xs text-red-400 font-bold&quot;>Obrázek se nepodařilo načíst</span>'">`;
+        }
+
+        async function addOrUpdateWebPartner() {
+            const editIdEl = document.getElementById('edit-web-partner-id');
+            const nameEl = document.getElementById('new-web-partner-name');
+            const websiteEl = document.getElementById('new-web-partner-website');
+            const bgEl = document.getElementById('new-web-partner-bg');
+            const logoUrlEl = document.getElementById('new-web-partner-logo-url');
+
+            const editId = editIdEl ? editIdEl.value.trim() : '';
+            const name = nameEl ? nameEl.value.trim() : '';
+            const website = websiteEl ? normalizeRaceWebsiteUrl(websiteEl.value) : '';
+            const bgStyle = bgEl ? bgEl.value : 'dark';
+            const logoUrl = logoUrlEl ? normalizeLogoUrl(logoUrlEl.value) : '';
+
+            if (!name) {
+                showModal("Chyba", "Zadejte prosím název partnera webu!");
+                return;
+            }
+            if (!logoUrl) {
+                showModal("Chyba", "Nahrajte prosím obrázek loga nebo vložte platnou URL adresu obrázku!");
+                return;
+            }
+
+            const prevPartners = webPartners.map(p => ({ ...p }));
+            if (editId) {
+                const existing = webPartners.find(p => p.id === editId);
+                if (existing) {
+                    existing.name = name;
+                    existing.website = website;
+                    existing.bgStyle = bgStyle;
+                    existing.logoUrl = logoUrl;
+                }
+            } else {
+                webPartners.push({
+                    id: 'wp_' + Date.now(),
+                    name: name,
+                    website: website,
+                    bgStyle: bgStyle,
+                    logoUrl: logoUrl
+                });
+            }
+
+            // Guard against Firestore 1 MB document size limit
+            const estimatedBytes = JSON.stringify({ teams, riders, calendar, ageCategories, webPartners, raceResults }).length;
+            if (estimatedBytes > 920000) {
+                webPartners = prevPartners;
+                showModal("Limit velikosti Firebase", "Celková velikost nahraných obrázků se blíží limitu databáze (1 MB). Pro další loga prosím použijte raději URL odkaz na obrázek.");
+                return;
+            }
+
+            cancelEditWebPartner();
+            renderAdminWebPartnersGrid();
+            renderWebPartnersSlider();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", editId ? `Partner webu "${name}" byl aktualizován a uložen do Firebase!` : `Logo partnera "${name}" bylo přidáno do běžícího slideru a uloženo do Firebase!`);
+            } else {
+                webPartners = prevPartners;
+                renderAdminWebPartnersGrid();
+                renderWebPartnersSlider();
+                showModal("Chyba databáze Firebase", `Změna partnera webu se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        function editWebPartner(id) {
+            const p = webPartners.find(item => item.id === id);
+            if (!p) return;
+            document.getElementById('edit-web-partner-id').value = p.id;
+            document.getElementById('new-web-partner-name').value = p.name || '';
+            document.getElementById('new-web-partner-website').value = p.website || '';
+            document.getElementById('new-web-partner-bg').value = p.bgStyle === 'light' ? 'light' : 'dark';
+            document.getElementById('new-web-partner-logo-url').value = p.logoUrl || '';
+            const infoEl = document.getElementById('new-web-partner-file-info');
+            if (infoEl) infoEl.textContent = 'Můžete nahrát nové logo nebo ponechat stávající.';
+            updateWebPartnerLogoPreview();
+
+            document.getElementById('btn-save-web-partner').textContent = 'Uložit změny partnera';
+            document.getElementById('btn-cancel-edit-web-partner').classList.remove('hidden');
+            document.getElementById('web-partner-edit-badge').classList.remove('hidden');
+            document.getElementById('new-web-partner-name').focus();
+        }
+
+        function cancelEditWebPartner() {
+            const editIdEl = document.getElementById('edit-web-partner-id');
+            const nameEl = document.getElementById('new-web-partner-name');
+            const websiteEl = document.getElementById('new-web-partner-website');
+            const bgEl = document.getElementById('new-web-partner-bg');
+            const logoUrlEl = document.getElementById('new-web-partner-logo-url');
+            const fileEl = document.getElementById('new-web-partner-file');
+            const infoEl = document.getElementById('new-web-partner-file-info');
+            const btnSave = document.getElementById('btn-save-web-partner');
+            const btnCancel = document.getElementById('btn-cancel-edit-web-partner');
+            const badge = document.getElementById('web-partner-edit-badge');
+
+            if (editIdEl) editIdEl.value = '';
+            if (nameEl) nameEl.value = '';
+            if (websiteEl) websiteEl.value = '';
+            if (bgEl) bgEl.value = 'dark';
+            if (logoUrlEl) logoUrlEl.value = '';
+            if (fileEl) fileEl.value = '';
+            if (infoEl) infoEl.textContent = 'Obrázky se automaticky optimalizují pro rychlé načítání ve Firebase.';
+            if (btnSave) btnSave.textContent = 'Přidat logo partnera';
+            if (btnCancel) btnCancel.classList.add('hidden');
+            if (badge) badge.classList.add('hidden');
+            updateWebPartnerLogoPreview();
+        }
+
+        async function moveWebPartner(id, direction) {
+            const idx = webPartners.findIndex(p => p.id === id);
+            if (idx === -1) return;
+            const targetIdx = idx + direction;
+            if (targetIdx < 0 || targetIdx >= webPartners.length) return;
+            const tmp = webPartners[idx];
+            webPartners[idx] = webPartners[targetIdx];
+            webPartners[targetIdx] = tmp;
+            renderAdminWebPartnersGrid();
+            renderWebPartnersSlider();
+            const res = await saveData();
+            if (!res.ok) {
+                showModal("Chyba databáze Firebase", `Změna pořadí partnerů se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function deleteWebPartner(id) {
+            const p = webPartners.find(item => item.id === id);
+            if (!p) return;
+            if (confirm(`Opravdu chcete odstranit logo partnera "${p.name}" ze slideru?`)) {
+                if (document.getElementById('edit-web-partner-id')?.value === id) {
+                    cancelEditWebPartner();
+                }
+                webPartners = webPartners.filter(item => item.id !== id);
+                renderAdminWebPartnersGrid();
+                renderWebPartnersSlider();
+                const res = await saveData();
+                if (!res.ok) {
+                    showModal("Chyba databáze Firebase", `Smazání partnera se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
+            }
+        }
+
+        function renderAdminWebPartnersGrid() {
+            const grid = document.getElementById('admin-web-partners-grid');
+            const countEl = document.getElementById('admin-web-partners-count');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            if (countEl) countEl.textContent = `Celkem partnerů ve slideru: ${webPartners.length}`;
+
+            if (webPartners.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-xs text-slate-500 italic p-6 bg-[#0f172a] rounded-2xl border border-slate-800">Zatím nejsou vložena žádná loga partnerů webu. Přidejte první logo výše a slider se divákům automaticky zobrazí pod žebříčky.</div>';
+                return;
+            }
+
+            webPartners.forEach((p, idx) => {
+                const safeLogo = normalizeLogoUrl(p.logoUrl);
+                const safeWeb = normalizeRaceWebsiteUrl(p.website);
+                const logoBoxClass = p.bgStyle === 'light'
+                    ? 'bg-white border-slate-300'
+                    : 'bg-slate-900/90 border-slate-700/80';
+
+                const card = document.createElement('div');
+                card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="h-24 rounded-xl border ${logoBoxClass} flex items-center justify-center p-3 overflow-hidden">
+                            ${safeLogo
+                                ? `<img src="${escapeHtml(safeLogo)}" alt="${escapeHtml(p.name)}" class="max-h-16 max-w-full w-auto h-auto object-contain">`
+                                : `<span class="text-xs font-black text-amber-400">${escapeHtml(p.name)}</span>`}
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <h5 class="font-black text-white text-sm truncate">${idx + 1}. ${escapeHtml(p.name)}</h5>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-lg border ${p.bgStyle === 'light' ? 'bg-slate-100 text-slate-800 border-slate-300' : 'bg-slate-800 text-slate-300 border-slate-700'} shrink-0">
+                                    ${p.bgStyle === 'light' ? 'Světlá karta' : 'Tmavá karta'}
+                                </span>
+                            </div>
+                            ${safeWeb
+                                ? `<a href="${escapeHtml(safeWeb)}" target="_blank" rel="noopener noreferrer" class="text-[11px] text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1 truncate"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> ${escapeHtml(safeWeb)}</a>`
+                                : `<span class="text-[11px] text-slate-500 italic block">Bez odkazu na web</span>`}
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800">
+                        <div class="flex items-center gap-1">
+                            <button type="button" onclick="moveWebPartner('${escapeHtml(p.id)}', -1)" ${idx === 0 ? 'disabled' : ''} title="Posunout doleva" class="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-35 disabled:cursor-not-allowed transition">
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+                            <button type="button" onclick="moveWebPartner('${escapeHtml(p.id)}', 1)" ${idx === webPartners.length - 1 ? 'disabled' : ''} title="Posunout doprava" class="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-35 disabled:cursor-not-allowed transition">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="editWebPartner('${escapeHtml(p.id)}')" class="px-3 py-1.5 bg-amber-400/20 text-amber-300 rounded-xl hover:bg-amber-400/30 transition font-bold text-xs border border-amber-400/30">Upravit</button>
+                            <button type="button" onclick="deleteWebPartner('${escapeHtml(p.id)}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function buildWebPartnerSliderCardHtml(p) {
+            const safeLogo = normalizeLogoUrl(p.logoUrl);
+            const safeWeb = normalizeRaceWebsiteUrl(p.website);
+            const safeName = escapeHtml(p.name || 'Partner');
+            const cardClasses = p.bgStyle === 'light'
+                ? 'h-20 sm:h-24 min-w-[155px] sm:min-w-[185px] max-w-[230px] px-5 rounded-2xl bg-white/95 border border-slate-200 shadow-lg flex items-center justify-center hover:scale-105 hover:border-amber-400 transition shrink-0'
+                : 'h-20 sm:h-24 min-w-[155px] sm:min-w-[185px] max-w-[230px] px-5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-lg flex items-center justify-center hover:scale-105 hover:border-amber-400/70 transition shrink-0';
+            const innerHtml = safeLogo
+                ? `<img src="${escapeHtml(safeLogo)}" alt="${safeName}" title="${safeName}" loading="lazy" class="max-h-12 sm:max-h-14 max-w-[140px] sm:max-w-[170px] w-auto h-auto object-contain select-none">`
+                : `<span class="text-xs sm:text-sm font-black ${p.bgStyle === 'light' ? 'text-slate-900' : 'text-amber-400'} whitespace-nowrap">${safeName}</span>`;
+
+            if (safeWeb) {
+                return `<a href="${escapeHtml(safeWeb)}" target="_blank" rel="noopener noreferrer" title="${safeName}" class="${cardClasses}">${innerHtml}</a>`;
+            }
+            return `<div title="${safeName}" class="${cardClasses}">${innerHtml}</div>`;
+        }
+
+        function renderWebPartnersSlider() {
+            const publicSection = document.getElementById('public-web-partners-section');
+            const publicTrack = document.getElementById('public-web-partners-track');
+            const adminPreviewBox = document.getElementById('admin-web-partners-preview-box');
+            const adminPreviewTrack = document.getElementById('admin-web-partners-preview-track');
+
+            if (!Array.isArray(webPartners) || webPartners.length === 0) {
+                if (publicSection) publicSection.classList.add('hidden');
+                if (publicTrack) publicTrack.innerHTML = '';
+                if (adminPreviewBox) adminPreviewBox.classList.add('hidden');
+                if (adminPreviewTrack) adminPreviewTrack.innerHTML = '';
+                return;
+            }
+
+            // Repeat items inside each half so wide screens are always seamlessly filled
+            const repeatCount = Math.max(1, Math.ceil(10 / webPartners.length));
+            const groupItems = [];
+            for (let i = 0; i < repeatCount; i++) {
+                webPartners.forEach(p => groupItems.push(buildWebPartnerSliderCardHtml(p)));
+            }
+            const groupHtml = `<div class="partner-marquee-group">${groupItems.join('')}</div>`;
+            const fullTrackHtml = groupHtml + groupHtml;
+            const durationSec = Math.max(18, Math.round(groupItems.length * 3.2));
+
+            if (publicSection && publicTrack) {
+                publicSection.classList.remove('hidden');
+                publicTrack.style.setProperty('--marquee-duration', `${durationSec}s`);
+                publicTrack.innerHTML = fullTrackHtml;
+            }
+            if (adminPreviewBox && adminPreviewTrack) {
+                adminPreviewBox.classList.remove('hidden');
+                adminPreviewTrack.style.setProperty('--marquee-duration', `${durationSec}s`);
+                adminPreviewTrack.innerHTML = fullTrackHtml;
+            }
+        }
+
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, availableMotors, motorHandicaps, motorSpecs, raceResults };
+            const data = { teams, riders, calendar, ageCategories, webPartners, availableMotors, motorHandicaps, motorSpecs, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -4505,6 +5025,7 @@
                     if (data.riders) riders = data.riders;
                     if (data.calendar) calendar = data.calendar;
                     if (data.ageCategories && Array.isArray(data.ageCategories)) ageCategories = data.ageCategories;
+                    if (data.webPartners && Array.isArray(data.webPartners)) webPartners = data.webPartners;
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
                     if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
                     if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
@@ -4519,10 +5040,12 @@
                     renderAdminRidersTable();
                     renderAdminTeamsGrid();
                     renderAdminSponsorsSection();
+                    renderAdminWebPartnersGrid();
                     renderCalendar();
                     renderPublicLeaderboards();
                     renderPublicRaceResults();
                     renderTeamsAndRidersView();
+                    renderWebPartnersSlider();
                     showModal("Úspěch", "Data byla úspěšně obnovena ze zálohy!");
                 } catch(err) {
                     showModal("Chyba", "Neplatný formát JSON souboru.");
@@ -4539,6 +5062,7 @@
                 renderPublicLeaderboards();
                 populatePublicRaceResultsSelect();
                 renderCalendar();
+                renderWebPartnersSlider();
                 filterMotorReferenceCatalog();
             }, 300);
         };
