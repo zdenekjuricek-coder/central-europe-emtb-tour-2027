@@ -190,16 +190,18 @@
 <body class="bg-[#0b0f19] text-slate-100 h-full flex flex-col antialiased">
 
     <!-- Top Header Bar -->
-    <header class="bg-[#0f172a] text-white shadow-xl border-b border-slate-800 relative z-40">
+    <header id="site-header" class="bg-[#0f172a] text-white shadow-xl border-b border-slate-800 relative z-40">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3 w-full lg:w-auto justify-between lg:justify-start">
                 <div class="flex items-center space-x-3">
-                    <div class="bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 p-2.5 sm:p-3 rounded-2xl font-black text-lg sm:text-2xl shadow-lg flex items-center justify-center transform -rotate-2">
-                        <i class="fa-solid fa-bolt"></i>
+                    <div id="site-header-logo-wrap" class="shrink-0">
+                        <div class="bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 p-2.5 sm:p-3 rounded-2xl font-black text-lg sm:text-2xl shadow-lg flex items-center justify-center transform -rotate-2">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
                     </div>
                     <div>
-                        <h1 class="text-lg sm:text-2xl font-black tracking-wider uppercase text-white leading-tight">Central Europe <span class="text-amber-400">e-MTB Tour</span> <span class="text-xs bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full font-bold ml-1">2027</span></h1>
-                        <p class="text-[11px] sm:text-xs text-slate-400 font-semibold tracking-wide">CZ • SK • PL • DE • AT • HU | Official Pro Series</p>
+                        <h1 id="site-header-brand" class="text-lg sm:text-2xl font-black tracking-wider uppercase text-white leading-tight">Central Europe <span class="text-amber-400">e-MTB Tour</span> <span class="text-xs bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full font-bold ml-1">2027</span></h1>
+                        <p id="site-header-subtitle" class="text-[11px] sm:text-xs text-slate-400 font-semibold tracking-wide">CZ • SK • PL • DE • AT • HU | Official Pro Series</p>
                     </div>
                 </div>
             </div>
@@ -786,6 +788,9 @@
                     </button>
                     <button onclick="switchAdminSubTab('video')" id="admin-sub-btn-video" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-brands fa-youtube"></i> <span data-i18n="admin_tab_video">Nastavení videa</span>
+                    </button>
+                    <button onclick="switchAdminSubTab('header')" id="admin-sub-btn-header" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-window-maximize"></i> <span data-i18n="admin_tab_header">Top Header</span>
                     </button>
                     <button onclick="switchAdminSubTab('footer')" id="admin-sub-btn-footer" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-window-minimize"></i> <span data-i18n="admin_tab_footer">Footer</span>
@@ -1602,6 +1607,149 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Admin Sub-Content: Top Header Editor -->
+                <div id="admin-sub-header" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-black text-white">
+                                <i class="fa-solid fa-window-maximize mr-2 text-amber-400"></i>
+                                <span data-i18n="admin_header_title">Správa a editace horní hlavičky webu (Top Header)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Plně upravujte texty v horní liště webu, titulek v záložce prohlížeče i samotné logo (výchozí ikona blesku nebo vlastní nahraný obrázek / URL). Změny se okamžitě zobrazují živě nahoře v hlavičce a po uložení se propíšou do Firebase.
+                            </p>
+                        </div>
+                        <button type="button" onclick="resetHeaderToDefault()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold rounded-xl text-xs transition shrink-0 flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-left text-amber-400"></i> Obnovit výchozí Top Header
+                        </button>
+                    </div>
+
+                    <!-- Top Header Texts Editor -->
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
+                            <i class="fa-solid fa-font"></i> Texty v horní hlavičce (Top Header)
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Hlavní název (bílá část)</label>
+                                <input type="text" id="header-edit-brand-title" oninput="previewHeaderLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="Central Europe">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Zvýrazněný název (zlatá část)</label>
+                                <input type="text" id="header-edit-brand-accent" oninput="previewHeaderLive()" class="w-full bg-slate-800 border border-slate-700 text-amber-300 rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="e-MTB Tour">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Štítek / Ročník</label>
+                                <input type="text" id="header-edit-brand-badge" oninput="previewHeaderLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="2027">
+                            </div>
+                            <div class="md:col-span-3">
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Podtitulek pod názvem</label>
+                                <input type="text" id="header-edit-subtitle" oninput="previewHeaderLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-medium focus:border-amber-400 outline-none" placeholder="CZ • SK • PL • DE • AT • HU | Official Pro Series">
+                            </div>
+                            <div class="md:col-span-3">
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název stránky v záložce prohlížeče (&lt;title&gt;)</label>
+                                <input type="text" id="header-edit-page-title" oninput="previewHeaderLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-medium focus:border-amber-400 outline-none" placeholder="Central Europe e-MTB Tour 2027">
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500">
+                            <i class="fa-solid fa-circle-info mr-1 text-amber-400/80"></i>
+                            Tip: Pokud používáte široké obrázkové logo, které už text obsahuje, můžete textová pole výše nechat prázdná a v hlavičce se zobrazí pouze vaše logo.
+                        </p>
+                    </div>
+
+                    <!-- Top Header Logo Editor -->
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-image"></i> Logo v horní hlavičce
+                            </h4>
+                            <button type="button" onclick="clearHeaderCustomLogo()" class="self-start sm:self-center px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold rounded-xl text-[11px] transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-bolt text-amber-400"></i> Vrátit výchozí ikonu ⚡
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+                            <div class="lg:col-span-2 space-y-4">
+                                <div>
+                                    <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Typ loga v hlavičce</label>
+                                    <select id="header-edit-logo-type" onchange="toggleHeaderLogoTypeInputs(); previewHeaderLive();" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none">
+                                        <option value="icon">Výchozí ikona blesku ⚡</option>
+                                        <option value="image">Vlastní obrázkové logo (nahrát soubor nebo URL)</option>
+                                    </select>
+                                </div>
+
+                                <div id="header-logo-icon-hint" class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div class="text-xs text-slate-400">
+                                        Aktuálně je aktivní výchozí zlatá ikona blesku. Můžete kdykoliv přepnout na vlastní obrázkové logo (PNG, JPG, WebP nebo SVG).
+                                    </div>
+                                    <button type="button" onclick="document.getElementById('header-edit-logo-type').value='image'; toggleHeaderLogoTypeInputs(); previewHeaderLive();" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/30 font-bold rounded-xl text-xs transition whitespace-nowrap shrink-0">
+                                        <i class="fa-solid fa-upload mr-1.5"></i> Použít vlastní logo
+                                    </button>
+                                </div>
+
+                                <div id="header-logo-image-controls" class="hidden space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Nahrát soubor loga (PNG, JPG, WebP, SVG)</label>
+                                            <label class="flex items-center justify-center gap-2 w-full bg-slate-800 hover:bg-slate-700 border border-dashed border-amber-400/50 text-amber-300 rounded-xl p-3 text-xs font-bold cursor-pointer transition">
+                                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                <span>Vybrat obrázek loga z počítače</span>
+                                                <input type="file" id="header-edit-logo-file" accept="image/*" onchange="handleHeaderLogoFileUpload(event)" class="hidden">
+                                            </label>
+                                            <p id="header-edit-logo-file-info" class="text-[11px] text-emerald-400 font-semibold mt-1.5 min-h-[1rem]"></p>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Nebo URL adresa obrázku loga</label>
+                                            <input type="text" id="header-edit-logo-url" oninput="previewHeaderLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs font-medium focus:border-amber-400 outline-none" placeholder="https://.../logo.png nebo nahrané logo">
+                                            <p class="text-[11px] text-slate-500 mt-1">Nahrané obrázky se automaticky optimalizují pro Firebase (max 420×160 px, SVG zůstává vektorové).</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-1.5">
+                                                <label class="block text-xs uppercase font-black text-slate-400">Výška loga v hlavičce</label>
+                                                <span id="header-edit-logo-height-val" class="text-xs font-black text-amber-400 bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-lg">48 px</span>
+                                            </div>
+                                            <input type="range" id="header-edit-logo-height" min="28" max="80" step="2" value="48" oninput="previewHeaderLive()" class="w-full accent-amber-400 cursor-pointer">
+                                            <div class="flex justify-between text-[10px] text-slate-500 font-semibold mt-0.5">
+                                                <span>28 px (kompaktní)</span>
+                                                <span>48 px</span>
+                                                <span>80 px (velké)</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Pozadí / rámeček pod logem</label>
+                                            <select id="header-edit-logo-bg" onchange="previewHeaderLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none">
+                                                <option value="none">Bez podkladu (průhledné PNG/SVG)</option>
+                                                <option value="dark">Tmavý rámeček</option>
+                                                <option value="light">Světlý / bílý rámeček (pro tmavá loga)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Logo Preview Box -->
+                            <div class="space-y-2">
+                                <label class="block text-xs uppercase font-black text-slate-400">Náhled loga</label>
+                                <div id="header-edit-logo-preview" class="h-32 rounded-2xl border border-slate-700 bg-[#0b1220] flex items-center justify-center p-4 overflow-hidden shadow-inner">
+                                    <div class="bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 p-3 rounded-2xl font-black text-2xl shadow-lg flex items-center justify-center transform -rotate-2">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </div>
+                                </div>
+                                <p class="text-[11px] text-slate-500 text-center">Živý náhled vidíte také přímo v horní liště webu výše.</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-800 flex flex-wrap items-center gap-3">
+                            <button type="button" onclick="saveHeaderConfig()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                                <i class="fa-solid fa-floppy-disk mr-1.5"></i> Uložit Top Header
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -1742,7 +1890,9 @@
                 video_section_title: "Oficiální prezentační video",
                 menu_promo_video: "Prezentační video",
                 admin_tab_footer: "Footer",
-                admin_footer_title: "Správa a editace patičky webu (Footer)"
+                admin_footer_title: "Správa a editace patičky webu (Footer)",
+                admin_tab_header: "Top Header",
+                admin_header_title: "Správa a editace horní hlavičky webu (Top Header)"
             },
             sk: {
                 nav_rules: "Pravidlá bodovania",
@@ -1817,7 +1967,9 @@
                 video_section_title: "Oficiálne prezentačné video",
                 menu_promo_video: "Prezentačné video",
                 admin_tab_footer: "Footer",
-                admin_footer_title: "Správa a editácia pätičky webu (Footer)"
+                admin_footer_title: "Správa a editácia pätičky webu (Footer)",
+                admin_tab_header: "Top Header",
+                admin_header_title: "Správa a editácia hornej hlavičky webu (Top Header)"
             },
             pl: {
                 nav_rules: "Zasady punktacji",
@@ -1892,7 +2044,9 @@
                 video_section_title: "Oficjalne wideo promocyjne",
                 menu_promo_video: "Wideo promocyjne",
                 admin_tab_footer: "Stopka (Footer)",
-                admin_footer_title: "Zarządzanie i edycja stopki strony (Footer)"
+                admin_footer_title: "Zarządzanie i edycja stopki strony (Footer)",
+                admin_tab_header: "Nagłówek (Top Header)",
+                admin_header_title: "Zarządzanie i edycja górnego nagłówka (Top Header)"
             },
             de: {
                 nav_rules: "Reglement",
@@ -1967,7 +2121,9 @@
                 video_section_title: "Offizielles Präsentationsvideo",
                 menu_promo_video: "Präsentationsvideo",
                 admin_tab_footer: "Footer",
-                admin_footer_title: "Fußzeile (Footer) verwalten und bearbeiten"
+                admin_footer_title: "Fußzeile (Footer) verwalten und bearbeiten",
+                admin_tab_header: "Top Header",
+                admin_header_title: "Kopfzeile (Top Header) & Logo verwalten"
             },
             en: {
                 nav_rules: "Scoring Rules",
@@ -2042,7 +2198,9 @@
                 video_section_title: "Official Presentation Video",
                 menu_promo_video: "Promo Video",
                 admin_tab_footer: "Footer",
-                admin_footer_title: "Website Footer Text & Links Editor"
+                admin_footer_title: "Website Footer Text & Links Editor",
+                admin_tab_header: "Top Header",
+                admin_header_title: "Website Top Header & Logo Editor"
             }
         };
 
@@ -2278,6 +2436,19 @@
             ]
         };
         let footerConfig = JSON.parse(JSON.stringify(defaultFooterConfig));
+
+        const defaultHeaderConfig = {
+            brandTitle: 'Central Europe',
+            brandAccent: 'e-MTB Tour',
+            brandBadge: '2027',
+            subtitle: 'CZ • SK • PL • DE • AT • HU | Official Pro Series',
+            pageTitle: 'Central Europe e-MTB Tour 2027',
+            logoType: 'icon',
+            logoUrl: '',
+            logoHeight: 48,
+            logoBgStyle: 'none'
+        };
+        let headerConfig = JSON.parse(JSON.stringify(defaultHeaderConfig));
 
         function formatAgeCategoryRange(cat) {
             if (!cat) return '';
@@ -2520,6 +2691,12 @@
                                 : JSON.parse(JSON.stringify(defaultFooterConfig.links))
                         };
                     }
+                    if (data.headerConfig && typeof data.headerConfig === 'object') {
+                        headerConfig = {
+                            ...JSON.parse(JSON.stringify(defaultHeaderConfig)),
+                            ...data.headerConfig
+                        };
+                    }
                 } else if (window.auth && window.auth.currentUser) {
                     saveData();
                 }
@@ -2534,12 +2711,13 @@
                 renderCalendar();
                 renderTeamsAndRidersView();
                 renderWebPartnersSlider();
+                renderHeader();
                 renderFooter();
                 if (!document.getElementById('view-admin').classList.contains('hidden')) {
                     const activeEl = document.activeElement;
                     const isEditingIn = (containerId) => {
                         const container = document.getElementById(containerId);
-                        return !!(container && activeEl && container.contains(activeEl) && (activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'INPUT'));
+                        return !!(container && activeEl && container.contains(activeEl) && (activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT'));
                     };
                     if (!isEditingIn('admin-riders-tbody')) renderAdminRidersTable();
                     renderAdminCategoriesTable();
@@ -2549,6 +2727,7 @@
                     if (!isEditingIn('admin-sponsors-teams-grid')) renderAdminSponsorsTeams();
                     if (!isEditingIn('admin-sponsors-riders-grid')) renderAdminSponsorsRiders();
                     renderAdminWebPartnersGrid();
+                    if (!isEditingIn('admin-sub-header')) renderAdminHeaderEditor();
                     if (!isEditingIn('admin-sub-footer')) renderAdminFooterEditor();
                 }
             }, (error) => {
@@ -2575,6 +2754,7 @@
             youtubeVideoId = 'dQw4w9WgXcQ';
             isHeroVideoEnabled = true;
             footerConfig = JSON.parse(JSON.stringify(defaultFooterConfig));
+            headerConfig = JSON.parse(JSON.stringify(defaultHeaderConfig));
             updateHeroVideoPlayer();
             updateSponsorsHoverModeUI();
             populateCategorySelects();
@@ -2584,6 +2764,7 @@
             renderPublicRaceResults();
             renderCalendar();
             renderWebPartnersSlider();
+            renderHeader();
             renderFooter();
         };
 
@@ -2612,6 +2793,7 @@
                     motorSpecs,
                     youtubeVideoId,
                     isHeroVideoEnabled,
+                    headerConfig,
                     footerConfig
                 }));
                 await setDoc(docRef, payload, { merge: true });
@@ -2762,6 +2944,7 @@
                 renderAdminTeamsGrid();
                 renderAdminSponsorsSection();
                 renderAdminWebPartnersGrid();
+                renderAdminHeaderEditor();
                 renderAdminFooterEditor();
                 switchAdminSubTab(currentAdminSubTab);
             }
@@ -2824,7 +3007,7 @@
         function switchAdminSubTab(sub) {
             currentAdminSubTab = sub;
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'categories', 'motors', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'footer'].forEach(s => {
+            ['results', 'skills', 'riders', 'categories', 'motors', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'header', 'footer'].forEach(s => {
                 const btn = document.getElementById(`admin-sub-btn-${s}`);
                 if (btn) {
                     if (s === sub) {
@@ -2845,6 +3028,7 @@
             }
             if (sub === 'calendar') renderAdminCalendarTable();
             if (sub === 'video') updateHeroVideoPlayer();
+            if (sub === 'header') renderAdminHeaderEditor();
             if (sub === 'footer') renderAdminFooterEditor();
             if (sub === 'motors') {
                 renderAdminMotorsTable();
@@ -6226,8 +6410,262 @@
             });
         }
 
+        function getHeaderLogoMarkup(cfg, previewMode = false) {
+            const logoHeight = Math.min(80, Math.max(28, Number(cfg.logoHeight) || 48));
+            const bgStyle = cfg.logoBgStyle === 'light' || cfg.logoBgStyle === 'dark' ? cfg.logoBgStyle : 'none';
+            const safeLogo = cfg.logoType === 'image' ? normalizeLogoUrl(cfg.logoUrl) : '';
+            const altText = [cfg.brandTitle, cfg.brandAccent, cfg.brandBadge].filter(Boolean).join(' ') || 'Logo';
+
+            if (cfg.logoType === 'image' && safeLogo) {
+                const wrapperClass = bgStyle === 'light'
+                    ? 'bg-white border border-slate-200 px-2.5 py-1.5 rounded-xl shadow-md flex items-center justify-center'
+                    : bgStyle === 'dark'
+                        ? 'bg-slate-900/90 border border-slate-700 px-2.5 py-1.5 rounded-xl shadow-md flex items-center justify-center'
+                        : 'flex items-center justify-center';
+                const maxW = previewMode ? '100%' : '240px';
+                const fallbackHtml = previewMode
+                    ? '<span class=&quot;text-xs text-red-400 font-bold&quot;>Obrázek loga se nepodařilo načíst</span>'
+                    : '<div class=&quot;bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 p-2.5 sm:p-3 rounded-2xl font-black text-lg sm:text-2xl shadow-lg flex items-center justify-center transform -rotate-2&quot;><i class=&quot;fa-solid fa-bolt&quot;></i></div>';
+                return `<div class="${wrapperClass}"><img src="${escapeHtml(safeLogo)}" alt="${escapeHtml(altText)}" style="height: ${logoHeight}px; max-width: ${maxW};" class="w-auto object-contain rounded-lg" onerror="this.outerHTML='${fallbackHtml}'"></div>`;
+            }
+
+            if (cfg.logoType === 'image' && previewMode) {
+                return `<span class="text-xs text-slate-500 italic text-center">Nahrajte obrázek loga nebo vložte platnou URL adresu</span>`;
+            }
+
+            return `<div class="bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 p-2.5 sm:p-3 rounded-2xl font-black text-lg sm:text-2xl shadow-lg flex items-center justify-center transform -rotate-2"><i class="fa-solid fa-bolt"></i></div>`;
+        }
+
+        function renderHeader(overrideCfg) {
+            const cfg = overrideCfg ? { ...headerConfig, ...overrideCfg } : headerConfig;
+            const logoWrapEl = document.getElementById('site-header-logo-wrap');
+            const brandEl = document.getElementById('site-header-brand');
+            const subEl = document.getElementById('site-header-subtitle');
+
+            if (logoWrapEl) {
+                logoWrapEl.innerHTML = getHeaderLogoMarkup(cfg, false);
+            }
+            if (brandEl) {
+                const mainPart = escapeHtml(cfg.brandTitle || '');
+                const accentPart = escapeHtml(cfg.brandAccent || '');
+                const badgePart = escapeHtml(cfg.brandBadge || '');
+                const hasAnyBrandText = !!(String(cfg.brandTitle || '').trim() || String(cfg.brandAccent || '').trim() || String(cfg.brandBadge || '').trim());
+                brandEl.innerHTML = `${mainPart}${mainPart && accentPart ? ' ' : ''}${accentPart ? `<span class="text-amber-400">${accentPart}</span>` : ''}${badgePart ? ` <span class="text-xs bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full font-bold ml-1">${badgePart}</span>` : ''}`;
+                brandEl.classList.toggle('hidden', !hasAnyBrandText);
+            }
+            if (subEl) {
+                subEl.textContent = cfg.subtitle || '';
+                subEl.classList.toggle('hidden', !String(cfg.subtitle || '').trim());
+            }
+            const nextTitle = String(cfg.pageTitle || '').trim() || defaultHeaderConfig.pageTitle;
+            if (document.title !== nextTitle) {
+                document.title = nextTitle;
+            }
+        }
+
+        function toggleHeaderLogoTypeInputs() {
+            const typeEl = document.getElementById('header-edit-logo-type');
+            const controlsEl = document.getElementById('header-logo-image-controls');
+            const hintEl = document.getElementById('header-logo-icon-hint');
+            const isImage = typeEl && typeEl.value === 'image';
+            if (controlsEl) controlsEl.classList.toggle('hidden', !isImage);
+            if (hintEl) hintEl.classList.toggle('hidden', !!isImage);
+        }
+
+        function updateHeaderLogoPreview(cfg) {
+            const targetCfg = cfg || headerConfig;
+            const heightValEl = document.getElementById('header-edit-logo-height-val');
+            const previewEl = document.getElementById('header-edit-logo-preview');
+            const h = Math.min(80, Math.max(28, Number(targetCfg.logoHeight) || 48));
+            if (heightValEl) heightValEl.textContent = `${h} px`;
+            if (previewEl) {
+                previewEl.innerHTML = getHeaderLogoMarkup(targetCfg, true);
+            }
+        }
+
+        function getHeaderEditorDraft() {
+            const heightRaw = Number(document.getElementById('header-edit-logo-height')?.value);
+            return {
+                brandTitle: document.getElementById('header-edit-brand-title')?.value ?? headerConfig.brandTitle,
+                brandAccent: document.getElementById('header-edit-brand-accent')?.value ?? headerConfig.brandAccent,
+                brandBadge: document.getElementById('header-edit-brand-badge')?.value ?? headerConfig.brandBadge,
+                subtitle: document.getElementById('header-edit-subtitle')?.value ?? headerConfig.subtitle,
+                pageTitle: document.getElementById('header-edit-page-title')?.value ?? headerConfig.pageTitle,
+                logoType: document.getElementById('header-edit-logo-type')?.value === 'image' ? 'image' : 'icon',
+                logoUrl: document.getElementById('header-edit-logo-url')?.value ?? headerConfig.logoUrl,
+                logoHeight: Number.isFinite(heightRaw) ? Math.min(80, Math.max(28, heightRaw)) : (headerConfig.logoHeight || 48),
+                logoBgStyle: document.getElementById('header-edit-logo-bg')?.value || headerConfig.logoBgStyle || 'none'
+            };
+        }
+
+        function previewHeaderLive() {
+            const draft = getHeaderEditorDraft();
+            updateHeaderLogoPreview(draft);
+            renderHeader(draft);
+        }
+
+        function handleHeaderLogoFileUpload(event) {
+            const file = event && event.target && event.target.files ? event.target.files[0] : null;
+            if (!file) return;
+            const infoEl = document.getElementById('header-edit-logo-file-info');
+            const urlInput = document.getElementById('header-edit-logo-url');
+            const typeSelect = document.getElementById('header-edit-logo-type');
+
+            if (!file.type || !file.type.startsWith('image/')) {
+                showModal("Chyba", "Vyberte prosím obrázkový soubor (PNG, JPG, WebP nebo SVG).");
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const rawDataUrl = e.target.result;
+                if (typeSelect) typeSelect.value = 'image';
+                toggleHeaderLogoTypeInputs();
+
+                // Keep small SVG logos crisp without rasterizing
+                if (file.type === 'image/svg+xml' && rawDataUrl.length <= 65000) {
+                    if (urlInput) urlInput.value = rawDataUrl;
+                    if (infoEl) infoEl.textContent = `Načteno SVG logo (${Math.max(1, Math.round(rawDataUrl.length / 1024))} KB) ✓`;
+                    previewHeaderLive();
+                    event.target.value = '';
+                    return;
+                }
+
+                const img = new Image();
+                img.onload = function() {
+                    const maxW = 420;
+                    const maxH = 160;
+                    const scale = Math.min(1, maxW / img.width, maxH / img.height);
+                    const targetW = Math.max(1, Math.round(img.width * scale));
+                    const targetH = Math.max(1, Math.round(img.height * scale));
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = targetW;
+                    canvas.height = targetH;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, targetW, targetH);
+                    ctx.drawImage(img, 0, 0, targetW, targetH);
+
+                    let optimized = canvas.toDataURL('image/webp', 0.88);
+                    if (!optimized.startsWith('data:image/webp')) {
+                        optimized = canvas.toDataURL('image/png');
+                    }
+                    if (optimized.length > 160000) {
+                        optimized = canvas.toDataURL('image/webp', 0.68);
+                    }
+                    if (urlInput) urlInput.value = optimized;
+                    if (infoEl) {
+                        const kb = Math.max(1, Math.round((optimized.length * 0.75) / 1024));
+                        infoEl.textContent = `Logo optimalizováno (${targetW}×${targetH} px, cca ${kb} KB) ✓`;
+                    }
+                    previewHeaderLive();
+                    event.target.value = '';
+                };
+                img.onerror = function() {
+                    showModal("Chyba", "Nepodařilo se načíst vybraný obrázek loga.");
+                    event.target.value = '';
+                };
+                img.src = rawDataUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearHeaderCustomLogo() {
+            const typeEl = document.getElementById('header-edit-logo-type');
+            const urlEl = document.getElementById('header-edit-logo-url');
+            const infoEl = document.getElementById('header-edit-logo-file-info');
+            if (typeEl) typeEl.value = 'icon';
+            if (urlEl) urlEl.value = '';
+            if (infoEl) infoEl.textContent = '';
+            toggleHeaderLogoTypeInputs();
+            previewHeaderLive();
+        }
+
+        async function saveHeaderConfig() {
+            const draft = getHeaderEditorDraft();
+            const normalizedUrl = draft.logoType === 'image' ? normalizeLogoUrl(draft.logoUrl) : '';
+            if (draft.logoType === 'image' && !normalizedUrl) {
+                showModal("Chyba", "Vybrali jste vlastní obrázkové logo. Nahrajte prosím obrázek nebo vložte platnou URL adresu loga (https://...).");
+                return;
+            }
+
+            const prevHeaderConfig = JSON.parse(JSON.stringify(headerConfig));
+            headerConfig = {
+                brandTitle: String(draft.brandTitle || '').trim(),
+                brandAccent: String(draft.brandAccent || '').trim(),
+                brandBadge: String(draft.brandBadge || '').trim(),
+                subtitle: String(draft.subtitle || '').trim(),
+                pageTitle: String(draft.pageTitle || '').trim() || defaultHeaderConfig.pageTitle,
+                logoType: draft.logoType === 'image' ? 'image' : 'icon',
+                logoUrl: normalizedUrl,
+                logoHeight: Math.min(80, Math.max(28, Number(draft.logoHeight) || 48)),
+                logoBgStyle: draft.logoBgStyle === 'light' || draft.logoBgStyle === 'dark' ? draft.logoBgStyle : 'none'
+            };
+
+            const estimatedBytes = JSON.stringify({ teams, riders, calendar, ageCategories, webPartners, headerConfig, footerConfig, raceResults }).length;
+            if (estimatedBytes > 920000) {
+                headerConfig = prevHeaderConfig;
+                renderHeader();
+                renderAdminHeaderEditor();
+                showModal("Limit velikosti Firebase", "Celková velikost nahraných obrázků se blíží limitu databáze (1 MB). Pro logo v hlavičce prosím použijte menší obrázek nebo URL odkaz.");
+                return;
+            }
+
+            renderHeader();
+            renderAdminHeaderEditor();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", "Horní hlavička (Top Header) včetně loga byla uložena do Firebase a okamžitě aktualizována na webu!");
+            } else {
+                headerConfig = prevHeaderConfig;
+                renderHeader();
+                renderAdminHeaderEditor();
+                showModal("Chyba databáze Firebase", `Nastavení horní hlavičky se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function resetHeaderToDefault() {
+            if (!confirm("Opravdu chcete obnovit všechny texty a logo v horní hlavičce (Top Header) do výchozího nastavení?")) return;
+            const prevHeaderConfig = JSON.parse(JSON.stringify(headerConfig));
+            headerConfig = JSON.parse(JSON.stringify(defaultHeaderConfig));
+            const infoEl = document.getElementById('header-edit-logo-file-info');
+            if (infoEl) infoEl.textContent = '';
+            renderHeader();
+            renderAdminHeaderEditor();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Obnoveno", "Top Header byl obnoven do výchozího nastavení a uložen do Firebase.");
+            } else {
+                headerConfig = prevHeaderConfig;
+                renderHeader();
+                renderAdminHeaderEditor();
+                showModal("Chyba databáze Firebase", `Obnovení horní hlavičky se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        function renderAdminHeaderEditor() {
+            const setInputSafe = (id, value) => {
+                const el = document.getElementById(id);
+                if (el && document.activeElement !== el) {
+                    el.value = value ?? '';
+                }
+            };
+            setInputSafe('header-edit-brand-title', headerConfig.brandTitle);
+            setInputSafe('header-edit-brand-accent', headerConfig.brandAccent);
+            setInputSafe('header-edit-brand-badge', headerConfig.brandBadge);
+            setInputSafe('header-edit-subtitle', headerConfig.subtitle);
+            setInputSafe('header-edit-page-title', headerConfig.pageTitle);
+            setInputSafe('header-edit-logo-type', headerConfig.logoType === 'image' ? 'image' : 'icon');
+            setInputSafe('header-edit-logo-url', headerConfig.logoUrl || '');
+            setInputSafe('header-edit-logo-height', Math.min(80, Math.max(28, Number(headerConfig.logoHeight) || 48)));
+            setInputSafe('header-edit-logo-bg', headerConfig.logoBgStyle || 'none');
+            toggleHeaderLogoTypeInputs();
+            updateHeaderLogoPreview(headerConfig);
+        }
+
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, footerConfig, availableMotors, motorHandicaps, motorSpecs, raceResults };
+            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, headerConfig, footerConfig, availableMotors, motorHandicaps, motorSpecs, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -6261,6 +6699,12 @@
                     if (typeof data.isHeroVideoEnabled === 'boolean') {
                         isHeroVideoEnabled = data.isHeroVideoEnabled;
                     }
+                    if (data.headerConfig && typeof data.headerConfig === 'object') {
+                        headerConfig = {
+                            ...JSON.parse(JSON.stringify(defaultHeaderConfig)),
+                            ...data.headerConfig
+                        };
+                    }
                     if (data.footerConfig && typeof data.footerConfig === 'object') {
                         footerConfig = {
                             ...JSON.parse(JSON.stringify(defaultFooterConfig)),
@@ -6287,12 +6731,14 @@
                     renderAdminTeamsGrid();
                     renderAdminSponsorsSection();
                     renderAdminWebPartnersGrid();
+                    renderAdminHeaderEditor();
                     renderAdminFooterEditor();
                     renderCalendar();
                     renderPublicLeaderboards();
                     renderPublicRaceResults();
                     renderTeamsAndRidersView();
                     renderWebPartnersSlider();
+                    renderHeader();
                     renderFooter();
                     showModal("Úspěch", "Data byla úspěšně obnovena ze zálohy!");
                 } catch(err) {
@@ -6312,6 +6758,7 @@
                 populatePublicRaceResultsSelect();
                 renderCalendar();
                 renderWebPartnersSlider();
+                renderHeader();
                 renderFooter();
                 filterMotorReferenceCatalog();
             }, 300);
