@@ -85,10 +85,36 @@
             padding-right: 1.25rem;
             flex-shrink: 0;
         }
+        .partner-slider-caption {
+            max-height: 120px;
+            opacity: 1;
+            margin-bottom: 1rem;
+            transform: translateY(0);
+            overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.3s ease, margin-bottom 0.35s ease, transform 0.3s ease;
+        }
+        .partner-slider-hover-caption .partner-slider-caption {
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
+            transform: translateY(-6px);
+            pointer-events: none;
+        }
+        .partner-slider-hover-caption:hover .partner-slider-caption,
+        .partner-slider-hover-caption:focus-within .partner-slider-caption {
+            max-height: 120px;
+            opacity: 1;
+            margin-bottom: 1rem;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
         @media (prefers-reduced-motion: reduce) {
             .partner-marquee-track {
                 animation: none;
                 transform: translateX(0);
+            }
+            .partner-slider-caption {
+                transition: none;
             }
         }
     </style>
@@ -452,8 +478,8 @@
             </div>
 
             <!-- Public Running Website Partners Logo Slider (Left to Right) -->
-            <div id="public-web-partners-section" class="hidden mt-10 bg-[#0f172a] border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 overflow-hidden">
-                <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div id="public-web-partners-section" class="hidden mt-10 bg-[#0f172a] border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl overflow-hidden">
+                <div class="partner-slider-caption flex items-center justify-between gap-3 flex-wrap">
                     <div class="flex items-center gap-2.5">
                         <span class="w-8 h-8 rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-400 flex items-center justify-center text-sm shadow">
                             <i class="fa-solid fa-award"></i>
@@ -1042,18 +1068,55 @@
                         </button>
                     </div>
 
+                    <!-- Special Slider Mode Toggle: Hide Caption Until Hover -->
+                    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <h4 class="text-sm font-black text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                                    Speciální funkce slideru: Skrytý textový popisek bez myši
+                                </h4>
+                                <span id="web-partners-hover-mode-status" class="text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+                                    Neaktivní
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                Při aktivaci jsou divákům viditelná <strong class="text-slate-200">pouze běžící loga partnerů webu</strong>. Textový popisek (<em>„Partneři webu – Oficiální partneři a podporovatelé Central Europe e-MTB Tour 2027“</em>) se automaticky skryje a znovu se objeví až po najetí šipkou myši na slider.
+                            </p>
+                        </div>
+                        <button type="button" id="btn-toggle-web-partners-hover-mode" onclick="toggleWebPartnersHoverCaptionMode()" class="w-full md:w-auto shrink-0 px-5 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow">
+                            <i class="fa-solid fa-eye-slash"></i> Aktivovat skrytí popisku
+                        </button>
+                    </div>
+
                     <!-- Live Slider Preview in Admin -->
                     <div id="admin-web-partners-preview-box" class="hidden bg-[#0f172a] border border-slate-800 rounded-2xl p-4 space-y-3 overflow-hidden">
-                        <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
                             <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
                                 <i class="fa-solid fa-eye"></i> Živý náhled běžícího slideru (zleva doprava →)
                             </h4>
-                            <span class="text-[11px] text-slate-400">Takto uvidí loga diváci na spodu webu pod žebříčky</span>
+                            <span id="admin-web-partners-preview-hint" class="text-[11px] text-slate-400">Takto uvidí loga diváci na spodu webu pod žebříčky</span>
                         </div>
-                        <div class="partner-marquee-viewport py-1">
-                            <div class="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-[#0f172a] to-transparent z-10"></div>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-[#0f172a] to-transparent z-10"></div>
-                            <div id="admin-web-partners-preview-track" class="partner-marquee-track"></div>
+                        <div id="admin-web-partners-preview-card" class="bg-[#0b1222] border border-slate-800 rounded-2xl p-4 overflow-hidden">
+                            <div class="partner-slider-caption flex items-center justify-between gap-3 flex-wrap">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-7 h-7 rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-400 flex items-center justify-center text-xs shadow">
+                                        <i class="fa-solid fa-award"></i>
+                                    </span>
+                                    <div>
+                                        <div class="text-xs sm:text-sm font-black uppercase tracking-wider text-white">Partneři webu</div>
+                                        <div class="text-[11px] text-slate-400 font-medium">Oficiální partneři a podporovatelé Central Europe e-MTB Tour 2027</div>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] uppercase tracking-widest font-bold text-slate-500 hidden sm:inline-flex items-center gap-1.5">
+                                    <i class="fa-solid fa-arrows-left-right text-amber-400/70"></i> Najetím myší pozastavíte
+                                </span>
+                            </div>
+                            <div class="partner-marquee-viewport py-1">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-[#0b1222] to-transparent z-10"></div>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-[#0b1222] to-transparent z-10"></div>
+                                <div id="admin-web-partners-preview-track" class="partner-marquee-track"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -1795,6 +1858,7 @@
         let calendar = defaultCalendar;
         let ageCategories = defaultAgeCategories.map(c => ({ ...c }));
         let webPartners = [];
+        let webPartnersHideCaptionUntilHover = false;
         let youtubeVideoId = 'dQw4w9WgXcQ';
         let isVideoCollapsed = false;
 
@@ -2014,6 +2078,9 @@
                     if (data.calendar && Array.isArray(data.calendar)) calendar = data.calendar;
                     if (Array.isArray(data.ageCategories)) ageCategories = data.ageCategories;
                     if (Array.isArray(data.webPartners)) webPartners = data.webPartners;
+                    if (typeof data.webPartnersHideCaptionUntilHover === 'boolean') {
+                        webPartnersHideCaptionUntilHover = data.webPartnersHideCaptionUntilHover;
+                    }
                     if (data.raceResults) raceResults = data.raceResults;
                     if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
@@ -2062,6 +2129,7 @@
             calendar = defaultCalendar.map(c => ({ ...c }));
             ageCategories = defaultAgeCategories.map(c => ({ ...c }));
             webPartners = [];
+            webPartnersHideCaptionUntilHover = false;
             availableMotors = [...defaultAvailableMotors];
             motorHandicaps = { ...defaultMotorHandicaps };
             motorSpecs = JSON.parse(JSON.stringify(defaultMotorSpecs));
@@ -2092,6 +2160,7 @@
                     calendar,
                     ageCategories,
                     webPartners,
+                    webPartnersHideCaptionUntilHover,
                     raceResults,
                     availableBrands,
                     availableMotors,
@@ -4968,11 +5037,70 @@
             return `<div title="${safeName}" class="${cardClasses}">${innerHtml}</div>`;
         }
 
+        function updateWebPartnersHoverCaptionUI() {
+            const publicSection = document.getElementById('public-web-partners-section');
+            const previewCard = document.getElementById('admin-web-partners-preview-card');
+            const statusEl = document.getElementById('web-partners-hover-mode-status');
+            const btnEl = document.getElementById('btn-toggle-web-partners-hover-mode');
+            const hintEl = document.getElementById('admin-web-partners-preview-hint');
+
+            if (publicSection) {
+                publicSection.classList.toggle('partner-slider-hover-caption', !!webPartnersHideCaptionUntilHover);
+            }
+            if (previewCard) {
+                previewCard.classList.toggle('partner-slider-hover-caption', !!webPartnersHideCaptionUntilHover);
+            }
+            if (statusEl) {
+                if (webPartnersHideCaptionUntilHover) {
+                    statusEl.textContent = 'Aktivní';
+                    statusEl.className = 'text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+                } else {
+                    statusEl.textContent = 'Neaktivní';
+                    statusEl.className = 'text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+                }
+            }
+            if (btnEl) {
+                if (webPartnersHideCaptionUntilHover) {
+                    btnEl.className = 'w-full md:w-auto shrink-0 px-5 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow';
+                    btnEl.innerHTML = '<i class="fa-solid fa-eye"></i> Deaktivovat skrytí popisku';
+                } else {
+                    btnEl.className = 'w-full md:w-auto shrink-0 px-5 py-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-black rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow';
+                    btnEl.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Aktivovat skrytí popisku';
+                }
+            }
+            if (hintEl) {
+                hintEl.textContent = webPartnersHideCaptionUntilHover
+                    ? 'Speciální režim AKTIVNÍ – najetím myší na náhled zobrazíte textový popisek'
+                    : 'Takto uvidí loga diváci na spodu webu pod žebříčky';
+            }
+        }
+
+        async function toggleWebPartnersHoverCaptionMode() {
+            const prevState = webPartnersHideCaptionUntilHover;
+            webPartnersHideCaptionUntilHover = !webPartnersHideCaptionUntilHover;
+            updateWebPartnersHoverCaptionUI();
+            const res = await saveData();
+            if (res.ok) {
+                showModal(
+                    "Nastavení slideru uloženo",
+                    webPartnersHideCaptionUntilHover
+                        ? "Speciální funkce byla AKTIVOVÁNA. Divákům se zobrazují pouze loga partnerů a textový popisek se objeví až po najetí šipkou myši."
+                        : "Speciální funkce byla DEAKTIVOVÁNA. Textový popisek nad sliderem log partnerů je opět trvale viditelný."
+                );
+            } else {
+                webPartnersHideCaptionUntilHover = prevState;
+                updateWebPartnersHoverCaptionUI();
+                showModal("Chyba databáze Firebase", `Změna nastavení slideru se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
         function renderWebPartnersSlider() {
             const publicSection = document.getElementById('public-web-partners-section');
             const publicTrack = document.getElementById('public-web-partners-track');
             const adminPreviewBox = document.getElementById('admin-web-partners-preview-box');
             const adminPreviewTrack = document.getElementById('admin-web-partners-preview-track');
+
+            updateWebPartnersHoverCaptionUI();
 
             if (!Array.isArray(webPartners) || webPartners.length === 0) {
                 if (publicSection) publicSection.classList.add('hidden');
@@ -5005,7 +5133,7 @@
         }
 
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, webPartners, availableMotors, motorHandicaps, motorSpecs, raceResults };
+            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, availableMotors, motorHandicaps, motorSpecs, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -5026,6 +5154,9 @@
                     if (data.calendar) calendar = data.calendar;
                     if (data.ageCategories && Array.isArray(data.ageCategories)) ageCategories = data.ageCategories;
                     if (data.webPartners && Array.isArray(data.webPartners)) webPartners = data.webPartners;
+                    if (typeof data.webPartnersHideCaptionUntilHover === 'boolean') {
+                        webPartnersHideCaptionUntilHover = data.webPartnersHideCaptionUntilHover;
+                    }
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
                     if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
                     if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
