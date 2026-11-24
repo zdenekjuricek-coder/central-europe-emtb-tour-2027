@@ -254,7 +254,7 @@
         <div class="max-w-7xl mx-auto px-3 sm:px-6 flex items-center justify-between gap-2 overflow-x-auto py-2.5 scrollbar-none">
             <div class="flex items-center space-x-2 shrink-0">
                 <button onclick="switchPublicSubTab('leaderboards')" id="sub-btn-leaderboards" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm">
-                    <i class="fa-solid fa-trophy"></i> <span data-i18n="sub_leaderboards">Žebříčky (Tours)</span>
+                    <i class="fa-solid fa-trophy text-slate-950"></i> <span data-i18n="sub_leaderboards">Žebříčky (Tours)</span>
                 </button>
                 <button onclick="switchPublicSubTab('race_results')" id="sub-btn-race-results" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300">
                     <i class="fa-solid fa-list-check text-amber-400"></i> <span data-i18n="sub_race_results">Výsledky dle závodů</span>
@@ -596,7 +596,7 @@
                                     <th class="p-4 w-16">Poř.</th>
                                     <th class="p-4" data-i18n="th_rider">Jezdec</th>
                                     <th class="p-4" data-i18n="th_team">Tým</th>
-                                    <th class="p-4" data-i18n="th_ebike">E-Bike &amp; Motor</th>
+                                    <th class="p-4" data-i18n="th_ebike_type">E-Bike &amp; Typ</th>
                                     <th class="p-4 text-center">Cíl (Body)</th>
                                     <th class="p-4 text-center">Sprinty</th>
                                     <th class="p-4 text-center">KOM</th>
@@ -672,7 +672,7 @@
                     <div class="rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden shadow-xl">
                         <div class="hidden lg:grid lg:grid-cols-12 gap-4 px-5 py-3.5 bg-slate-900/90 border-b border-slate-800 text-[11px] uppercase font-black tracking-wider text-slate-400">
                             <div class="col-span-3">Jezdec, Tým &amp; Kategorie</div>
-                            <div class="col-span-3">E-Bike &amp; Motor</div>
+                            <div class="col-span-3">E-Bike, Typ &amp; Motor</div>
                             <div class="col-span-6">Profil dovedností (1–10)</div>
                         </div>
                         <div id="riders-profiles-grid" class="divide-y divide-slate-800/80"></div>
@@ -908,7 +908,11 @@
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Značka E-Biku</label>
                             <select id="new-rider-ebike" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none"></select>
                         </div>
-                        <div class="sm:col-span-2">
+                        <div>
+                            <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název typu E-Biku</label>
+                            <input type="text" id="new-rider-ebike-model" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. e-Full 11.11, Levo Pro">
+                        </div>
+                        <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Motor & Pohon</label>
                             <select id="new-rider-motor" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none"></select>
                         </div>
@@ -938,6 +942,7 @@
                                     <th class="p-3">Tým</th>
                                     <th class="p-3">Věková kategorie</th>
                                     <th class="p-3">E-Bike</th>
+                                    <th class="p-3">Typ E-Biku</th>
                                     <th class="p-3">Motor</th>
                                     <th class="p-3 text-right">Akce</th>
                                 </tr>
@@ -1846,6 +1851,7 @@
                 th_rider: "Jezdec",
                 th_team: "Tým",
                 th_ebike: "E-Bike značka",
+                th_ebike_type: "E-Bike & Typ",
                 th_motor: "Motor",
                 th_points: "Body",
                 race_results_title: "Výsledkové listiny jednotlivých závodů",
@@ -1923,6 +1929,7 @@
                 th_rider: "Jazdec",
                 th_team: "Tím",
                 th_ebike: "E-Bike značka",
+                th_ebike_type: "E-Bike & Typ",
                 th_motor: "Motor",
                 th_points: "Body",
                 race_results_title: "Výsledkové listiny jednotlivých pretekov",
@@ -2000,6 +2007,7 @@
                 th_rider: "Kolarz",
                 th_team: "Zespół",
                 th_ebike: "Marka E-Bike",
+                th_ebike_type: "E-Bike i Typ",
                 th_motor: "Silnik",
                 th_points: "Punkty",
                 race_results_title: "Wyniki poszczególnych wyścigów",
@@ -2077,6 +2085,7 @@
                 th_rider: "Fahrer",
                 th_team: "Team",
                 th_ebike: "E-Bike Marke",
+                th_ebike_type: "E-Bike & Typ",
                 th_motor: "Motor",
                 th_points: "Punkte",
                 race_results_title: "Ergebnisse pro Rennen",
@@ -2154,6 +2163,7 @@
                 th_rider: "Rider",
                 th_team: "Team",
                 th_ebike: "E-Bike Brand",
+                th_ebike_type: "E-Bike & Model",
                 th_motor: "Motor",
                 th_points: "Points",
                 race_results_title: "Race Results per Event",
@@ -2382,12 +2392,12 @@
         ];
 
         let defaultRiders = [
-            { id: 'r1', name: 'Martin Varga', country: 'SK', team: 'Tatry e-Bike Squad', category: 'Elite', ebike: 'CTM', motor: 'Bosch CX Race', skills: { cond: 9, tech: 8, battery: 9, sprint: 8, kom: 9 } },
-            { id: 'r2', name: 'Lukáš Kovář', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'Crussis', motor: 'DJI Avinox', skills: { cond: 8, tech: 9, battery: 8, sprint: 9, kom: 8 } },
-            { id: 'r3', name: 'Piotr Zieliński', country: 'PL', team: 'Sudety Volt Factory', category: 'Masters', ebike: 'Kellys', motor: 'Shimano EP801', skills: { cond: 8, tech: 8, battery: 9, sprint: 7, kom: 8 } },
-            { id: 'r4', name: 'Marek Dvořák', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'FOCUS', motor: 'Brose S Mag', skills: { cond: 7, tech: 7, battery: 8, sprint: 8, kom: 7 } },
-            { id: 'r5', name: 'Tereza Novotná', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Women', ebike: 'Specialized', motor: 'Yamaha PW-X3', skills: { cond: 8, tech: 8, battery: 9, sprint: 7, kom: 8 } },
-            { id: 'r6', name: 'Zoltán Kovács', country: 'HU', team: 'Balaton e-Power Team', category: 'Elite', ebike: 'Cube', motor: 'Bosch CX Race', skills: { cond: 9, tech: 8, battery: 8, sprint: 9, kom: 8 } }
+            { id: 'r1', name: 'Martin Varga', country: 'SK', team: 'Tatry e-Bike Squad', category: 'Elite', ebike: 'CTM', ebikeModel: 'Switch Pro', motor: 'Bosch CX Race', skills: { cond: 9, tech: 8, battery: 9, sprint: 8, kom: 9 } },
+            { id: 'r2', name: 'Lukáš Kovář', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'Crussis', ebikeModel: 'e-Full 11.11', motor: 'DJI Avinox', skills: { cond: 8, tech: 9, battery: 8, sprint: 9, kom: 8 } },
+            { id: 'r3', name: 'Piotr Zieliński', country: 'PL', team: 'Sudety Volt Factory', category: 'Masters', ebike: 'Kellys', ebikeModel: 'Theos F90', motor: 'Shimano EP801', skills: { cond: 8, tech: 8, battery: 9, sprint: 7, kom: 8 } },
+            { id: 'r4', name: 'Marek Dvořák', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Elite', ebike: 'FOCUS', ebikeModel: 'Jam² 8.9', motor: 'Brose S Mag', skills: { cond: 7, tech: 7, battery: 8, sprint: 8, kom: 7 } },
+            { id: 'r5', name: 'Tereza Novotná', country: 'CZ', team: 'eMTB Vamos Rápido', category: 'Women', ebike: 'Specialized', ebikeModel: 'Turbo Levo Pro', motor: 'Yamaha PW-X3', skills: { cond: 8, tech: 8, battery: 9, sprint: 7, kom: 8 } },
+            { id: 'r6', name: 'Zoltán Kovács', country: 'HU', team: 'Balaton e-Power Team', category: 'Elite', ebike: 'Cube', ebikeModel: 'Stereo Hybrid ONE55', motor: 'Bosch CX Race', skills: { cond: 9, tech: 8, battery: 8, sprint: 9, kom: 8 } }
         ];
 
         let defaultCalendar = [
@@ -2959,34 +2969,49 @@
 
             ['sub-btn-leaderboards', 'sub-btn-race-results', 'sub-btn-calendar', 'sub-btn-teams'].forEach(id => {
                 const btn = document.getElementById(id);
-                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300";
+                if (btn) {
+                    btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-2 whitespace-nowrap text-slate-300";
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('text-slate-950');
+                        icon.classList.add('text-amber-400');
+                    }
+                }
             });
+
+            const setActivePublicSubBtn = (btnId) => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('text-amber-400');
+                        icon.classList.add('text-slate-950');
+                    }
+                }
+            };
 
             if (sub === 'leaderboards') {
                 const target = document.getElementById('subview-leaderboards');
                 if (target) target.classList.remove('hidden');
-                const btn = document.getElementById('sub-btn-leaderboards');
-                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                setActivePublicSubBtn('sub-btn-leaderboards');
                 renderPublicLeaderboards();
             } else if (sub === 'race_results') {
                 const target = document.getElementById('subview-race-results');
                 if (target) target.classList.remove('hidden');
-                const btn = document.getElementById('sub-btn-race-results');
-                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                setActivePublicSubBtn('sub-btn-race-results');
                 populateCategorySelects();
                 populatePublicRaceResultsSelect();
                 renderPublicRaceResults();
             } else if (sub === 'calendar') {
                 const target = document.getElementById('subview-calendar');
                 if (target) target.classList.remove('hidden');
-                const btn = document.getElementById('sub-btn-calendar');
-                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                setActivePublicSubBtn('sub-btn-calendar');
                 renderCalendar();
             } else if (sub === 'teams') {
                 const target = document.getElementById('subview-teams');
                 if (target) target.classList.remove('hidden');
-                const btn = document.getElementById('sub-btn-teams');
-                if (btn) btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 whitespace-nowrap shadow-sm";
+                setActivePublicSubBtn('sub-btn-teams');
                 renderTeamsAndRidersView();
             }
         }
@@ -3151,13 +3176,21 @@
             }
             if (pinkSorted.length > 0) {
                 document.getElementById('hero-pink-name').innerHTML = formatHeroRiderHtml(pinkSorted[0].rider);
-                document.getElementById('hero-pink-brand').textContent = `${pinkSorted[0].rider.ebike} (${pinkSorted[0].rider.motor})`;
+                const pinkLeaderModel = String(pinkSorted[0].rider.ebikeModel || '').trim();
+                document.getElementById('hero-pink-brand').textContent = pinkLeaderModel
+                    ? `${pinkSorted[0].rider.ebike} (${pinkLeaderModel})`
+                    : pinkSorted[0].rider.ebike;
                 document.getElementById('hero-pink-pts').textContent = pinkSorted[0].totalPink + ' b.';
             } else {
                 document.getElementById('hero-pink-name').textContent = '--';
                 document.getElementById('hero-pink-brand').textContent = 'Žádný jezdec v kategorii';
                 document.getElementById('hero-pink-pts').textContent = '0 b.';
             }
+
+            const formatEbikeModelCell = (model) => {
+                const text = String(model || '').trim();
+                return text ? escapeHtml(text) : '<span class="text-slate-500 italic">—</span>';
+            };
 
             const headerRow = document.getElementById('table-header-row');
             const tbody = document.getElementById('public-table-body');
@@ -3169,7 +3202,7 @@
                     <th class="p-4">Jezdec</th>
                     <th class="p-4">Tým</th>
                     <th class="p-4">E-Bike značka</th>
-                    <th class="p-4">Motor</th>
+                    <th class="p-4">Typ E-Biku</th>
                     <th class="p-4 text-right">TOP 7 Body</th>
                 `;
                 yellowSorted.forEach((item, index) => {
@@ -3184,7 +3217,7 @@
                         </td>
                         <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
                         <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
-                        <td class="p-4 text-slate-400 text-xs">${escapeHtml(item.rider.motor)}</td>
+                        <td class="p-4 text-slate-300 text-xs font-semibold">${formatEbikeModelCell(item.rider.ebikeModel)}</td>
                         <td class="p-4 text-right font-black text-amber-400 text-base">${item.totalYellow} b.</td>
                     `;
                     tbody.appendChild(tr);
@@ -3195,7 +3228,7 @@
                     <th class="p-4">Jezdec</th>
                     <th class="p-4">Tým</th>
                     <th class="p-4">E-Bike značka</th>
-                    <th class="p-4">Motor</th>
+                    <th class="p-4">Typ E-Biku</th>
                     <th class="p-4 text-right">Sprint Body</th>
                 `;
                 greenSorted.forEach((item, index) => {
@@ -3210,7 +3243,7 @@
                         </td>
                         <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
                         <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
-                        <td class="p-4 text-slate-400 text-xs">${escapeHtml(item.rider.motor)}</td>
+                        <td class="p-4 text-slate-300 text-xs font-semibold">${formatEbikeModelCell(item.rider.ebikeModel)}</td>
                         <td class="p-4 text-right font-black text-emerald-400 text-base">${item.totalGreen} b.</td>
                     `;
                     tbody.appendChild(tr);
@@ -3221,7 +3254,7 @@
                     <th class="p-4">Jezdec</th>
                     <th class="p-4">Tým</th>
                     <th class="p-4">E-Bike značka</th>
-                    <th class="p-4">Motor</th>
+                    <th class="p-4">Typ E-Biku</th>
                     <th class="p-4 text-right">KOM Body</th>
                 `;
                 polkaSorted.forEach((item, index) => {
@@ -3236,7 +3269,7 @@
                         </td>
                         <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
                         <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
-                        <td class="p-4 text-slate-400 text-xs">${escapeHtml(item.rider.motor)}</td>
+                        <td class="p-4 text-slate-300 text-xs font-semibold">${formatEbikeModelCell(item.rider.ebikeModel)}</td>
                         <td class="p-4 text-right font-black text-red-500 text-base">${item.totalPolka} b.</td>
                     `;
                     tbody.appendChild(tr);
@@ -3246,14 +3279,14 @@
                     <th class="p-4 w-16">Poř.</th>
                     <th class="p-4">Značka E-Biku / Výrobce</th>
                     <th class="p-4">Tovární top jezdec (Ručně / Auto)</th>
-                    <th class="p-4">Motor</th>
+                    <th class="p-4">Typ E-Biku</th>
                     <th class="p-4 text-right">Konstruktérské Body</th>
                 `;
                 let brandMap = {};
                 arr.forEach(item => {
                     let brand = item.rider.ebike;
                     if (!brandMap[brand]) {
-                        brandMap[brand] = { brand: brand, totalPts: 0, ridersOfBrand: [], motor: item.rider.motor };
+                        brandMap[brand] = { brand: brand, totalPts: 0, ridersOfBrand: [] };
                     }
                     brandMap[brand].totalPts += item.totalPink;
                     brandMap[brand].ridersOfBrand.push(item);
@@ -3261,26 +3294,36 @@
 
                 let brandArr = Object.values(brandMap).map(bItem => {
                     let topRiderName = '--';
-                    let manualRider = null;
+                    let manualRiderObj = null;
                     teams.forEach(t => {
                         if (t.brand === bItem.brand && t.featuredRiderId) {
                             let found = riders.find(r => r.id === t.featuredRiderId);
-                            if (found) manualRider = found.name;
+                            if (found) manualRiderObj = found;
                         }
                     });
 
-                    if (manualRider) {
-                        topRiderName = escapeHtml(manualRider) + ' <span class="text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded font-bold ml-1">Manual</span>';
+                    bItem.ridersOfBrand.sort((x, y) => y.totalPink - x.totalPink);
+                    if (manualRiderObj) {
+                        topRiderName = escapeHtml(manualRiderObj.name) + ' <span class="text-[10px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded font-bold ml-1">Manual</span>';
                     } else if (bItem.ridersOfBrand.length > 0) {
-                        bItem.ridersOfBrand.sort((x, y) => y.totalPink - x.totalPink);
                         topRiderName = escapeHtml(bItem.ridersOfBrand[0].rider.name) + ' <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold ml-1">Auto (Leader)</span>';
                     }
+
+                    const modelSet = new Set();
+                    const orderedForModels = [
+                        ...(manualRiderObj ? [manualRiderObj] : []),
+                        ...bItem.ridersOfBrand.map(x => x.rider)
+                    ];
+                    orderedForModels.forEach(r => {
+                        const m = String(r && r.ebikeModel || '').trim();
+                        if (m) modelSet.add(m);
+                    });
 
                     return {
                         brand: bItem.brand,
                         totalPts: bItem.totalPts,
                         topRider: topRiderName,
-                        motor: bItem.motor
+                        ebikeModels: Array.from(modelSet).join(', ')
                     };
                 }).sort((a, b) => b.totalPts - a.totalPts);
 
@@ -3291,7 +3334,7 @@
                         <td class="p-4 font-black text-pink-400">${index + 1}.</td>
                         <td class="p-4 font-bold text-white text-base">${escapeHtml(bItem.brand)}</td>
                         <td class="p-4 text-slate-300 font-medium">${bItem.topRider}</td>
-                        <td class="p-4 text-slate-400 text-xs">${escapeHtml(bItem.motor)}</td>
+                        <td class="p-4 text-slate-300 text-xs font-semibold">${formatEbikeModelCell(bItem.ebikeModels)}</td>
                         <td class="p-4 text-right font-black text-pink-400 text-base">${bItem.totalPts} b.</td>
                     `;
                     tbody.appendChild(tr);
@@ -3678,6 +3721,7 @@
                 const tr = document.createElement('tr');
                 tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
                 const riderSponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
+                const ebikeModelText = String(item.rider.ebikeModel || '').trim();
                 tr.innerHTML = `
                     <td class="p-4 font-black ${rankColor}">${rankText}</td>
                     <td class="p-4 font-bold text-white">
@@ -3686,7 +3730,7 @@
                         ${riderSponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${riderSponsorBadges}</div>` : ''}
                     </td>
                     <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
-                    <td class="p-4 text-slate-200 text-xs font-bold">${escapeHtml(item.rider.ebike)} <span class="text-slate-400">(${escapeHtml(item.rider.motor)})</span></td>
+                    <td class="p-4 text-slate-200 text-xs font-bold">${escapeHtml(item.rider.ebike)}${ebikeModelText ? ` <span class="text-slate-300 font-semibold">(${escapeHtml(ebikeModelText)})</span>` : ''}</td>
                     <td class="p-4 text-center font-bold ${currentRaceResultFilter === 'finish' ? 'text-amber-300 bg-amber-400/5' : 'text-white'}">${item.finish <= 30 ? item.finish + '. m. (' + item.fPts + ' b.)' : 'Nedokončil'}</td>
                     <td class="p-4 text-center font-semibold ${currentRaceResultFilter === 'sprint' ? 'text-emerald-300 font-black bg-emerald-500/10' : 'text-emerald-400'}">${item.sprint !== '-' ? item.sprint + '. m. (' + item.sPts + ' b.)' : '-'}</td>
                     <td class="p-4 text-center font-semibold ${currentRaceResultFilter === 'kom' ? 'text-red-400 font-black bg-red-500/10' : 'text-red-500'}">${item.kom !== '-' ? item.kom + '. m. (' + item.kPts + ' b.)' : '-'}</td>
@@ -3964,9 +4008,12 @@
                                     </div>
                                 </div>
 
-                                <!-- E-Bike & Motor -->
-                                <div class="lg:col-span-3 flex flex-wrap lg:flex-col items-center lg:items-start gap-2 lg:gap-1">
-                                    <span class="bg-amber-400 text-slate-950 text-[11px] font-black px-2.5 py-0.5 rounded-lg">${escapeHtml(r.ebike)}</span>
+                                <!-- E-Bike, Typ & Motor -->
+                                <div class="lg:col-span-3 flex flex-col items-start gap-1.5">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span class="bg-amber-400 text-slate-950 text-[11px] font-black px-2.5 py-0.5 rounded-lg">${escapeHtml(r.ebike)}</span>
+                                        ${r.ebikeModel && String(r.ebikeModel).trim() ? `<span class="bg-amber-400 text-slate-950 text-[11px] font-black px-2.5 py-0.5 rounded-lg">${escapeHtml(String(r.ebikeModel).trim())}</span>` : ''}
+                                    </div>
                                     <span class="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
                                         <i class="fa-solid fa-bolt text-amber-400 text-[10px]"></i> ${escapeHtml(r.motor)}
                                     </span>
@@ -4159,6 +4206,7 @@
             const ageHintEl = document.getElementById('new-rider-age-hint');
             const catEl = document.getElementById('new-rider-cat');
             const ebikeEl = document.getElementById('new-rider-ebike');
+            const ebikeModelEl = document.getElementById('new-rider-ebike-model');
             const motorEl = document.getElementById('new-rider-motor');
             const sponsorsEl = document.getElementById('new-rider-sponsors');
             const sponsorsPreviewEl = document.getElementById('new-rider-sponsors-preview');
@@ -4171,6 +4219,7 @@
             const birthYear = birthYearRaw ? parseInt(birthYearRaw, 10) : null;
             const category = catEl && catEl.value ? catEl.value : (ageCategories[0] ? ageCategories[0].id : 'Elite');
             const ebike = ebikeEl ? ebikeEl.value : 'Crussis';
+            const ebikeModel = ebikeModelEl ? ebikeModelEl.value.trim() : '';
             const motor = motorEl ? motorEl.value : 'Bosch CX Race';
             const sponsors = sponsorsEl ? sponsorsEl.value.trim() : '';
 
@@ -4187,6 +4236,7 @@
                     existing.team = team;
                     existing.category = category;
                     existing.ebike = ebike;
+                    existing.ebikeModel = ebikeModel;
                     existing.motor = motor;
                     existing.sponsors = sponsors;
                     if (birthYear && !isNaN(birthYear)) {
@@ -4221,6 +4271,7 @@
                 team: team,
                 category: category,
                 ebike: ebike,
+                ebikeModel: ebikeModel,
                 motor: motor,
                 sponsors: sponsors,
                 skills: { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 }
@@ -4233,6 +4284,7 @@
             if (nameEl) nameEl.value = '';
             if (birthYearEl) birthYearEl.value = '';
             if (ageHintEl) ageHintEl.textContent = '';
+            if (ebikeModelEl) ebikeModelEl.value = '';
             if (sponsorsEl) sponsorsEl.value = '';
             if (sponsorsPreviewEl) sponsorsPreviewEl.innerHTML = '';
             populateAdminSelects();
@@ -4282,6 +4334,8 @@
             const matchedCat = getCategoryByIdOrName(r.category);
             ensureSelectValue(document.getElementById('new-rider-cat'), matchedCat ? matchedCat.id : (r.category || ''));
             ensureSelectValue(document.getElementById('new-rider-ebike'), r.ebike || '');
+            const ebikeModelEl = document.getElementById('new-rider-ebike-model');
+            if (ebikeModelEl) ebikeModelEl.value = r.ebikeModel || '';
             ensureSelectValue(document.getElementById('new-rider-motor'), r.motor || '');
             const sponsorsEl = document.getElementById('new-rider-sponsors');
             if (sponsorsEl) {
@@ -4300,6 +4354,7 @@
             const nameEl = document.getElementById('new-rider-name');
             const birthYearEl = document.getElementById('new-rider-birthyear');
             const ageHintEl = document.getElementById('new-rider-age-hint');
+            const ebikeModelEl = document.getElementById('new-rider-ebike-model');
             const sponsorsEl = document.getElementById('new-rider-sponsors');
             const sponsorsPreviewEl = document.getElementById('new-rider-sponsors-preview');
             const btnSave = document.getElementById('btn-save-rider');
@@ -4310,6 +4365,7 @@
             if (nameEl) nameEl.value = '';
             if (birthYearEl) birthYearEl.value = '';
             if (ageHintEl) ageHintEl.textContent = '';
+            if (ebikeModelEl) ebikeModelEl.value = '';
             if (sponsorsEl) sponsorsEl.value = '';
             if (sponsorsPreviewEl) sponsorsPreviewEl.innerHTML = '';
             if (btnSave) btnSave.textContent = 'Vytvořit a uložit jezdce';
@@ -4437,6 +4493,9 @@
                         <select onchange="updateRiderField('${escapeHtml(r.id)}', 'ebike', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400">
                             ${extraEbikeOption}${ebikeOptions}
                         </select>
+                    </td>
+                    <td class="p-3 min-w-[165px]">
+                        <input type="text" value="${escapeHtml(r.ebikeModel || '')}" onchange="updateRiderField('${escapeHtml(r.id)}', 'ebikeModel', this.value.trim())" class="w-full bg-slate-800 border border-slate-700 text-amber-200 placeholder-slate-500 text-xs rounded-lg px-2.5 py-2 font-bold outline-none focus:border-amber-400" placeholder="Název typu e-biku...">
                     </td>
                     <td class="p-3">
                         <select onchange="updateRiderField('${escapeHtml(r.id)}', 'motor', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400 max-w-[190px]">
