@@ -537,38 +537,107 @@
                     </div>
 
                     <!-- Race Winners Highlight Cards (Cíl / Sprint / KOM) -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div onclick="switchRaceResultFilter('finish')" id="race-card-finish" class="cursor-pointer bg-gradient-to-br from-amber-500/15 via-[#0f172a] to-slate-900 border-2 border-amber-400/70 rounded-2xl p-4 shadow-lg transition hover:border-amber-400 flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="bg-amber-400 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider">Vítěz závodu (Cíl)</span>
-                                <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                        <!-- Cíl (Yellow Jersey) -->
+                        <div onclick="switchRaceResultFilter('finish')" id="race-card-finish" class="cursor-pointer group bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border-2 border-amber-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
+                            <div>
+                                <div class="flex items-start justify-between gap-3 mb-3">
+                                    <div class="min-w-0 space-y-1">
+                                        <span class="inline-block bg-amber-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Vítěz (Cíl)</span>
+                                        <div class="text-[11px] font-bold text-amber-300/80 truncate">Žlutý dres • Cíl závodu</div>
+                                    </div>
+                                    <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(250,204,21,0.35)] transition-transform duration-300 group-hover:scale-105" aria-label="Žlutý dres – Cíl">
+                                        <defs>
+                                            <linearGradient id="race-jersey-yellow-grad" x1="0" y1="0" x2="1" y2="1">
+                                                <stop offset="0%" stop-color="#fde047"/>
+                                                <stop offset="100%" stop-color="#eab308"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="url(#race-jersey-yellow-grad)" stroke="#fef08a" stroke-width="1.6" stroke-linejoin="round"/>
+                                        <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#854d0e" stroke-width="2.2" stroke-linecap="round"/>
+                                        <line x1="32" y1="15.5" x2="32" y2="34" stroke="#a16207" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                        <path d="M18 52 L46 52" stroke="#ca8a04" stroke-width="2" opacity="0.6"/>
+                                    </svg>
+                                </div>
+                                <div id="race-winner-finish-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                                <div id="race-winner-finish-team" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">Bez výsledku</div>
                             </div>
-                            <div id="race-winner-finish-name" class="text-sm font-black text-white flex items-center gap-1.5">--</div>
-                            <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                                <span id="race-winner-finish-team" class="text-slate-400 font-semibold truncate pr-2">Bez výsledku</span>
-                                <span id="race-winner-finish-pts" class="font-black text-amber-400 whitespace-nowrap">0 b.</span>
+                            <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                                <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">Cíl body</span>
+                                <span id="race-winner-finish-pts" class="text-lg sm:text-xl font-black text-amber-400 tabular-nums whitespace-nowrap">0 b.</span>
                             </div>
                         </div>
-                        <div onclick="switchRaceResultFilter('sprint')" id="race-card-sprint" class="cursor-pointer bg-gradient-to-br from-emerald-500/15 via-[#0f172a] to-slate-900 border border-emerald-500/30 rounded-2xl p-4 shadow-lg transition hover:border-emerald-400 flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="bg-emerald-500 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider">Nejlepší sprinter (Sprint)</span>
-                                <i class="fa-solid fa-bolt text-emerald-400"></i>
+
+                        <!-- Sprint (Green Jersey) -->
+                        <div onclick="switchRaceResultFilter('sprint')" id="race-card-sprint" class="cursor-pointer group bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 hover:border-emerald-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
+                            <div>
+                                <div class="flex items-start justify-between gap-3 mb-3">
+                                    <div class="min-w-0 space-y-1">
+                                        <span class="inline-block bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Sprint</span>
+                                        <div class="text-[11px] font-bold text-emerald-300/80 truncate">Zelený dres • Nejlepší sprinter</div>
+                                    </div>
+                                    <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(16,185,129,0.35)] transition-transform duration-300 group-hover:scale-105" aria-label="Zelený dres – Sprint">
+                                        <defs>
+                                            <linearGradient id="race-jersey-green-grad" x1="0" y1="0" x2="1" y2="1">
+                                                <stop offset="0%" stop-color="#34d399"/>
+                                                <stop offset="100%" stop-color="#059669"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="url(#race-jersey-green-grad)" stroke="#a7f3d0" stroke-width="1.6" stroke-linejoin="round"/>
+                                        <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#064e3b" stroke-width="2.2" stroke-linecap="round"/>
+                                        <line x1="32" y1="15.5" x2="32" y2="34" stroke="#065f46" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                        <path d="M18 52 L46 52" stroke="#047857" stroke-width="2" opacity="0.6"/>
+                                    </svg>
+                                </div>
+                                <div id="race-winner-sprint-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                                <div id="race-winner-sprint-team" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">Bez výsledku</div>
                             </div>
-                            <div id="race-winner-sprint-name" class="text-sm font-black text-white flex items-center gap-1.5">--</div>
-                            <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                                <span id="race-winner-sprint-team" class="text-slate-400 font-semibold truncate pr-2">Bez výsledku</span>
-                                <span id="race-winner-sprint-pts" class="font-black text-emerald-400 whitespace-nowrap">0 b.</span>
+                            <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                                <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">Sprint body</span>
+                                <span id="race-winner-sprint-pts" class="text-lg sm:text-xl font-black text-emerald-400 tabular-nums whitespace-nowrap">0 b.</span>
                             </div>
                         </div>
-                        <div onclick="switchRaceResultFilter('kom')" id="race-card-kom" class="cursor-pointer bg-gradient-to-br from-red-500/15 via-[#0f172a] to-slate-900 border border-red-500/30 rounded-2xl p-4 shadow-lg transition hover:border-red-400 flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="bg-red-500 text-white font-black text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wider">Horská prémie (KOM)</span>
-                                <i class="fa-solid fa-mountain text-red-400"></i>
+
+                        <!-- KOM (Polka Dot Mountain Jersey) -->
+                        <div onclick="switchRaceResultFilter('kom')" id="race-card-kom" class="cursor-pointer group bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 hover:border-red-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
+                            <div>
+                                <div class="flex items-start justify-between gap-3 mb-3">
+                                    <div class="min-w-0 space-y-1">
+                                        <span class="inline-block bg-red-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Horská prémie (KOM)</span>
+                                        <div class="text-[11px] font-bold text-red-300/80 truncate">Horský dres • Král hor</div>
+                                    </div>
+                                    <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(239,68,68,0.4)] transition-transform duration-300 group-hover:scale-105" aria-label="Horský puntíkovaný dres – KOM">
+                                        <defs>
+                                            <clipPath id="race-jersey-polka-clip">
+                                                <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z"/>
+                                            </clipPath>
+                                        </defs>
+                                        <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="#f8fafc"/>
+                                        <g clip-path="url(#race-jersey-polka-clip)" fill="#ef4444">
+                                            <circle cx="14" cy="20" r="3.4"/>
+                                            <circle cx="25" cy="21" r="3.4"/>
+                                            <circle cx="39" cy="21" r="3.4"/>
+                                            <circle cx="51" cy="21" r="3.4"/>
+                                            <circle cx="20" cy="31" r="3.4"/>
+                                            <circle cx="32" cy="31" r="3.4"/>
+                                            <circle cx="44" cy="31" r="3.4"/>
+                                            <circle cx="25" cy="42" r="3.4"/>
+                                            <circle cx="39" cy="42" r="3.4"/>
+                                            <circle cx="20" cy="52" r="3.4"/>
+                                            <circle cx="32" cy="52" r="3.4"/>
+                                            <circle cx="44" cy="52" r="3.4"/>
+                                        </g>
+                                        <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="none" stroke="#fca5a5" stroke-width="1.6" stroke-linejoin="round"/>
+                                        <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round"/>
+                                        <line x1="32" y1="15.5" x2="32" y2="33" stroke="#991b1b" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
+                                    </svg>
+                                </div>
+                                <div id="race-winner-kom-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                                <div id="race-winner-kom-team" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">Bez výsledku</div>
                             </div>
-                            <div id="race-winner-kom-name" class="text-sm font-black text-white flex items-center gap-1.5">--</div>
-                            <div class="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                                <span id="race-winner-kom-team" class="text-slate-400 font-semibold truncate pr-2">Bez výsledku</span>
-                                <span id="race-winner-kom-pts" class="font-black text-red-400 whitespace-nowrap">0 b.</span>
+                            <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                                <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">KOM body</span>
+                                <span id="race-winner-kom-pts" class="text-lg sm:text-xl font-black text-red-400 tabular-nums whitespace-nowrap">0 b.</span>
                             </div>
                         </div>
                     </div>
@@ -578,7 +647,7 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="text-xs uppercase font-black text-slate-400 mr-1">Zobrazit pořadí:</span>
                             <button onclick="switchRaceResultFilter('finish')" id="race-filter-btn-finish" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-2">
-                                <i class="fa-solid fa-flag-checkered"></i> <span>Cíl (Celkově)</span>
+                                <i class="fa-solid fa-flag-checkered text-slate-950"></i> <span>Cíl (Celkově)</span>
                             </button>
                             <button onclick="switchRaceResultFilter('sprint')" id="race-filter-btn-sprint" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2">
                                 <i class="fa-solid fa-bolt text-emerald-400"></i> <span>Sprint</span>
@@ -596,7 +665,6 @@
                                     <th class="p-4 w-16">Poř.</th>
                                     <th class="p-4" data-i18n="th_rider">Jezdec</th>
                                     <th class="p-4" data-i18n="th_team">Tým</th>
-                                    <th class="p-4" data-i18n="th_ebike_type">E-Bike &amp; Typ</th>
                                     <th class="p-4 text-center">Cíl (Body)</th>
                                     <th class="p-4 text-center">Sprinty</th>
                                     <th class="p-4 text-center">KOM</th>
@@ -3576,18 +3644,24 @@
             const styles = {
                 finish: {
                     activeBtn: 'px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-2',
-                    activeCard: 'cursor-pointer bg-gradient-to-br from-amber-500/20 via-[#0f172a] to-slate-900 border-2 border-amber-400 rounded-2xl p-4 shadow-lg transition flex flex-col justify-between',
-                    inactiveCard: 'cursor-pointer bg-gradient-to-br from-amber-500/10 via-[#0f172a] to-slate-900 border border-amber-500/30 rounded-2xl p-4 shadow-lg transition hover:border-amber-400 flex flex-col justify-between'
+                    activeIcon: 'text-slate-950',
+                    inactiveIcon: 'text-amber-400',
+                    activeCard: 'cursor-pointer group bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border-2 border-amber-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5',
+                    inactiveCard: 'cursor-pointer group bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border border-amber-500/40 hover:border-amber-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5'
                 },
                 sprint: {
                     activeBtn: 'px-4 py-2.5 rounded-2xl text-xs font-black bg-emerald-500 text-slate-950 shadow-lg transition flex items-center gap-2',
-                    activeCard: 'cursor-pointer bg-gradient-to-br from-emerald-500/20 via-[#0f172a] to-slate-900 border-2 border-emerald-400 rounded-2xl p-4 shadow-lg transition flex flex-col justify-between',
-                    inactiveCard: 'cursor-pointer bg-gradient-to-br from-emerald-500/10 via-[#0f172a] to-slate-900 border border-emerald-500/30 rounded-2xl p-4 shadow-lg transition hover:border-emerald-400 flex flex-col justify-between'
+                    activeIcon: 'text-slate-950',
+                    inactiveIcon: 'text-emerald-400',
+                    activeCard: 'cursor-pointer group bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border-2 border-emerald-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5',
+                    inactiveCard: 'cursor-pointer group bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 hover:border-emerald-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5'
                 },
                 kom: {
                     activeBtn: 'px-4 py-2.5 rounded-2xl text-xs font-black bg-red-500 text-white shadow-lg transition flex items-center gap-2',
-                    activeCard: 'cursor-pointer bg-gradient-to-br from-red-500/20 via-[#0f172a] to-slate-900 border-2 border-red-400 rounded-2xl p-4 shadow-lg transition flex flex-col justify-between',
-                    inactiveCard: 'cursor-pointer bg-gradient-to-br from-red-500/10 via-[#0f172a] to-slate-900 border border-red-500/30 rounded-2xl p-4 shadow-lg transition hover:border-red-400 flex flex-col justify-between'
+                    activeIcon: 'text-white',
+                    inactiveIcon: 'text-red-400',
+                    activeCard: 'cursor-pointer group bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border-2 border-red-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5',
+                    inactiveCard: 'cursor-pointer group bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 hover:border-red-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5'
                 }
             };
             const inactiveBtn = 'px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2';
@@ -3595,8 +3669,16 @@
             ['finish', 'sprint', 'kom'].forEach(m => {
                 const btn = document.getElementById(`race-filter-btn-${m}`);
                 const card = document.getElementById(`race-card-${m}`);
-                if (btn) btn.className = (m === mode) ? styles[m].activeBtn : inactiveBtn;
-                if (card) card.className = (m === mode) ? styles[m].activeCard : styles[m].inactiveCard;
+                const isActive = (m === mode);
+                if (btn) {
+                    btn.className = isActive ? styles[m].activeBtn : inactiveBtn;
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('text-slate-950', 'text-white', 'text-amber-400', 'text-emerald-400', 'text-red-400');
+                        icon.classList.add(isActive ? styles[m].activeIcon : styles[m].inactiveIcon);
+                    }
+                }
+                if (card) card.className = isActive ? styles[m].activeCard : styles[m].inactiveCard;
             });
 
             renderPublicRaceResults();
@@ -3648,7 +3730,7 @@
                 const ptsEl = document.getElementById(`race-winner-${prefix}-pts`);
                 if (!nameEl || !teamEl || !ptsEl) return;
                 if (item) {
-                    nameEl.innerHTML = `${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}`;
+                    nameEl.innerHTML = `<span class="shrink-0">${getFlagIcon(item.rider.country)}</span><span class="truncate">${escapeHtml(item.rider.name)}</span>`;
                     teamEl.textContent = item.rider.team || 'Individuální jezdec';
                     ptsEl.textContent = ptsLabel;
                 } else {
@@ -3693,7 +3775,7 @@
                     emptyMsg = 'Pro vybranou věkovou kategorii v tomto závodě zatím nejsou výsledky.';
                 }
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="8" class="p-6 text-center text-slate-500 italic">${emptyMsg}</td>`;
+                tr.innerHTML = `<td colspan="7" class="p-6 text-center text-slate-500 italic">${emptyMsg}</td>`;
                 tbody.appendChild(tr);
                 return;
             }
@@ -3721,7 +3803,6 @@
                 const tr = document.createElement('tr');
                 tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
                 const riderSponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
-                const ebikeModelText = String(item.rider.ebikeModel || '').trim();
                 tr.innerHTML = `
                     <td class="p-4 font-black ${rankColor}">${rankText}</td>
                     <td class="p-4 font-bold text-white">
@@ -3730,7 +3811,6 @@
                         ${riderSponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${riderSponsorBadges}</div>` : ''}
                     </td>
                     <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
-                    <td class="p-4 text-slate-200 text-xs font-bold">${escapeHtml(item.rider.ebike)}${ebikeModelText ? ` <span class="text-slate-300 font-semibold">(${escapeHtml(ebikeModelText)})</span>` : ''}</td>
                     <td class="p-4 text-center font-bold ${currentRaceResultFilter === 'finish' ? 'text-amber-300 bg-amber-400/5' : 'text-white'}">${item.finish <= 30 ? item.finish + '. m. (' + item.fPts + ' b.)' : 'Nedokončil'}</td>
                     <td class="p-4 text-center font-semibold ${currentRaceResultFilter === 'sprint' ? 'text-emerald-300 font-black bg-emerald-500/10' : 'text-emerald-400'}">${item.sprint !== '-' ? item.sprint + '. m. (' + item.sPts + ' b.)' : '-'}</td>
                     <td class="p-4 text-center font-semibold ${currentRaceResultFilter === 'kom' ? 'text-red-400 font-black bg-red-500/10' : 'text-red-500'}">${item.kom !== '-' ? item.kom + '. m. (' + item.kPts + ' b.)' : '-'}</td>
