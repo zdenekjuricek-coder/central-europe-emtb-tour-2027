@@ -842,6 +842,9 @@
                     <button onclick="switchAdminSubTab('motors')" id="admin-sub-btn-motors" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-bolt"></i> <span data-i18n="admin_tab_motors">Motory & Pohon</span>
                     </button>
+                    <button onclick="switchAdminSubTab('brand-flags')" id="admin-sub-btn-brand-flags" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-flag"></i> <span data-i18n="admin_tab_brand_flags">Vlajky tovární značky</span>
+                    </button>
                     <button onclick="switchAdminSubTab('teams')" id="admin-sub-btn-teams" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-shield"></i> <span data-i18n="admin_tab_teams">Správa týmů</span>
                     </button>
@@ -1823,6 +1826,82 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Admin Sub-Content: Manufacturer Brand Flags -->
+                <div id="admin-sub-brand-flags" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-black text-white">
+                                <i class="fa-solid fa-flag mr-2 text-amber-400"></i>
+                                <span data-i18n="admin_brand_flags_title">Vlajky továrních značek e-biků</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Přiřaďte a upravujte vlaječky států pro jednotlivé značky výrobců e-biků. Nastavená vlajka se divákům zobrazuje v sekci <strong>Žebříčky → Tovární</strong> přímo před názvem značky výrobce.
+                            </p>
+                        </div>
+                        <button type="button" onclick="resetBrandFlagsToDefault()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold rounded-xl text-xs transition shrink-0 flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-left text-amber-400"></i> Obnovit výchozí vlajky
+                        </button>
+                    </div>
+
+                    <!-- Add / Quick-Assign Brand & Flag -->
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
+                            <i class="fa-solid fa-plus-circle"></i> Přidat novou značku e-biku nebo rychle nastavit vlajku
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Název značky e-biku *</label>
+                                <input type="text" id="new-brand-flag-name" oninput="previewNewBrandFlag()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="např. Canyon, Mondraker, Crussis">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Stát / Vlajka výrobce</label>
+                                <select id="new-brand-flag-country" onchange="previewNewBrandFlag()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none"></select>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-xs uppercase font-black text-slate-400">Náhled v žebříčku (Tovární)</label>
+                                <div id="new-brand-flag-preview" class="h-[46px] bg-slate-900/90 border border-slate-700 rounded-xl px-3.5 flex items-center gap-2 text-sm font-bold text-white">
+                                    <span class="text-slate-500 text-xs font-normal italic">Vyberte vlajku a zadejte značku…</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" onclick="addOrUpdateBrandFlag()" class="w-full sm:w-auto px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                                <i class="fa-solid fa-floppy-disk mr-1.5"></i> Uložit značku a vlajku
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Existing Brands Table -->
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-list"></i> Přehled značek e-biků a jejich vlajek
+                                </h4>
+                                <span id="admin-brand-flags-count" class="text-[11px] font-bold text-slate-400"></span>
+                            </div>
+                            <div class="relative w-full sm:w-64">
+                                <i class="fa-solid fa-magnifying-glass text-slate-500 text-xs absolute left-3 top-1/2 -translate-y-1/2"></i>
+                                <input type="text" id="brand-flags-search" oninput="renderAdminBrandFlagsTable()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl pl-8 pr-3 py-2 text-xs font-semibold focus:border-amber-400 outline-none" placeholder="Hledat značku e-biku…">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-2xl border border-slate-800">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
+                                        <th class="p-3">Zobrazení v žebříčku (Tovární)</th>
+                                        <th class="p-3">Vlajka státu výrobce</th>
+                                        <th class="p-3 text-center">Jezdci</th>
+                                        <th class="p-3 text-right">Akce</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-brand-flags-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -1966,7 +2045,9 @@
                 admin_tab_footer: "Footer",
                 admin_footer_title: "Správa a editace patičky webu (Footer)",
                 admin_tab_header: "Top Header",
-                admin_header_title: "Správa a editace horní hlavičky webu (Top Header)"
+                admin_header_title: "Správa a editace horní hlavičky webu (Top Header)",
+                admin_tab_brand_flags: "Vlajky tovární značky",
+                admin_brand_flags_title: "Vlajky továrních značek e-biků"
             },
             sk: {
                 nav_rules: "Pravidlá bodovania",
@@ -2044,7 +2125,9 @@
                 admin_tab_footer: "Footer",
                 admin_footer_title: "Správa a editácia pätičky webu (Footer)",
                 admin_tab_header: "Top Header",
-                admin_header_title: "Správa a editácia hornej hlavičky webu (Top Header)"
+                admin_header_title: "Správa a editácia hornej hlavičky webu (Top Header)",
+                admin_tab_brand_flags: "Vlajky továrenskej značky",
+                admin_brand_flags_title: "Vlajky továrenských značiek e-bikov"
             },
             pl: {
                 nav_rules: "Zasady punktacji",
@@ -2122,7 +2205,9 @@
                 admin_tab_footer: "Stopka (Footer)",
                 admin_footer_title: "Zarządzanie i edycja stopki strony (Footer)",
                 admin_tab_header: "Nagłówek (Top Header)",
-                admin_header_title: "Zarządzanie i edycja górnego nagłówka (Top Header)"
+                admin_header_title: "Zarządzanie i edycja górnego nagłówka (Top Header)",
+                admin_tab_brand_flags: "Flagi marek fabrycznych",
+                admin_brand_flags_title: "Flagi producentów i marek e-bike"
             },
             de: {
                 nav_rules: "Reglement",
@@ -2200,7 +2285,9 @@
                 admin_tab_footer: "Footer",
                 admin_footer_title: "Fußzeile (Footer) verwalten und bearbeiten",
                 admin_tab_header: "Top Header",
-                admin_header_title: "Kopfzeile (Top Header) & Logo verwalten"
+                admin_header_title: "Kopfzeile (Top Header) & Logo verwalten",
+                admin_tab_brand_flags: "Hersteller-Flaggen",
+                admin_brand_flags_title: "Länderflaggen der E-Bike-Marken"
             },
             en: {
                 nav_rules: "Scoring Rules",
@@ -2278,7 +2365,9 @@
                 admin_tab_footer: "Footer",
                 admin_footer_title: "Website Footer Text & Links Editor",
                 admin_tab_header: "Top Header",
-                admin_header_title: "Website Top Header & Logo Editor"
+                admin_header_title: "Website Top Header & Logo Editor",
+                admin_tab_brand_flags: "Factory Brand Flags",
+                admin_brand_flags_title: "E-Bike Manufacturer Brand Flags"
             }
         };
 
@@ -2443,6 +2532,86 @@
             'Trek', 'Cube', 'Haibike', 'Orbea', 'Santa Cruz', 'Scott', 
             'Giant', 'Merida', 'Lapierre', 'Ghost', 'Rocky Mountain', 'Cannondale'
         ];
+
+        const manufacturerCountries = [
+            { code: '', label: '-- Bez vlajky --' },
+            { code: 'CZ', label: '🇨🇿 Česká republika (CZ)' },
+            { code: 'SK', label: '🇸🇰 Slovensko (SK)' },
+            { code: 'PL', label: '🇵🇱 Polsko (PL)' },
+            { code: 'DE', label: '🇩🇪 Německo (DE)' },
+            { code: 'AT', label: '🇦🇹 Rakousko (AT)' },
+            { code: 'HU', label: '🇭🇺 Maďarsko (HU)' },
+            { code: 'CH', label: '🇨🇭 Švýcarsko (CH)' },
+            { code: 'IT', label: '🇮🇹 Itálie (IT)' },
+            { code: 'FR', label: '🇫🇷 Francie (FR)' },
+            { code: 'ES', label: '🇪🇸 Španělsko (ES)' },
+            { code: 'NL', label: '🇳🇱 Nizozemsko (NL)' },
+            { code: 'BE', label: '🇧🇪 Belgie (BE)' },
+            { code: 'GB', label: '🇬🇧 Velká Británie (GB)' },
+            { code: 'SE', label: '🇸🇪 Švédsko (SE)' },
+            { code: 'NO', label: '🇳🇴 Norsko (NO)' },
+            { code: 'SI', label: '🇸🇮 Slovinsko (SI)' },
+            { code: 'PT', label: '🇵🇹 Portugalsko (PT)' },
+            { code: 'US', label: '🇺🇸 USA (US)' },
+            { code: 'CA', label: '🇨🇦 Kanada (CA)' },
+            { code: 'TW', label: '🇹🇼 Tchaj-wan (TW)' },
+            { code: 'CN', label: '🇨🇳 Čína (CN)' },
+            { code: 'JP', label: '🇯🇵 Japonsko (JP)' },
+            { code: 'AU', label: '🇦🇺 Austrálie (AU)' },
+            { code: 'NZ', label: '🇳🇿 Nový Zéland (NZ)' }
+        ];
+
+        const defaultBrandFlags = {
+            'Crussis': 'CZ',
+            'Kellys': 'SK',
+            'CTM': 'SK',
+            'AMFLOW': 'CN',
+            'FOCUS': 'DE',
+            'Specialized': 'US',
+            'Trek': 'US',
+            'Cube': 'DE',
+            'Haibike': 'DE',
+            'Orbea': 'ES',
+            'Santa Cruz': 'US',
+            'Scott': 'CH',
+            'Giant': 'TW',
+            'Merida': 'TW',
+            'Lapierre': 'FR',
+            'Ghost': 'DE',
+            'Rocky Mountain': 'CA',
+            'Cannondale': 'US'
+        };
+        let brandFlags = { ...defaultBrandFlags };
+
+        function getBrandFlagCode(brandName) {
+            const raw = String(brandName || '').trim();
+            if (!raw || !brandFlags || typeof brandFlags !== 'object') return '';
+            let code = '';
+            if (Object.prototype.hasOwnProperty.call(brandFlags, raw)) {
+                code = brandFlags[raw];
+            } else {
+                const lower = raw.toLowerCase();
+                const matchedKey = Object.keys(brandFlags).find(k => k.toLowerCase() === lower);
+                if (matchedKey) code = brandFlags[matchedKey];
+            }
+            const clean = String(code || '').trim().toUpperCase();
+            return /^[A-Z]{2}$/.test(clean) ? clean : '';
+        }
+
+        function getAllKnownBrands() {
+            const map = new Map();
+            const addBrand = (name) => {
+                const clean = String(name || '').trim();
+                if (!clean) return;
+                const key = clean.toLowerCase();
+                if (!map.has(key)) map.set(key, clean);
+            };
+            (availableBrands || []).forEach(addBrand);
+            Object.keys(brandFlags || {}).forEach(addBrand);
+            (riders || []).forEach(r => addBrand(r && r.ebike));
+            (teams || []).forEach(t => addBrand(t && t.brand));
+            return Array.from(map.values());
+        }
 
         const defaultAvailableMotors = [
             'DJI Avinox', 'DJI M1', 'DJI M2S', 'Bosch CX Race', 'Bosch Performance Line CX', 
@@ -2755,6 +2924,9 @@
                     }
                     if (data.raceResults) raceResults = data.raceResults;
                     if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
+                    if (data.brandFlags && typeof data.brandFlags === 'object') {
+                        brandFlags = { ...defaultBrandFlags, ...data.brandFlags };
+                    }
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
                     if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
                     if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
@@ -2800,6 +2972,7 @@
                     if (!isEditingIn('admin-riders-tbody')) renderAdminRidersTable();
                     renderAdminCategoriesTable();
                     renderAdminMotorsTable();
+                    if (!isEditingIn('admin-sub-brand-flags')) renderAdminBrandFlagsTable();
                     renderAdminCalendarTable();
                     if (!isEditingIn('admin-teams-grid')) renderAdminTeamsGrid();
                     if (!isEditingIn('admin-sponsors-teams-grid')) renderAdminSponsorsTeams();
@@ -2825,6 +2998,7 @@
             webPartnersHideCaptionUntilHover = false;
             webPartnersShowTopSlider = false;
             sponsorsHideBadgesUntilHover = false;
+            brandFlags = { ...defaultBrandFlags };
             availableMotors = [...defaultAvailableMotors];
             motorHandicaps = { ...defaultMotorHandicaps };
             motorSpecs = JSON.parse(JSON.stringify(defaultMotorSpecs));
@@ -2866,6 +3040,7 @@
                     sponsorsHideBadgesUntilHover,
                     raceResults,
                     availableBrands,
+                    brandFlags,
                     availableMotors,
                     motorHandicaps,
                     motorSpecs,
@@ -3022,6 +3197,7 @@
                 renderAdminTeamsGrid();
                 renderAdminSponsorsSection();
                 renderAdminWebPartnersGrid();
+                renderAdminBrandFlagsTable();
                 renderAdminHeaderEditor();
                 renderAdminFooterEditor();
                 switchAdminSubTab(currentAdminSubTab);
@@ -3100,7 +3276,7 @@
         function switchAdminSubTab(sub) {
             currentAdminSubTab = sub;
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'categories', 'motors', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'header', 'footer'].forEach(s => {
+            ['results', 'skills', 'riders', 'categories', 'motors', 'brand-flags', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'header', 'footer'].forEach(s => {
                 const btn = document.getElementById(`admin-sub-btn-${s}`);
                 if (btn) {
                     if (s === sub) {
@@ -3114,6 +3290,7 @@
             if (targetEl) targetEl.classList.remove('hidden');
             if (sub === 'skills') loadRiderSkillsToForm();
             if (sub === 'categories') renderAdminCategoriesTable();
+            if (sub === 'brand-flags') renderAdminBrandFlagsTable();
             if (sub === 'sponsors') renderAdminSponsorsSection();
             if (sub === 'web-partners') {
                 renderAdminWebPartnersGrid();
@@ -3398,9 +3575,13 @@
                 brandArr.forEach((bItem, index) => {
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    const brandFlagCode = getBrandFlagCode(bItem.brand);
+                    const brandFlagHtml = brandFlagCode ? `<span class="shrink-0">${getFlagIcon(brandFlagCode)}</span>` : '';
                     tr.innerHTML = `
                         <td class="p-4 font-black text-pink-400">${index + 1}.</td>
-                        <td class="p-4 font-bold text-white text-base">${escapeHtml(bItem.brand)}</td>
+                        <td class="p-4 font-bold text-white text-base">
+                            <div class="flex items-center gap-2">${brandFlagHtml}<span>${escapeHtml(bItem.brand)}</span></div>
+                        </td>
                         <td class="p-4 text-slate-300 font-medium">${bItem.topRider}</td>
                         <td class="p-4 text-slate-300 text-xs font-semibold">${formatEbikeModelCell(bItem.ebikeModels)}</td>
                         <td class="p-4 text-right font-black text-pink-400 text-base">${bItem.totalPts} b.</td>
@@ -6803,8 +6984,187 @@
             updateHeaderLogoPreview(headerConfig);
         }
 
+        function populateBrandFlagCountrySelect() {
+            const sel = document.getElementById('new-brand-flag-country');
+            if (!sel) return;
+            const prevVal = sel.value;
+            sel.innerHTML = manufacturerCountries.map(c =>
+                `<option value="${escapeHtml(c.code)}">${escapeHtml(c.label)}</option>`
+            ).join('');
+            if (prevVal && manufacturerCountries.some(c => c.code === prevVal)) {
+                sel.value = prevVal;
+            } else if (!prevVal) {
+                sel.value = 'CZ';
+            }
+            previewNewBrandFlag();
+        }
+
+        function previewNewBrandFlag() {
+            const previewEl = document.getElementById('new-brand-flag-preview');
+            if (!previewEl) return;
+            const nameVal = (document.getElementById('new-brand-flag-name')?.value || '').trim();
+            const codeVal = (document.getElementById('new-brand-flag-country')?.value || '').trim().toUpperCase();
+            const displayBrand = nameVal || 'Název značky';
+            const flagHtml = /^[A-Z]{2}$/.test(codeVal) ? `<span class="shrink-0">${getFlagIcon(codeVal)}</span>` : '';
+            previewEl.innerHTML = `${flagHtml}<span class="${nameVal ? 'text-white' : 'text-slate-400 italic'} truncate">${escapeHtml(displayBrand)}</span>`;
+        }
+
+        function renderAdminBrandFlagsTable() {
+            populateBrandFlagCountrySelect();
+            const tbody = document.getElementById('admin-brand-flags-tbody');
+            const countEl = document.getElementById('admin-brand-flags-count');
+            const searchQuery = (document.getElementById('brand-flags-search')?.value || '').trim().toLowerCase();
+
+            const allBrands = getAllKnownBrands();
+            const filtered = searchQuery
+                ? allBrands.filter(b => b.toLowerCase().includes(searchQuery))
+                : allBrands;
+
+            if (countEl) {
+                const withFlagCount = allBrands.filter(b => !!getBrandFlagCode(b)).length;
+                countEl.textContent = `(${withFlagCount}/${allBrands.length} s vlajkou)`;
+            }
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="4" class="p-6 text-center text-slate-500 italic text-xs">Žádná značka neodpovídá hledání.</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+
+            filtered.forEach(brand => {
+                const currentCode = getBrandFlagCode(brand);
+                const hasMatch = manufacturerCountries.some(c => c.code === currentCode);
+                const countryOptions = manufacturerCountries.map(c =>
+                    `<option value="${escapeHtml(c.code)}" ${currentCode === c.code ? 'selected' : ''}>${escapeHtml(c.label)}</option>`
+                ).join('');
+                const extraOption = !hasMatch && currentCode
+                    ? `<option value="${escapeHtml(currentCode)}" selected>${escapeHtml(currentCode)}</option>`
+                    : '';
+                const riderCount = riders.filter(r => r && r.ebike && r.ebike.toLowerCase() === brand.toLowerCase()).length;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-white text-sm min-w-[200px]">
+                        <div class="flex items-center gap-2">
+                            ${currentCode ? `<span class="shrink-0">${getFlagIcon(currentCode)}</span>` : '<span class="w-5 h-[15px] inline-flex items-center justify-center rounded bg-slate-800 border border-slate-700 text-[9px] text-slate-500 shrink-0">—</span>'}
+                            <span>${escapeHtml(brand)}</span>
+                        </div>
+                    </td>
+                    <td class="p-3 min-w-[230px]">
+                        <select data-brand="${escapeHtml(brand)}" onchange="updateBrandFlag(this.dataset.brand, this.value)" class="w-full max-w-[260px] bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl p-2 font-bold outline-none focus:border-amber-400">
+                            ${extraOption}${countryOptions}
+                        </select>
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-[11px] font-black ${riderCount > 0 ? 'bg-pink-500/20 text-pink-300 border border-pink-500/30' : 'bg-slate-800 text-slate-500 border border-slate-700'}">${riderCount}</span>
+                    </td>
+                    <td class="p-3 text-right whitespace-nowrap">
+                        <button type="button" data-brand="${escapeHtml(brand)}" onclick="clearBrandFlag(this.dataset.brand)" ${!currentCode ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl font-bold text-xs border transition ${currentCode ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 border-red-500/30' : 'bg-slate-800/50 text-slate-600 border-slate-800 cursor-not-allowed'}">
+                            Odebrat vlajku
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function updateBrandFlag(brandName, countryCode) {
+            const cleanBrand = String(brandName || '').trim();
+            if (!cleanBrand) return;
+            const cleanCode = String(countryCode || '').trim().toUpperCase();
+            const safeCode = /^[A-Z]{2}$/.test(cleanCode) ? cleanCode : '';
+            const prevBrandFlags = { ...brandFlags };
+
+            // Keep canonical key if an existing case-insensitive key exists
+            const existingKey = Object.keys(brandFlags).find(k => k.toLowerCase() === cleanBrand.toLowerCase());
+            const targetKey = existingKey || cleanBrand;
+            brandFlags[targetKey] = safeCode;
+
+            renderAdminBrandFlagsTable();
+            renderPublicLeaderboards();
+            const res = await saveData();
+            if (!res.ok) {
+                brandFlags = prevBrandFlags;
+                renderAdminBrandFlagsTable();
+                renderPublicLeaderboards();
+                showModal("Chyba databáze Firebase", `Změna vlajky pro značku "${cleanBrand}" se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function clearBrandFlag(brandName) {
+            return updateBrandFlag(brandName, '');
+        }
+
+        async function addOrUpdateBrandFlag() {
+            const nameEl = document.getElementById('new-brand-flag-name');
+            const countryEl = document.getElementById('new-brand-flag-country');
+            const rawBrand = nameEl ? nameEl.value.trim() : '';
+            const rawCode = countryEl ? countryEl.value.trim().toUpperCase() : '';
+            const safeCode = /^[A-Z]{2}$/.test(rawCode) ? rawCode : '';
+
+            if (!rawBrand) {
+                showModal("Chyba", "Zadejte prosím název značky e-biku!");
+                return;
+            }
+
+            const prevBrands = [...availableBrands];
+            const prevBrandFlags = { ...brandFlags };
+
+            const existingBrand = availableBrands.find(b => b.toLowerCase() === rawBrand.toLowerCase());
+            const canonicalBrand = existingBrand || rawBrand;
+            if (!existingBrand) {
+                availableBrands.push(canonicalBrand);
+            }
+            const existingFlagKey = Object.keys(brandFlags).find(k => k.toLowerCase() === canonicalBrand.toLowerCase());
+            if (existingFlagKey && existingFlagKey !== canonicalBrand) {
+                delete brandFlags[existingFlagKey];
+            }
+            brandFlags[canonicalBrand] = safeCode;
+
+            if (nameEl) nameEl.value = '';
+            populateAdminSelects();
+            renderAdminRidersTable();
+            renderAdminBrandFlagsTable();
+            renderPublicLeaderboards();
+            previewNewBrandFlag();
+
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", `Vlajka pro tovární značku "${canonicalBrand}" byla uložena do Firebase a okamžitě se projeví v žebříčku Tovární!`);
+            } else {
+                availableBrands = prevBrands;
+                brandFlags = prevBrandFlags;
+                populateAdminSelects();
+                renderAdminRidersTable();
+                renderAdminBrandFlagsTable();
+                renderPublicLeaderboards();
+                showModal("Chyba databáze Firebase", `Uložení vlajky značky se nezdařilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function resetBrandFlagsToDefault() {
+            if (!confirm("Opravdu chcete obnovit všechny vlajky továrních značek do výchozího nastavení?")) return;
+            const prevBrandFlags = { ...brandFlags };
+            brandFlags = { ...defaultBrandFlags };
+            renderAdminBrandFlagsTable();
+            renderPublicLeaderboards();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Obnoveno", "Vlajky továrních značek byly obnoveny do výchozího nastavení a uloženy do Firebase.");
+            } else {
+                brandFlags = prevBrandFlags;
+                renderAdminBrandFlagsTable();
+                renderPublicLeaderboards();
+                showModal("Chyba databáze Firebase", `Obnovení vlajek se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, headerConfig, footerConfig, availableMotors, motorHandicaps, motorSpecs, raceResults };
+            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, headerConfig, footerConfig, availableBrands, brandFlags, availableMotors, motorHandicaps, motorSpecs, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -6853,6 +7213,10 @@
                                 : JSON.parse(JSON.stringify(defaultFooterConfig.links))
                         };
                     }
+                    if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
+                    if (data.brandFlags && typeof data.brandFlags === 'object') {
+                        brandFlags = { ...defaultBrandFlags, ...data.brandFlags };
+                    }
                     if (data.availableMotors && Array.isArray(data.availableMotors)) availableMotors = data.availableMotors;
                     if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
                     if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
@@ -6865,6 +7229,7 @@
                     populatePublicRaceResultsSelect();
                     renderAdminCategoriesTable();
                     renderAdminMotorsTable();
+                    renderAdminBrandFlagsTable();
                     renderAdminCalendarTable();
                     renderAdminRidersTable();
                     renderAdminTeamsGrid();
@@ -6893,6 +7258,7 @@
                 updateSponsorsHoverModeUI();
                 populateCategorySelects();
                 populateAdminSelects();
+                populateBrandFlagCountrySelect();
                 renderPublicLeaderboards();
                 populatePublicRaceResultsSelect();
                 renderCalendar();
