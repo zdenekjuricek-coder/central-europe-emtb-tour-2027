@@ -241,9 +241,60 @@
                 transition: none;
             }
         }
+        /* Custom Site Background Layer (PC-focused aesthetic enhancement) */
+        #site-background-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            display: none;
+        }
+        body.site-bg-active #site-background-layer {
+            display: block;
+        }
+        @media (max-width: 1023px) {
+            body.site-bg-desktop-only #site-background-layer {
+                display: none !important;
+            }
+        }
+        #site-background-image {
+            position: absolute;
+            inset: -20px;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            transition: filter 0.25s ease, background-position 0.25s ease;
+        }
+        #site-background-overlay {
+            position: absolute;
+            inset: 0;
+            transition: background 0.25s ease;
+        }
+        @media (min-width: 1024px) {
+            body.site-bg-active.site-bg-glass-cards main > section > div,
+            body.site-bg-active.site-bg-glass-cards #site-footer {
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+            body.site-bg-active.site-bg-glass-cards #site-header {
+                background-color: rgba(15, 23, 42, 0.88);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            body.site-bg-active.site-bg-glass-cards #public-subnav {
+                background-color: rgba(17, 24, 39, 0.86);
+            }
+        }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col antialiased overflow-x-clip">
+
+    <!-- Custom Site Background Layer -->
+    <div id="site-background-layer" aria-hidden="true">
+        <div id="site-background-image"></div>
+        <div id="site-background-overlay"></div>
+    </div>
 
     <!-- Top Header Bar -->
     <header id="site-header" class="bg-[#0f172a] text-white shadow-xl border-b border-slate-800 relative z-40">
@@ -329,7 +380,7 @@
     </nav>
 
     <!-- Main Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-5 lg:px-6 py-3.5 sm:py-5 space-y-4 sm:space-y-5">
+    <main class="relative z-10 flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-5 lg:px-6 py-3.5 sm:py-5 space-y-4 sm:space-y-5">
 
         <!-- VIEW: RULES -->
         <section id="view-rules" class="hidden space-y-4 sm:space-y-6">
@@ -938,6 +989,9 @@
                     </button>
                     <button onclick="switchAdminSubTab('footer')" id="admin-sub-btn-footer" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-window-minimize"></i> <span data-i18n="admin_tab_footer">Footer</span>
+                    </button>
+                    <button onclick="switchAdminSubTab('background')" id="admin-sub-btn-background" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-panorama"></i> <span data-i18n="admin_tab_background">Pozadí webu</span>
                     </button>
                 </div>
 
@@ -1975,6 +2029,152 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Admin Sub-Content: Site Background Editor -->
+                <div id="admin-sub-background" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-black text-white">
+                                <i class="fa-solid fa-panorama mr-2 text-amber-400"></i>
+                                <span data-i18n="admin_background_title">Pozadí webu (Obrázek / URL pro zdokonalení PC designu)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Nahrajte vlastní obrázek na pozadí nebo vložte URL adresu obrázku (např. horská e-MTB fotografie). Nastavte ztmavení, rozmazání a skleněný efekt karet pro perfektní vzhled webu na PC i volitelně na všech zařízeních.
+                            </p>
+                        </div>
+                        <button type="button" onclick="resetBackgroundToDefault()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold rounded-xl text-xs transition shrink-0 flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-left text-amber-400"></i> Obnovit výchozí pozadí
+                        </button>
+                    </div>
+
+                    <!-- Activation Toggle Card -->
+                    <div class="bg-[#0f172a] p-4 sm:p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-xs uppercase tracking-wider font-black text-amber-300">Zobrazení vlastního pozadí webu</span>
+                                <span id="bg-enabled-status" class="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Vypnuto</span>
+                            </div>
+                            <p class="text-xs text-slate-400">Jedním kliknutím zapnete nebo vypnete vlastní pozadí na webu, aniž byste přišli o uložený obrázek a nastavení.</p>
+                        </div>
+                        <button type="button" id="btn-toggle-site-bg" onclick="toggleSiteBackgroundEnabled()" class="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition whitespace-nowrap shrink-0">
+                            <i class="fa-solid fa-power-off mr-1.5"></i> Aktivovat pozadí
+                        </button>
+                    </div>
+
+                    <!-- Image Upload / URL & Visual Controls -->
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-image"></i> Obrázek pozadí a vzhled na PC
+                            </h4>
+                            <button type="button" onclick="clearSiteBackgroundImage()" class="self-start sm:self-center px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-red-300 border border-red-500/30 font-bold rounded-xl text-[11px] transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can"></i> Odebrat obrázek
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+                            <div class="lg:col-span-2 space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Nahrát obrázek z počítače (JPG, PNG, WebP)</label>
+                                        <label class="flex items-center justify-center gap-2 w-full bg-slate-800 hover:bg-slate-700 border border-dashed border-amber-400/50 text-amber-300 rounded-xl p-3 text-xs font-bold cursor-pointer transition">
+                                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                                            <span>Vybrat obrázek pozadí</span>
+                                            <input type="file" id="bg-edit-file" accept="image/*" onchange="handleSiteBackgroundFileUpload(event)" class="hidden">
+                                        </label>
+                                        <p id="bg-edit-file-info" class="text-[11px] text-emerald-400 font-semibold mt-1.5 min-h-[1rem]"></p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Nebo URL adresa obrázku (doporučeno pro 4K)</label>
+                                        <input type="text" id="bg-edit-url" oninput="previewBackgroundLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs font-medium focus:border-amber-400 outline-none" placeholder="https://.../emtb-hory-pozadi.jpg">
+                                        <p class="text-[11px] text-slate-500 mt-1">Nahrané soubory se automaticky optimalizují do WebP (max 1600×900 px) pro rychlé načítání z Firebase.</p>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Zobrazit na zařízeních</label>
+                                        <select id="bg-edit-scope" onchange="previewBackgroundLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs font-bold focus:border-amber-400 outline-none">
+                                            <option value="desktop">Pouze na PC (≥ 1024 px)</option>
+                                            <option value="all">Všechna zařízení (PC, tablet i mobil)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Zarovnání fotky</label>
+                                        <select id="bg-edit-position" onchange="previewBackgroundLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs font-bold focus:border-amber-400 outline-none">
+                                            <option value="center">Na střed (výchozí)</option>
+                                            <option value="top">Horní část obrázku</option>
+                                            <option value="bottom">Spodní část obrázku</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Styl karet na PC</label>
+                                        <select id="bg-edit-glass" onchange="previewBackgroundLive()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs font-bold focus:border-amber-400 outline-none">
+                                            <option value="glass">Skleněný efekt (backdrop blur)</option>
+                                            <option value="solid">Plné tmavé karty</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <label class="block text-xs uppercase font-black text-slate-400">Ztmavení pozadí (čitelnost obsahu)</label>
+                                            <span id="bg-edit-overlay-val" class="text-xs font-black text-amber-400 bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-lg">68 %</span>
+                                        </div>
+                                        <input type="range" id="bg-edit-overlay" min="20" max="92" step="2" value="68" oninput="previewBackgroundLive()" class="w-full accent-amber-400 cursor-pointer">
+                                        <div class="flex justify-between text-[10px] text-slate-500 font-semibold mt-0.5">
+                                            <span>20 % (světlejší)</span>
+                                            <span>68 % (ideální)</span>
+                                            <span>92 % (velmi tmavé)</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <label class="block text-xs uppercase font-black text-slate-400">Rozmazání pozadí (hloubka)</label>
+                                            <span id="bg-edit-blur-val" class="text-xs font-black text-amber-400 bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-lg">0 px</span>
+                                        </div>
+                                        <input type="range" id="bg-edit-blur" min="0" max="12" step="1" value="0" oninput="previewBackgroundLive()" class="w-full accent-amber-400 cursor-pointer">
+                                        <div class="flex justify-between text-[10px] text-slate-500 font-semibold mt-0.5">
+                                            <span>0 px (ostré)</span>
+                                            <span>4 px</span>
+                                            <span>12 px (rozostřené)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Desktop Preview Box -->
+                            <div class="space-y-2">
+                                <label class="block text-xs uppercase font-black text-slate-400">Náhled pozadí na PC</label>
+                                <div id="bg-edit-preview" class="relative h-44 rounded-2xl border border-slate-700 bg-[#0b0f19] overflow-hidden shadow-inner flex flex-col justify-between p-3">
+                                    <div id="bg-edit-preview-img" class="absolute inset-[-8px] bg-cover bg-center transition-all"></div>
+                                    <div id="bg-edit-preview-scrim" class="absolute inset-0 transition-all"></div>
+                                    <div class="relative z-10 flex items-center justify-between bg-[#0f172a]/85 border border-slate-700/70 rounded-lg px-2.5 py-1.5">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="w-3.5 h-3.5 rounded bg-amber-400 inline-block"></span>
+                                            <span class="text-[9px] font-black text-white uppercase tracking-wider">e-MTB Tour 2027</span>
+                                        </div>
+                                        <span class="w-8 h-2 rounded bg-amber-400/80 inline-block"></span>
+                                    </div>
+                                    <div class="relative z-10 mx-auto w-4/5 bg-[#111827]/85 border border-slate-700/70 rounded-xl p-2.5 space-y-1.5 backdrop-blur-sm">
+                                        <div class="h-2 w-2/3 rounded bg-slate-600/80"></div>
+                                        <div class="h-2 w-full rounded bg-slate-700/70"></div>
+                                        <div class="h-2 w-4/5 rounded bg-amber-400/50"></div>
+                                    </div>
+                                    <div id="bg-edit-preview-label" class="relative z-10 text-center text-[10px] font-bold text-slate-400">Žádný obrázek pozadí</div>
+                                </div>
+                                <p class="text-[11px] text-slate-500 text-center">Živý náhled vidíte na PC okamžitě i za touto stránkou.</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-800 flex flex-wrap items-center gap-3">
+                            <button type="button" onclick="saveBackgroundConfig()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                                <i class="fa-solid fa-floppy-disk mr-1.5"></i> Uložit pozadí webu
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -2120,7 +2320,9 @@
                 admin_tab_header: "Top Header",
                 admin_header_title: "Správa a editace horní hlavičky webu (Top Header)",
                 admin_tab_brand_flags: "Vlajky tovární značky",
-                admin_brand_flags_title: "Vlajky továrních značek e-biků"
+                admin_brand_flags_title: "Vlajky továrních značek e-biků",
+                admin_tab_background: "Pozadí webu",
+                admin_background_title: "Pozadí webu (Obrázek / URL pro zdokonalení PC designu)"
             },
             sk: {
                 nav_rules: "Pravidlá bodovania",
@@ -2200,7 +2402,9 @@
                 admin_tab_header: "Top Header",
                 admin_header_title: "Správa a editácia hornej hlavičky webu (Top Header)",
                 admin_tab_brand_flags: "Vlajky továrenskej značky",
-                admin_brand_flags_title: "Vlajky továrenských značiek e-bikov"
+                admin_brand_flags_title: "Vlajky továrenských značiek e-bikov",
+                admin_tab_background: "Pozadie webu",
+                admin_background_title: "Pozadie webu (Obrázok / URL pre zdokonalenie PC dizajnu)"
             },
             pl: {
                 nav_rules: "Zasady punktacji",
@@ -2280,7 +2484,9 @@
                 admin_tab_header: "Nagłówek (Top Header)",
                 admin_header_title: "Zarządzanie i edycja górnego nagłówka (Top Header)",
                 admin_tab_brand_flags: "Flagi marek fabrycznych",
-                admin_brand_flags_title: "Flagi producentów i marek e-bike"
+                admin_brand_flags_title: "Flagi producentów i marek e-bike",
+                admin_tab_background: "Tło strony",
+                admin_background_title: "Tło strony (Obraz / URL dla wyglądu na PC)"
             },
             de: {
                 nav_rules: "Reglement",
@@ -2360,7 +2566,9 @@
                 admin_tab_header: "Top Header",
                 admin_header_title: "Kopfzeile (Top Header) & Logo verwalten",
                 admin_tab_brand_flags: "Hersteller-Flaggen",
-                admin_brand_flags_title: "Länderflaggen der E-Bike-Marken"
+                admin_brand_flags_title: "Länderflaggen der E-Bike-Marken",
+                admin_tab_background: "Hintergrund",
+                admin_background_title: "Webseiten-Hintergrund (Bild / URL für PC-Design)"
             },
             en: {
                 nav_rules: "Scoring Rules",
@@ -2440,7 +2648,9 @@
                 admin_tab_header: "Top Header",
                 admin_header_title: "Website Top Header & Logo Editor",
                 admin_tab_brand_flags: "Factory Brand Flags",
-                admin_brand_flags_title: "E-Bike Manufacturer Brand Flags"
+                admin_brand_flags_title: "E-Bike Manufacturer Brand Flags",
+                admin_tab_background: "Site Background",
+                admin_background_title: "Website Background (Image / URL for PC Design)"
             }
         };
 
@@ -2770,6 +2980,17 @@
         };
         let headerConfig = JSON.parse(JSON.stringify(defaultHeaderConfig));
 
+        const defaultBackgroundConfig = {
+            enabled: false,
+            imageUrl: '',
+            scope: 'desktop', // 'desktop' | 'all'
+            position: 'center', // 'center' | 'top' | 'bottom'
+            overlayOpacity: 68, // 20..92 (%)
+            blur: 0, // 0..12 (px)
+            cardStyle: 'glass' // 'glass' | 'solid'
+        };
+        let backgroundConfig = JSON.parse(JSON.stringify(defaultBackgroundConfig));
+
         function formatAgeCategoryRange(cat) {
             if (!cat) return '';
             const hasFrom = cat.ageFrom !== null && cat.ageFrom !== undefined && cat.ageFrom !== '';
@@ -3020,6 +3241,12 @@
                             ...data.headerConfig
                         };
                     }
+                    if (data.backgroundConfig && typeof data.backgroundConfig === 'object') {
+                        backgroundConfig = {
+                            ...JSON.parse(JSON.stringify(defaultBackgroundConfig)),
+                            ...data.backgroundConfig
+                        };
+                    }
                 } else if (window.auth && window.auth.currentUser) {
                     saveData();
                 }
@@ -3034,6 +3261,7 @@
                 renderCalendar();
                 renderTeamsAndRidersView();
                 renderWebPartnersSlider();
+                renderSiteBackground();
                 renderHeader();
                 renderFooter();
                 if (!document.getElementById('view-admin').classList.contains('hidden')) {
@@ -3053,6 +3281,7 @@
                     renderAdminWebPartnersGrid();
                     if (!isEditingIn('admin-sub-header')) renderAdminHeaderEditor();
                     if (!isEditingIn('admin-sub-footer')) renderAdminFooterEditor();
+                    if (!isEditingIn('admin-sub-background')) renderAdminBackgroundEditor();
                 }
             }, (error) => {
                 console.error("Firebase snapshot error:", error);
@@ -3080,6 +3309,7 @@
             isHeroVideoEnabled = true;
             footerConfig = JSON.parse(JSON.stringify(defaultFooterConfig));
             headerConfig = JSON.parse(JSON.stringify(defaultHeaderConfig));
+            backgroundConfig = JSON.parse(JSON.stringify(defaultBackgroundConfig));
             updateHeroVideoPlayer();
             updateSponsorsHoverModeUI();
             populateCategorySelects();
@@ -3089,6 +3319,7 @@
             renderPublicRaceResults();
             renderCalendar();
             renderWebPartnersSlider();
+            renderSiteBackground();
             renderHeader();
             renderFooter();
         };
@@ -3120,7 +3351,8 @@
                     youtubeVideoId,
                     isHeroVideoEnabled,
                     headerConfig,
-                    footerConfig
+                    footerConfig,
+                    backgroundConfig
                 }));
                 await setDoc(docRef, payload, { merge: true });
                 console.log("Data successfully saved to Firebase Firestore.");
@@ -3293,6 +3525,7 @@
                 renderAdminBrandFlagsTable();
                 renderAdminHeaderEditor();
                 renderAdminFooterEditor();
+                renderAdminBackgroundEditor();
                 switchAdminSubTab(currentAdminSubTab);
             }
         }
@@ -3369,7 +3602,7 @@
         function switchAdminSubTab(sub) {
             currentAdminSubTab = sub;
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'categories', 'motors', 'brand-flags', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'header', 'footer'].forEach(s => {
+            ['results', 'skills', 'riders', 'categories', 'motors', 'brand-flags', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'header', 'footer', 'background'].forEach(s => {
                 const btn = document.getElementById(`admin-sub-btn-${s}`);
                 if (btn) {
                     if (s === sub) {
@@ -3393,6 +3626,7 @@
             if (sub === 'video') updateHeroVideoPlayer();
             if (sub === 'header') renderAdminHeaderEditor();
             if (sub === 'footer') renderAdminFooterEditor();
+            if (sub === 'background') renderAdminBackgroundEditor();
             if (sub === 'motors') {
                 renderAdminMotorsTable();
                 filterMotorReferenceCatalog();
@@ -7283,8 +7517,334 @@
             }
         }
 
+        function sanitizeCssBackgroundUrl(rawUrl) {
+            const normalized = normalizeLogoUrl(rawUrl);
+            if (!normalized) return '';
+            return normalized.replace(/["\\\r\n()]/g, '');
+        }
+
+        function getBackgroundPositionCss(pos) {
+            if (pos === 'top') return 'center top';
+            if (pos === 'bottom') return 'center bottom';
+            return 'center center';
+        }
+
+        function buildBackgroundScrimCss(overlayOpacity) {
+            const pct = Math.min(92, Math.max(20, Number(overlayOpacity) || 68));
+            const alpha = pct / 100;
+            const centerAlpha = Math.max(0.15, +(alpha * 0.85).toFixed(3));
+            const edgeAlpha = Math.min(0.96, +(alpha * 1.12).toFixed(3));
+            return `radial-gradient(ellipse at center, rgba(11, 15, 25, ${centerAlpha}) 0%, rgba(11, 15, 25, ${edgeAlpha}) 100%)`;
+        }
+
+        function renderSiteBackground(overrideCfg) {
+            const cfg = overrideCfg ? { ...backgroundConfig, ...overrideCfg } : backgroundConfig;
+            const safeUrl = sanitizeCssBackgroundUrl(cfg.imageUrl);
+            const isActive = !!(cfg.enabled && safeUrl);
+            const imgEl = document.getElementById('site-background-image');
+            const overlayEl = document.getElementById('site-background-overlay');
+
+            if (document.body) {
+                document.body.classList.toggle('site-bg-active', isActive);
+                document.body.classList.toggle('site-bg-desktop-only', cfg.scope !== 'all');
+                document.body.classList.toggle('site-bg-glass-cards', cfg.cardStyle !== 'solid');
+            }
+
+            if (imgEl) {
+                if (isActive) {
+                    const blurPx = Math.min(12, Math.max(0, Number(cfg.blur) || 0));
+                    imgEl.style.backgroundImage = `url("${safeUrl}")`;
+                    imgEl.style.backgroundPosition = getBackgroundPositionCss(cfg.position);
+                    imgEl.style.filter = blurPx > 0 ? `blur(${blurPx}px)` : 'none';
+                } else {
+                    imgEl.style.backgroundImage = '';
+                    imgEl.style.filter = 'none';
+                }
+            }
+            if (overlayEl) {
+                overlayEl.style.background = isActive ? buildBackgroundScrimCss(cfg.overlayOpacity) : 'none';
+            }
+        }
+
+        function getBackgroundEditorDraft() {
+            const overlayRaw = Number(document.getElementById('bg-edit-overlay')?.value);
+            const blurRaw = Number(document.getElementById('bg-edit-blur')?.value);
+            const urlVal = document.getElementById('bg-edit-url')?.value ?? backgroundConfig.imageUrl;
+            const hasSafeUrl = !!sanitizeCssBackgroundUrl(urlVal);
+            return {
+                enabled: hasSafeUrl ? (backgroundConfig.enabled || (urlVal.trim() !== String(backgroundConfig.imageUrl || '').trim())) : false,
+                imageUrl: urlVal,
+                scope: document.getElementById('bg-edit-scope')?.value === 'all' ? 'all' : 'desktop',
+                position: document.getElementById('bg-edit-position')?.value || backgroundConfig.position || 'center',
+                overlayOpacity: Number.isFinite(overlayRaw) ? Math.min(92, Math.max(20, overlayRaw)) : (backgroundConfig.overlayOpacity ?? 68),
+                blur: Number.isFinite(blurRaw) ? Math.min(12, Math.max(0, blurRaw)) : (backgroundConfig.blur ?? 0),
+                cardStyle: document.getElementById('bg-edit-glass')?.value === 'solid' ? 'solid' : 'glass'
+            };
+        }
+
+        function updateBackgroundPreviewBox(cfg) {
+            const targetCfg = cfg || backgroundConfig;
+            const safeUrl = sanitizeCssBackgroundUrl(targetCfg.imageUrl);
+            const overlayPct = Math.min(92, Math.max(20, Number(targetCfg.overlayOpacity) || 68));
+            const blurPx = Math.min(12, Math.max(0, Number(targetCfg.blur) || 0));
+
+            const overlayValEl = document.getElementById('bg-edit-overlay-val');
+            const blurValEl = document.getElementById('bg-edit-blur-val');
+            const previewImgEl = document.getElementById('bg-edit-preview-img');
+            const previewScrimEl = document.getElementById('bg-edit-preview-scrim');
+            const previewLabelEl = document.getElementById('bg-edit-preview-label');
+            const statusEl = document.getElementById('bg-enabled-status');
+            const toggleBtn = document.getElementById('btn-toggle-site-bg');
+
+            if (overlayValEl) overlayValEl.textContent = `${overlayPct} %`;
+            if (blurValEl) blurValEl.textContent = `${blurPx} px`;
+
+            if (previewImgEl) {
+                if (safeUrl) {
+                    previewImgEl.style.backgroundImage = `url("${safeUrl}")`;
+                    previewImgEl.style.backgroundPosition = getBackgroundPositionCss(targetCfg.position);
+                    previewImgEl.style.filter = blurPx > 0 ? `blur(${Math.max(1, Math.round(blurPx * 0.5))}px)` : 'none';
+                } else {
+                    previewImgEl.style.backgroundImage = '';
+                    previewImgEl.style.filter = 'none';
+                }
+            }
+            if (previewScrimEl) {
+                previewScrimEl.style.background = safeUrl ? buildBackgroundScrimCss(overlayPct) : 'none';
+            }
+            if (previewLabelEl) {
+                if (!safeUrl) {
+                    previewLabelEl.textContent = 'Žádný obrázek pozadí';
+                } else {
+                    const scopeLabel = targetCfg.scope === 'all' ? 'PC + tablet + mobil' : 'Pouze PC';
+                    previewLabelEl.textContent = `${scopeLabel} • ztmavení ${overlayPct} %`;
+                }
+            }
+            if (statusEl) {
+                const isLive = !!(backgroundConfig.enabled && sanitizeCssBackgroundUrl(backgroundConfig.imageUrl));
+                statusEl.textContent = isLive ? 'Aktivní na webu ✓' : 'Vypnuto';
+                statusEl.className = isLive
+                    ? 'text-[11px] font-black px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                    : 'text-[11px] font-black px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+            }
+            if (toggleBtn) {
+                const isLive = !!(backgroundConfig.enabled && sanitizeCssBackgroundUrl(backgroundConfig.imageUrl));
+                toggleBtn.innerHTML = isLive
+                    ? '<i class="fa-solid fa-power-off mr-1.5"></i> Deaktivovat pozadí'
+                    : '<i class="fa-solid fa-power-off mr-1.5"></i> Aktivovat pozadí';
+                toggleBtn.className = isLive
+                    ? 'px-5 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition whitespace-nowrap shrink-0'
+                    : 'px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition whitespace-nowrap shrink-0';
+            }
+        }
+
+        function previewBackgroundLive() {
+            const draft = getBackgroundEditorDraft();
+            updateBackgroundPreviewBox(draft);
+            renderSiteBackground(draft);
+        }
+
+        function handleSiteBackgroundFileUpload(event) {
+            const file = event && event.target && event.target.files ? event.target.files[0] : null;
+            if (!file) return;
+            const infoEl = document.getElementById('bg-edit-file-info');
+            const urlInput = document.getElementById('bg-edit-url');
+
+            if (!file.type || !file.type.startsWith('image/')) {
+                showModal("Chyba", "Vyberte prosím obrázkový soubor (JPG, PNG nebo WebP).");
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const rawDataUrl = e.target.result;
+                const img = new Image();
+                img.onload = function() {
+                    const encodeAtSize = (maxW, maxH, quality) => {
+                        const scale = Math.min(1, maxW / img.width, maxH / img.height);
+                        const targetW = Math.max(1, Math.round(img.width * scale));
+                        const targetH = Math.max(1, Math.round(img.height * scale));
+                        const canvas = document.createElement('canvas');
+                        canvas.width = targetW;
+                        canvas.height = targetH;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, targetW, targetH);
+                        let out = canvas.toDataURL('image/webp', quality);
+                        if (!out.startsWith('data:image/webp')) {
+                            out = canvas.toDataURL('image/jpeg', quality);
+                        }
+                        return { dataUrl: out, w: targetW, h: targetH };
+                    };
+
+                    let result = encodeAtSize(1600, 900, 0.78);
+                    if (result.dataUrl.length > 260000) {
+                        result = encodeAtSize(1440, 810, 0.66);
+                    }
+                    if (result.dataUrl.length > 240000) {
+                        result = encodeAtSize(1280, 720, 0.58);
+                    }
+
+                    if (urlInput) urlInput.value = result.dataUrl;
+                    if (infoEl) {
+                        const kb = Math.max(1, Math.round((result.dataUrl.length * 0.75) / 1024));
+                        infoEl.textContent = `Pozadí optimalizováno (${result.w}×${result.h} px, cca ${kb} KB) ✓`;
+                    }
+                    previewBackgroundLive();
+                    event.target.value = '';
+                };
+                img.onerror = function() {
+                    showModal("Chyba", "Nepodařilo se načíst vybraný obrázek pozadí.");
+                    event.target.value = '';
+                };
+                img.src = rawDataUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function toggleSiteBackgroundEnabled() {
+            const urlInputVal = document.getElementById('bg-edit-url')?.value ?? backgroundConfig.imageUrl;
+            const safeUrl = sanitizeCssBackgroundUrl(urlInputVal);
+            const currentlyLive = !!(backgroundConfig.enabled && sanitizeCssBackgroundUrl(backgroundConfig.imageUrl));
+
+            if (!currentlyLive && !safeUrl) {
+                showModal("Chybí obrázek pozadí", "Nejprve prosím nahrajte obrázek z počítače nebo vložte platnou URL adresu obrázku.");
+                return;
+            }
+
+            const prevCfg = JSON.parse(JSON.stringify(backgroundConfig));
+            const draft = getBackgroundEditorDraft();
+            backgroundConfig = {
+                ...backgroundConfig,
+                imageUrl: safeUrl,
+                scope: draft.scope,
+                position: draft.position,
+                overlayOpacity: draft.overlayOpacity,
+                blur: draft.blur,
+                cardStyle: draft.cardStyle,
+                enabled: !currentlyLive
+            };
+
+            renderSiteBackground();
+            renderAdminBackgroundEditor();
+            const res = await saveData();
+            if (res.ok) {
+                showModal(
+                    backgroundConfig.enabled ? "Pozadí aktivováno" : "Pozadí deaktivováno",
+                    backgroundConfig.enabled
+                        ? "Vlastní pozadí webu bylo aktivováno a uloženo do Firebase."
+                        : "Vlastní pozadí webu bylo skryto a změna uložena do Firebase."
+                );
+            } else {
+                backgroundConfig = prevCfg;
+                renderSiteBackground();
+                renderAdminBackgroundEditor();
+                showModal("Chyba databáze Firebase", `Změna stavu pozadí se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function saveBackgroundConfig() {
+            const draft = getBackgroundEditorDraft();
+            const safeUrl = sanitizeCssBackgroundUrl(draft.imageUrl);
+            if (String(draft.imageUrl || '').trim() && !safeUrl) {
+                showModal("Neplatná URL adresa", "Zadaná adresa obrázku pozadí není platná. Použijte prosím URL začínající https:// nebo nahrajte soubor.");
+                return;
+            }
+
+            const prevCfg = JSON.parse(JSON.stringify(backgroundConfig));
+            backgroundConfig = {
+                enabled: !!safeUrl,
+                imageUrl: safeUrl,
+                scope: draft.scope === 'all' ? 'all' : 'desktop',
+                position: ['top', 'bottom', 'center'].includes(draft.position) ? draft.position : 'center',
+                overlayOpacity: Math.min(92, Math.max(20, Number(draft.overlayOpacity) || 68)),
+                blur: Math.min(12, Math.max(0, Number(draft.blur) || 0)),
+                cardStyle: draft.cardStyle === 'solid' ? 'solid' : 'glass'
+            };
+
+            const estimatedBytes = JSON.stringify({ teams, riders, calendar, ageCategories, webPartners, headerConfig, footerConfig, backgroundConfig, raceResults }).length;
+            if (estimatedBytes > 920000) {
+                backgroundConfig = prevCfg;
+                renderSiteBackground();
+                renderAdminBackgroundEditor();
+                showModal("Limit velikosti Firebase", "Celková velikost nahraných obrázků překračuje limit databáze (1 MB). Pro pozadí webu prosím použijte URL odkaz na obrázek.");
+                return;
+            }
+
+            renderSiteBackground();
+            renderAdminBackgroundEditor();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", safeUrl
+                    ? "Pozadí webu bylo uloženo do Firebase a okamžitě aktivováno!"
+                    : "Nastavení pozadí webu (bez obrázku) bylo uloženo do Firebase.");
+            } else {
+                backgroundConfig = prevCfg;
+                renderSiteBackground();
+                renderAdminBackgroundEditor();
+                showModal("Chyba databáze Firebase", `Nastavení pozadí se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function clearSiteBackgroundImage() {
+            const prevCfg = JSON.parse(JSON.stringify(backgroundConfig));
+            backgroundConfig = {
+                ...backgroundConfig,
+                enabled: false,
+                imageUrl: ''
+            };
+            const infoEl = document.getElementById('bg-edit-file-info');
+            if (infoEl) infoEl.textContent = '';
+            renderSiteBackground();
+            renderAdminBackgroundEditor();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Obrázek odebrán", "Obrázek pozadí webu byl odstraněn a změna uložena do Firebase.");
+            } else {
+                backgroundConfig = prevCfg;
+                renderSiteBackground();
+                renderAdminBackgroundEditor();
+                showModal("Chyba databáze Firebase", `Odebrání pozadí se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function resetBackgroundToDefault() {
+            if (!confirm("Opravdu chcete obnovit pozadí webu do výchozího tmavého nastavení?")) return;
+            const prevCfg = JSON.parse(JSON.stringify(backgroundConfig));
+            backgroundConfig = JSON.parse(JSON.stringify(defaultBackgroundConfig));
+            const infoEl = document.getElementById('bg-edit-file-info');
+            if (infoEl) infoEl.textContent = '';
+            renderSiteBackground();
+            renderAdminBackgroundEditor();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Obnoveno", "Pozadí webu bylo obnoveno do výchozího nastavení a uloženo do Firebase.");
+            } else {
+                backgroundConfig = prevCfg;
+                renderSiteBackground();
+                renderAdminBackgroundEditor();
+                showModal("Chyba databáze Firebase", `Obnovení pozadí se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        function renderAdminBackgroundEditor() {
+            const setInputSafe = (id, value) => {
+                const el = document.getElementById(id);
+                if (el && document.activeElement !== el) {
+                    el.value = value ?? '';
+                }
+            };
+            setInputSafe('bg-edit-url', backgroundConfig.imageUrl || '');
+            setInputSafe('bg-edit-scope', backgroundConfig.scope === 'all' ? 'all' : 'desktop');
+            setInputSafe('bg-edit-position', ['top', 'bottom', 'center'].includes(backgroundConfig.position) ? backgroundConfig.position : 'center');
+            setInputSafe('bg-edit-overlay', Math.min(92, Math.max(20, Number(backgroundConfig.overlayOpacity) || 68)));
+            setInputSafe('bg-edit-blur', Math.min(12, Math.max(0, Number(backgroundConfig.blur) || 0)));
+            setInputSafe('bg-edit-glass', backgroundConfig.cardStyle === 'solid' ? 'solid' : 'glass');
+            updateBackgroundPreviewBox(backgroundConfig);
+        }
+
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, headerConfig, footerConfig, availableBrands, brandFlags, availableMotors, motorHandicaps, motorSpecs, raceResults };
+            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, headerConfig, footerConfig, backgroundConfig, availableBrands, brandFlags, availableMotors, motorHandicaps, motorSpecs, raceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -7333,6 +7893,12 @@
                                 : JSON.parse(JSON.stringify(defaultFooterConfig.links))
                         };
                     }
+                    if (data.backgroundConfig && typeof data.backgroundConfig === 'object') {
+                        backgroundConfig = {
+                            ...JSON.parse(JSON.stringify(defaultBackgroundConfig)),
+                            ...data.backgroundConfig
+                        };
+                    }
                     if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
                     if (data.brandFlags && typeof data.brandFlags === 'object') {
                         brandFlags = { ...defaultBrandFlags, ...data.brandFlags };
@@ -7357,11 +7923,13 @@
                     renderAdminWebPartnersGrid();
                     renderAdminHeaderEditor();
                     renderAdminFooterEditor();
+                    renderAdminBackgroundEditor();
                     renderCalendar();
                     renderPublicLeaderboards();
                     renderPublicRaceResults();
                     renderTeamsAndRidersView();
                     renderWebPartnersSlider();
+                    renderSiteBackground();
                     renderHeader();
                     renderFooter();
                     showModal("Úspěch", "Data byla úspěšně obnovena ze zálohy!");
@@ -7398,6 +7966,7 @@
                 populatePublicRaceResultsSelect();
                 renderCalendar();
                 renderWebPartnersSlider();
+                renderSiteBackground();
                 renderHeader();
                 renderFooter();
                 filterMotorReferenceCatalog();
