@@ -306,6 +306,10 @@
             -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 44px, #000 calc(100% - 44px), transparent 100%);
             mask-image: linear-gradient(to right, transparent 0%, #000 44px, #000 calc(100% - 44px), transparent 100%);
         }
+        body.site-bg-apply-theme .partner-logo-card-dark {
+            background-color: var(--sb-header-bg, rgba(10, 16, 29, 0.86)) !important;
+            border-color: var(--sb-border, rgba(100, 116, 139, 0.35)) !important;
+        }
         body.site-bg-apply-theme .responsive-table-wrap {
             border-color: var(--sb-border, rgba(100, 116, 139, 0.32)) !important;
             background-color: transparent !important;
@@ -695,17 +699,9 @@
                         <h3 class="text-lg sm:text-xl font-black text-white flex items-center gap-2.5 sm:gap-3">
                             <i class="fa-solid fa-list-check text-amber-400 shrink-0"></i> <span data-i18n="race_results_title">Výsledkové listiny jednotlivých závodů</span>
                         </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:flex items-stretch lg:items-center gap-2.5 sm:gap-3 w-full lg:w-auto">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="filter_cat">Kategorie:</span>
-                                <select id="public-race-results-category-filter" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-400 transition shadow-sm flex-1 lg:w-52 min-w-0">
-                                    <option value="all">Všechny kategorie</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="select_race_label">Vyberte závod:</span>
-                                <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-400 transition shadow-sm flex-1 lg:w-64 min-w-0"></select>
-                            </div>
+                        <div class="flex items-center gap-2.5 w-full lg:w-auto">
+                            <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="select_race_label">Vyberte závod:</span>
+                            <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-400 transition shadow-sm flex-1 lg:w-64 min-w-0"></select>
                         </div>
                     </div>
 
@@ -815,10 +811,15 @@
                         </div>
                     </div>
 
-                    <!-- Discipline Filter Bar: Cíl / Sprint / KOM -->
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pt-1">
+                    <!-- Category & Discipline Filter Bar: matching Leaderboards layout -->
+                    <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3 sm:gap-4 pt-1">
+                        <div class="flex items-center gap-2.5 w-full lg:w-auto">
+                            <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="filter_cat">Kategorie:</span>
+                            <select id="public-race-results-category-filter" onchange="renderPublicRaceResults()" class="flex-1 sm:flex-initial sm:min-w-[190px] bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-400 transition">
+                                <option value="all">Všechny kategorie</option>
+                            </select>
+                        </div>
                         <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto sm:flex-wrap pb-1 sm:pb-0 scrollbar-none">
-                            <span class="text-xs uppercase font-black text-slate-400 mr-1 whitespace-nowrap shrink-0">Zobrazit pořadí:</span>
                             <button onclick="switchRaceResultFilter('finish')" id="race-filter-btn-finish" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0">
                                 <i class="fa-solid fa-flag-checkered text-slate-950"></i> <span>Cíl (Celkově)</span>
                             </button>
@@ -6563,8 +6564,8 @@
 
                 const img = new Image();
                 img.onload = function() {
-                    const maxW = 360;
-                    const maxH = 140;
+                    const maxW = 480;
+                    const maxH = 200;
                     const scale = Math.min(1, maxW / img.width, maxH / img.height);
                     const targetW = Math.max(1, Math.round(img.width * scale));
                     const targetH = Math.max(1, Math.round(img.height * scale));
@@ -6576,12 +6577,12 @@
                     ctx.clearRect(0, 0, targetW, targetH);
                     ctx.drawImage(img, 0, 0, targetW, targetH);
 
-                    let optimized = canvas.toDataURL('image/webp', 0.86);
+                    let optimized = canvas.toDataURL('image/webp', 0.88);
                     if (!optimized.startsWith('data:image/webp')) {
                         optimized = canvas.toDataURL('image/png');
                     }
                     if (optimized.length > 160000) {
-                        optimized = canvas.toDataURL('image/webp', 0.65);
+                        optimized = canvas.toDataURL('image/webp', 0.68);
                     }
                     if (urlInput) urlInput.value = optimized;
                     if (infoEl) {
@@ -6609,15 +6610,15 @@
             const safeLogo = normalizeLogoUrl(rawUrl);
 
             const bgClasses = bgStyle === 'light'
-                ? 'h-24 rounded-2xl border border-slate-300 bg-white flex items-center justify-center p-3 overflow-hidden shadow-inner'
-                : 'h-24 rounded-2xl border border-slate-700 bg-slate-900/90 flex items-center justify-center p-3 overflow-hidden shadow-inner';
+                ? 'h-24 rounded-2xl border border-slate-300 bg-white flex items-center justify-center p-1.5 overflow-hidden shadow-inner'
+                : 'h-24 rounded-2xl border border-slate-700 bg-slate-900/90 flex items-center justify-center p-1.5 overflow-hidden shadow-inner';
             previewEl.className = bgClasses;
 
             if (!safeLogo) {
                 previewEl.innerHTML = `<span class="text-xs ${bgStyle === 'light' ? 'text-slate-500' : 'text-slate-500'} italic">Zde se zobrazí náhled loga</span>`;
                 return;
             }
-            previewEl.innerHTML = `<img src="${escapeHtml(safeLogo)}" alt="${escapeHtml(nameVal)}" class="max-h-16 max-w-full w-auto h-auto object-contain" onerror="this.outerHTML='<span class=&quot;text-xs text-red-400 font-bold&quot;>Obrázek se nepodařilo načíst</span>'">`;
+            previewEl.innerHTML = `<img src="${escapeHtml(safeLogo)}" alt="${escapeHtml(nameVal)}" class="w-full h-full object-contain rounded-xl" onerror="this.outerHTML='<span class=&quot;text-xs text-red-400 font-bold&quot;>Obrázek se nepodařilo načíst</span>'">`;
         }
 
         async function addOrUpdateWebPartner() {
@@ -6783,9 +6784,9 @@
                 card.className = "bg-[#0f172a] border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 flex flex-col justify-between";
                 card.innerHTML = `
                     <div class="space-y-3">
-                        <div class="h-24 rounded-xl border ${logoBoxClass} flex items-center justify-center p-3 overflow-hidden">
+                        <div class="h-24 rounded-xl border ${logoBoxClass} flex items-center justify-center p-1.5 overflow-hidden">
                             ${safeLogo
-                                ? `<img src="${escapeHtml(safeLogo)}" alt="${escapeHtml(p.name)}" class="max-h-16 max-w-full w-auto h-auto object-contain">`
+                                ? `<img src="${escapeHtml(safeLogo)}" alt="${escapeHtml(p.name)}" class="w-full h-full object-contain rounded-lg">`
                                 : `<span class="text-xs font-black text-amber-400">${escapeHtml(p.name)}</span>`}
                         </div>
                         <div class="space-y-1">
@@ -6824,11 +6825,11 @@
             const safeWeb = normalizeRaceWebsiteUrl(p.website);
             const safeName = escapeHtml(p.name || 'Partner');
             const cardClasses = p.bgStyle === 'light'
-                ? 'h-20 sm:h-24 min-w-[155px] sm:min-w-[185px] max-w-[230px] px-5 rounded-2xl bg-white/95 border border-slate-200 shadow-lg flex items-center justify-center hover:scale-105 hover:border-amber-400 transition shrink-0'
-                : 'h-20 sm:h-24 min-w-[155px] sm:min-w-[185px] max-w-[230px] px-5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-lg flex items-center justify-center hover:scale-105 hover:border-amber-400/70 transition shrink-0';
+                ? 'partner-logo-card-light w-[175px] sm:w-[224px] h-20 sm:h-24 p-1.5 rounded-2xl bg-white/95 border border-slate-200 shadow-lg flex items-center justify-center overflow-hidden hover:scale-[1.03] hover:border-amber-400 transition shrink-0'
+                : 'partner-logo-card-dark w-[175px] sm:w-[224px] h-20 sm:h-24 p-1.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-lg flex items-center justify-center overflow-hidden hover:scale-[1.03] hover:border-amber-400/70 transition shrink-0';
             const innerHtml = safeLogo
-                ? `<img src="${escapeHtml(safeLogo)}" alt="${safeName}" title="${safeName}" loading="lazy" class="max-h-12 sm:max-h-14 max-w-[140px] sm:max-w-[170px] w-auto h-auto object-contain select-none">`
-                : `<span class="text-xs sm:text-sm font-black ${p.bgStyle === 'light' ? 'text-slate-900' : 'text-amber-400'} whitespace-nowrap">${safeName}</span>`;
+                ? `<img src="${escapeHtml(safeLogo)}" alt="${safeName}" title="${safeName}" loading="lazy" class="w-full h-full object-contain rounded-xl select-none">`
+                : `<span class="text-xs sm:text-sm font-black ${p.bgStyle === 'light' ? 'text-slate-900' : 'text-amber-400'} whitespace-nowrap px-2">${safeName}</span>`;
 
             if (safeWeb) {
                 return `<a href="${escapeHtml(safeWeb)}" target="_blank" rel="noopener noreferrer" title="${safeName}" class="${cardClasses}">${innerHtml}</a>`;
