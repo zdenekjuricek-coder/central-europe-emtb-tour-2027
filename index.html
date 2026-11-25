@@ -328,13 +328,24 @@
             background-color: var(--sb-table-body-bg, rgba(12, 19, 34, 0.36)) !important;
             border-color: var(--sb-border, rgba(100, 116, 139, 0.28)) !important;
         }
-        body.site-bg-apply-theme #calendar-grid > div,
+        body.site-bg-apply-theme #calendar-grid > div {
+            background: linear-gradient(90deg, var(--sb-row-bg-start, rgba(18, 28, 49, 0.72)) 0%, var(--sb-row-bg-end, rgba(12, 19, 34, 0.58)) 100%) !important;
+            border-color: rgba(251, 191, 36, 0.88) !important;
+        }
+        body.site-bg-apply-theme #calendar-grid > div:hover {
+            border-color: rgba(252, 211, 77, 1) !important;
+        }
         body.site-bg-apply-theme #teams-roster-grid > div,
         body.site-bg-apply-theme #riders-profiles-grid > div {
             background: linear-gradient(90deg, var(--sb-row-bg-start, rgba(18, 28, 49, 0.72)) 0%, var(--sb-row-bg-end, rgba(12, 19, 34, 0.58)) 100%) !important;
             border-top-color: var(--sb-border, rgba(100, 116, 139, 0.28)) !important;
             border-right-color: var(--sb-border, rgba(100, 116, 139, 0.28)) !important;
             border-bottom-color: var(--sb-border, rgba(100, 116, 139, 0.28)) !important;
+        }
+        #public-race-results-select option {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-weight: 700;
         }
         body.site-bg-apply-theme .jersey-hero-card {
             backdrop-filter: blur(var(--sb-glass-blur, 14px));
@@ -699,9 +710,9 @@
                         <h3 class="text-lg sm:text-xl font-black text-white flex items-center gap-2.5 sm:gap-3">
                             <i class="fa-solid fa-list-check text-amber-400 shrink-0"></i> <span data-i18n="race_results_title">Výsledkové listiny jednotlivých závodů</span>
                         </h3>
-                        <div class="flex items-center gap-2.5 w-full lg:w-auto">
-                            <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="select_race_label">Vyberte závod:</span>
-                            <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-400 transition shadow-sm flex-1 lg:w-64 min-w-0"></select>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2.5 w-full lg:w-auto">
+                            <span class="text-xs uppercase font-black text-amber-400 whitespace-nowrap" data-i18n="select_race_label">Vyberte závod:</span>
+                            <select id="public-race-results-select" onchange="renderPublicRaceResults()" class="bg-amber-400 hover:bg-amber-300 border-2 border-amber-300 text-slate-950 text-xs sm:text-sm font-black rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-amber-300/70 transition shadow-lg shadow-amber-400/20 cursor-pointer w-full sm:flex-1 lg:w-[440px] xl:w-[500px] min-w-0"></select>
                         </div>
                     </div>
 
@@ -4293,7 +4304,7 @@
                 const hasYtVideoId = !!extractYouTubeVideoId(c.youtubeUrl);
 
                 const row = document.createElement('div');
-                row.className = "rounded-2xl bg-gradient-to-r from-[#131c31] via-[#0f172a] to-[#0f172a] border border-slate-800/90 border-l-4 border-l-amber-400/80 hover:border-amber-400/50 hover:from-[#17233d] shadow-md hover:shadow-xl hover:shadow-amber-500/5 px-4 sm:px-5 py-4 transition-all duration-200";
+                row.className = "rounded-2xl bg-gradient-to-r from-[#131c31] via-[#0f172a] to-[#0f172a] border-2 border-amber-400/85 border-l-4 border-l-amber-400 hover:border-amber-300 hover:from-[#17233d] shadow-md shadow-amber-400/10 hover:shadow-xl hover:shadow-amber-400/20 px-4 sm:px-5 py-4 transition-all duration-200";
                 row.innerHTML = `
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 lg:gap-4 items-start lg:items-center">
                         <!-- Column 1: Round # (plus mobile date/time inline) -->
