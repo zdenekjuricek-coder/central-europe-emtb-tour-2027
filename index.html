@@ -328,19 +328,16 @@
             background-color: var(--sb-table-body-bg, rgba(12, 19, 34, 0.36)) !important;
             border-color: var(--sb-border, rgba(100, 116, 139, 0.28)) !important;
         }
-        body.site-bg-apply-theme #calendar-grid > div {
-            background: linear-gradient(90deg, var(--sb-row-bg-start, rgba(18, 28, 49, 0.72)) 0%, var(--sb-row-bg-end, rgba(12, 19, 34, 0.58)) 100%) !important;
-            border-color: rgba(251, 191, 36, 0.88) !important;
-        }
-        body.site-bg-apply-theme #calendar-grid > div:hover {
-            border-color: rgba(252, 211, 77, 1) !important;
-        }
+        body.site-bg-apply-theme #calendar-grid > div,
         body.site-bg-apply-theme #teams-roster-grid > div,
         body.site-bg-apply-theme #riders-profiles-grid > div {
             background: linear-gradient(90deg, var(--sb-row-bg-start, rgba(18, 28, 49, 0.72)) 0%, var(--sb-row-bg-end, rgba(12, 19, 34, 0.58)) 100%) !important;
-            border-top-color: var(--sb-border, rgba(100, 116, 139, 0.28)) !important;
-            border-right-color: var(--sb-border, rgba(100, 116, 139, 0.28)) !important;
-            border-bottom-color: var(--sb-border, rgba(100, 116, 139, 0.28)) !important;
+            border-color: rgba(251, 191, 36, 0.88) !important;
+        }
+        body.site-bg-apply-theme #calendar-grid > div:hover,
+        body.site-bg-apply-theme #teams-roster-grid > div:hover,
+        body.site-bg-apply-theme #riders-profiles-grid > div:hover {
+            border-color: rgba(252, 211, 77, 1) !important;
         }
         #public-race-results-select option {
             background-color: #0f172a;
@@ -4730,7 +4727,7 @@
                         const hasTeamOrRiderSponsors = !!teamSponsorBadges || orderedRiders.some(r => parseSponsorsList(r.sponsors).length > 0);
                         const teamFlagIcon = t.country ? getFlagIcon(t.country) : '<i class="fa-solid fa-shield text-amber-400 text-xs"></i>';
                         let row = document.createElement('div');
-                        row.className = "sponsor-reveal-row rounded-2xl bg-gradient-to-r from-[#131c31] via-[#0f172a] to-[#0f172a] border border-slate-800/90 border-l-4 border-l-amber-400/80 hover:border-amber-400/50 hover:from-[#17233d] shadow-md hover:shadow-xl hover:shadow-amber-500/5 px-4 sm:px-5 py-4 transition-all duration-200 outline-none";
+                        row.className = "sponsor-reveal-row rounded-2xl bg-gradient-to-r from-[#131c31] via-[#0f172a] to-[#0f172a] border-2 border-amber-400/85 border-l-4 border-l-amber-400 hover:border-amber-300 hover:from-[#17233d] shadow-md shadow-amber-400/10 hover:shadow-xl hover:shadow-amber-400/20 px-4 sm:px-5 py-4 transition-all duration-200 outline-none";
                         row.setAttribute('tabindex', '0');
                         row.innerHTML = `
                             <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 lg:gap-4 items-start lg:items-center">
@@ -4835,7 +4832,7 @@
 
                         const riderFlagIcon = r.country ? getFlagIcon(r.country) : '<i class="fa-solid fa-user text-amber-400 text-xs"></i>';
                         let row = document.createElement('div');
-                        row.className = "sponsor-reveal-row rounded-2xl bg-gradient-to-r from-[#131c31] via-[#0f172a] to-[#0f172a] border border-slate-800/90 border-l-4 border-l-amber-400/80 hover:border-amber-400/50 hover:from-[#17233d] shadow-md hover:shadow-xl hover:shadow-amber-500/5 px-4 sm:px-5 py-4 transition-all duration-200 outline-none";
+                        row.className = "sponsor-reveal-row rounded-2xl bg-gradient-to-r from-[#131c31] via-[#0f172a] to-[#0f172a] border-2 border-amber-400/85 border-l-4 border-l-amber-400 hover:border-amber-300 hover:from-[#17233d] shadow-md shadow-amber-400/10 hover:shadow-xl hover:shadow-amber-400/20 px-4 sm:px-5 py-4 transition-all duration-200 outline-none";
                         row.setAttribute('tabindex', '0');
                         row.innerHTML = `
                             <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 lg:gap-4 items-start lg:items-center">
