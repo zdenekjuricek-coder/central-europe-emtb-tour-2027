@@ -1194,7 +1194,13 @@
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Motor & Pohon</label>
                             <select id="new-rider-motor" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none"></select>
                         </div>
-                        <div class="sm:col-span-2 lg:col-span-4">
+                        <div class="sm:col-span-2 lg:col-span-2">
+                            <label for="new-rider-rouvy-id" class="block text-xs uppercase font-black text-sky-400 mb-1.5">
+                                <i class="fa-solid fa-bicycle mr-1"></i> Rouvy ID / jméno profilu <span class="text-slate-500 font-semibold normal-case">(divákům se zobrazí jen modré ROUVY)</span>
+                            </label>
+                            <input type="text" id="new-rider-rouvy-id" class="w-full bg-slate-800 border border-slate-700 text-sky-200 placeholder-slate-500 rounded-xl p-3 text-sm font-bold focus:border-sky-400 outline-none" placeholder="např. JanNovak_CZ nebo ID profilu na Rouvy">
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-2">
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">
                                 <i class="fa-solid fa-handshake text-amber-400 mr-1"></i> Sponzoři a partneři jezdce <span class="text-slate-500 font-semibold normal-case">(oddělujte čárkou nebo novým řádkem)</span>
                             </label>
@@ -1222,6 +1228,7 @@
                                     <th class="p-3">E-Bike</th>
                                     <th class="p-3">Typ E-Biku</th>
                                     <th class="p-3">Motor</th>
+                                    <th class="p-3 text-sky-400">Rouvy ID</th>
                                     <th class="p-3 text-right">Akce</th>
                                 </tr>
                             </thead>
@@ -4989,6 +4996,7 @@
                         const riderTeamObj = r.team ? teams.find(t => t.name === r.team) : null;
                         const teamSponsorBadges = riderTeamObj ? renderSponsorBadges(riderTeamObj.sponsors, { variant: 'team', compact: true }) : '';
                         const hasAnySponsors = !!(personalSponsorBadges || teamSponsorBadges);
+                        const hasRouvyProfile = !!(r.rouvyId && String(r.rouvyId).trim());
 
                         const riderFlagIcon = r.country ? getFlagIcon(r.country) : '<i class="fa-solid fa-user text-amber-400 text-xs"></i>';
                         let row = document.createElement('div');
@@ -5003,8 +5011,9 @@
                                             ${riderFlagIcon}
                                         </span>
                                         <div class="min-w-0 space-y-1">
-                                            <div class="flex items-center gap-2 min-w-0">
+                                            <div class="flex items-center gap-2 flex-wrap min-w-0">
                                                 <h4 class="font-black text-white text-sm sm:text-base tracking-wide truncate">${escapeHtml(r.name)}</h4>
+                                                ${hasRouvyProfile ? `<span class="inline-flex items-center text-[11px] font-black uppercase tracking-wider text-sky-400 bg-sky-500/15 border border-sky-400/40 px-2 py-0.5 rounded-md shadow-sm shrink-0" title="Jezdec má profil na ROUVY a jezdí na chytrém trenažéru">ROUVY</span>` : ''}
                                                 ${hasAnySponsors ? `<i class="fa-solid fa-handshake text-[11px] text-sky-400/80 shrink-0" title="Jezdec má uvedené sponzory / partnery"></i>` : ''}
                                             </div>
                                             <div class="flex items-center gap-1.5 flex-wrap text-[11px] text-slate-400 font-medium">
@@ -5262,6 +5271,7 @@
             const ebikeEl = document.getElementById('new-rider-ebike');
             const ebikeModelEl = document.getElementById('new-rider-ebike-model');
             const motorEl = document.getElementById('new-rider-motor');
+            const rouvyIdEl = document.getElementById('new-rider-rouvy-id');
             const sponsorsEl = document.getElementById('new-rider-sponsors');
             const sponsorsPreviewEl = document.getElementById('new-rider-sponsors-preview');
 
@@ -5275,6 +5285,7 @@
             const ebike = ebikeEl ? ebikeEl.value : 'Crussis';
             const ebikeModel = ebikeModelEl ? ebikeModelEl.value.trim() : '';
             const motor = motorEl ? motorEl.value : 'Bosch CX Race';
+            const rouvyId = rouvyIdEl ? rouvyIdEl.value.trim() : '';
             const sponsors = sponsorsEl ? sponsorsEl.value.trim() : '';
 
             if (!name) {
@@ -5292,6 +5303,7 @@
                     existing.ebike = ebike;
                     existing.ebikeModel = ebikeModel;
                     existing.motor = motor;
+                    existing.rouvyId = rouvyId;
                     existing.sponsors = sponsors;
                     if (birthYear && !isNaN(birthYear)) {
                         existing.birthYear = birthYear;
@@ -5328,6 +5340,7 @@
                 ebike: ebike,
                 ebikeModel: ebikeModel,
                 motor: motor,
+                rouvyId: rouvyId,
                 sponsors: sponsors,
                 showInLeaderboard: true,
                 skills: { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 }
@@ -5341,6 +5354,7 @@
             if (birthYearEl) birthYearEl.value = '';
             if (ageHintEl) ageHintEl.textContent = '';
             if (ebikeModelEl) ebikeModelEl.value = '';
+            if (rouvyIdEl) rouvyIdEl.value = '';
             if (sponsorsEl) sponsorsEl.value = '';
             if (sponsorsPreviewEl) sponsorsPreviewEl.innerHTML = '';
             populateAdminSelects();
@@ -5394,6 +5408,8 @@
             const ebikeModelEl = document.getElementById('new-rider-ebike-model');
             if (ebikeModelEl) ebikeModelEl.value = r.ebikeModel || '';
             ensureSelectValue(document.getElementById('new-rider-motor'), r.motor || '');
+            const rouvyIdEl = document.getElementById('new-rider-rouvy-id');
+            if (rouvyIdEl) rouvyIdEl.value = r.rouvyId || '';
             const sponsorsEl = document.getElementById('new-rider-sponsors');
             if (sponsorsEl) {
                 sponsorsEl.value = r.sponsors || '';
@@ -5412,6 +5428,7 @@
             const birthYearEl = document.getElementById('new-rider-birthyear');
             const ageHintEl = document.getElementById('new-rider-age-hint');
             const ebikeModelEl = document.getElementById('new-rider-ebike-model');
+            const rouvyIdEl = document.getElementById('new-rider-rouvy-id');
             const sponsorsEl = document.getElementById('new-rider-sponsors');
             const sponsorsPreviewEl = document.getElementById('new-rider-sponsors-preview');
             const btnSave = document.getElementById('btn-save-rider');
@@ -5423,6 +5440,7 @@
             if (birthYearEl) birthYearEl.value = '';
             if (ageHintEl) ageHintEl.textContent = '';
             if (ebikeModelEl) ebikeModelEl.value = '';
+            if (rouvyIdEl) rouvyIdEl.value = '';
             if (sponsorsEl) sponsorsEl.value = '';
             if (sponsorsPreviewEl) sponsorsPreviewEl.innerHTML = '';
             if (btnSave) btnSave.textContent = 'Vytvořit a uložit jezdce';
@@ -5568,6 +5586,9 @@
                         <select onchange="updateRiderField('${escapeHtml(r.id)}', 'motor', this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 font-bold outline-none focus:border-amber-400 max-w-[190px]">
                             ${extraMotorOption}${motorOptions}
                         </select>
+                    </td>
+                    <td class="p-3 min-w-[165px]">
+                        <input type="text" value="${escapeHtml(r.rouvyId || '')}" onchange="updateRiderField('${escapeHtml(r.id)}', 'rouvyId', this.value.trim())" class="w-full bg-slate-800 border border-slate-700 text-sky-300 placeholder-slate-500 text-xs rounded-lg px-2.5 py-2 font-bold outline-none focus:border-sky-400" placeholder="Rouvy ID / profil...">
                     </td>
                     <td class="p-3 text-right space-x-2 whitespace-nowrap">
                         <button onclick="editRider('${escapeHtml(r.id)}')" class="px-3 py-1.5 bg-amber-400/20 text-amber-300 rounded-xl hover:bg-amber-400/30 transition font-bold text-xs border border-amber-400/30">Upravit</button>
@@ -5724,6 +5745,7 @@
                 const rawEbike = String(pickField(row, ['e bike', 'ebike', 'znacka', 'znacka e biku', 'znacka ebiku', 'vyrobce', 'brand', 'kolo', 'bike']) || '').trim();
                 const rawModel = String(pickField(row, ['typ e biku', 'typ ebiku', 'nazev typu ebiku', 'nazev ebiku', 'model', 'model e biku', 'model ebiku', 'typ', 'typ kola', 'ebike model', 'ebikemodel']) || '').trim();
                 const rawMotor = String(pickField(row, ['motor', 'pohon', 'motor / pohon', 'drive', 'engine', 'system']) || '').trim();
+                const rawRouvyId = String(pickField(row, ['rouvy', 'rouvy id', 'rouvyid', 'rouvy profil', 'rouvy jmeno', 'id rouvy']) || '').trim();
                 const rawSponsors = String(pickField(row, ['sponzori', 'partneri', 'sponzori / partneri', 'sponsors', 'partners']) || '').trim();
                 const rawActive = pickField(row, ['aktivni', 'aktivni v zebricku', 'zebricek', 'active', 'showinleaderboard']);
 
@@ -5743,6 +5765,7 @@
                     ebike,
                     ebikeModel: rawModel,
                     motor,
+                    rouvyId: rawRouvyId,
                     sponsors: rawSponsors,
                     showInLeaderboard
                 });
@@ -5926,6 +5949,7 @@
                         if (item.ebike) existing.ebike = item.ebike;
                         if (item.ebikeModel !== '') existing.ebikeModel = item.ebikeModel;
                         if (item.motor) existing.motor = item.motor;
+                        if (item.rouvyId !== '') existing.rouvyId = item.rouvyId;
                         if (item.sponsors !== '') existing.sponsors = item.sponsors;
                         updated++;
                     } else {
@@ -5941,6 +5965,7 @@
                         ebike: item.ebike,
                         ebikeModel: item.ebikeModel,
                         motor: item.motor,
+                        rouvyId: item.rouvyId || '',
                         sponsors: item.sponsors,
                         showInLeaderboard: !!item.showInLeaderboard,
                         skills: { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 }
@@ -6010,6 +6035,7 @@
                     'E-Bike': 'Crussis',
                     'Typ E-Biku': 'e-Full PRO X',
                     'Motor': 'DJI Avinox',
+                    'Rouvy ID': 'JanNovak_CZ',
                     'Sponzoři': 'Crussis, Maxxis'
                 },
                 {
@@ -6021,13 +6047,14 @@
                     'E-Bike': 'Kellys',
                     'Typ E-Biku': 'Theos F100',
                     'Motor': 'Bosch CX Gen 5',
+                    'Rouvy ID': '',
                     'Sponzoři': ''
                 }
             ];
             const ws = XLSX.utils.json_to_sheet(sampleRows);
             ws['!cols'] = [
                 { wch: 24 }, { wch: 8 }, { wch: 26 }, { wch: 10 }, { wch: 14 },
-                { wch: 16 }, { wch: 22 }, { wch: 20 }, { wch: 24 }
+                { wch: 16 }, { wch: 22 }, { wch: 20 }, { wch: 18 }, { wch: 24 }
             ];
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Databaze_Jezdcu');
@@ -6051,6 +6078,7 @@
                     'E-Bike': r.ebike || '',
                     'Typ E-Biku': r.ebikeModel || '',
                     'Motor': r.motor || '',
+                    'Rouvy ID': r.rouvyId || '',
                     'Sponzoři': r.sponsors || '',
                     'Body Cíl (TOP 7)': st.totalYellow || 0,
                     'Body Sprint': st.totalGreen || 0,
@@ -6253,9 +6281,10 @@
                 tr.className = `hover:bg-slate-800/50 transition border-b border-slate-800 ${isActive ? '' : 'bg-[#0b1120]/60'}`;
                 tr.innerHTML = `
                     <td class="p-3 min-w-[210px]">
-                        <div class="flex items-center gap-2 font-black text-white">
+                        <div class="flex items-center gap-2 font-black text-white flex-wrap">
                             ${getFlagIcon(r.country)}
                             <span>${escapeHtml(r.name)}</span>
+                            ${r.rouvyId && String(r.rouvyId).trim() ? `<span class="inline-flex items-center text-[10px] font-black uppercase tracking-wider text-sky-400 bg-sky-500/15 border border-sky-400/40 px-1.5 py-0.5 rounded-md" title="Rouvy ID: ${escapeHtml(String(r.rouvyId).trim())}">ROUVY</span>` : ''}
                         </div>
                         <div class="flex items-center gap-1.5 flex-wrap mt-1 text-[11px]">
                             <span class="px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 border border-slate-700 font-bold">${escapeHtml(getCategoryLabelById(r.category))}</span>
