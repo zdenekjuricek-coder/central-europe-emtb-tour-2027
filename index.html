@@ -340,6 +340,12 @@
         body.site-bg-apply-theme #riders-profiles-grid > div:hover {
             border-color: rgba(252, 211, 77, 1) !important;
         }
+        body.site-bg-apply-theme #calendar-grid > div.calendar-row-virtual {
+            border-color: rgba(56, 189, 248, 0.92) !important;
+        }
+        body.site-bg-apply-theme #calendar-grid > div.calendar-row-virtual:hover {
+            border-color: rgba(125, 211, 252, 1) !important;
+        }
         #public-race-results-select option {
             background-color: #0f172a;
             color: #f8fafc;
@@ -1858,9 +1864,17 @@
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5"><i class="fa-solid fa-link mr-1 text-sky-400"></i> Web závodu (odkaz pro více info)</label>
                             <input type="url" id="new-race-website" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold focus:border-amber-400 outline-none" placeholder="https://www.web-zavodu.cz">
                         </div>
-                        <div class="sm:col-span-2 lg:col-span-3">
+                        <div class="sm:col-span-2 lg:col-span-2">
                             <label class="block text-xs uppercase font-black text-red-400 mb-1.5"><i class="fa-brands fa-youtube mr-1 text-red-500"></i> YouTube video závodu (odkaz z YouTube nebo Video ID)</label>
                             <input type="text" id="new-race-youtube" class="w-full bg-slate-800 border border-red-500/40 text-white rounded-xl p-3 text-sm font-bold focus:border-red-400 outline-none" placeholder="např. https://www.youtube.com/watch?v=... nebo https://youtu.be/...">
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-1 flex flex-col justify-end">
+                            <label class="block text-xs uppercase font-black text-sky-400 mb-1.5"><i class="fa-solid fa-vr-cardboard mr-1"></i> Typ závodu (Kalendář)</label>
+                            <input type="hidden" id="new-race-is-virtual" value="false">
+                            <button type="button" id="btn-form-race-virtual" onclick="toggleFormRaceVirtual()" class="w-full px-4 py-3 rounded-xl text-xs font-black bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-sky-400/50 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-toggle-off text-sm text-slate-500"></i>
+                                <span>Klasický závod (Aktivovat virtuální)</span>
+                            </button>
                         </div>
                     </div>
 
@@ -1882,6 +1896,7 @@
                                     <th class="p-3">Datum</th>
                                     <th class="p-3">Čas startu</th>
                                     <th class="p-3">Trať / Parametry</th>
+                                    <th class="p-3 text-center text-sky-400">Virtuální závod</th>
                                     <th class="p-3">Web &amp; Video</th>
                                     <th class="p-3 text-right">Akce</th>
                                 </tr>
@@ -4466,37 +4481,51 @@
                 const safeUrl = normalizeRaceWebsiteUrl(c.website);
                 const safeYtUrl = normalizeYouTubeWatchUrl(c.youtubeUrl);
                 const hasYtVideoId = !!extractYouTubeVideoId(c.youtubeUrl);
+                const isVirtual = !!c.isVirtual;
 
                 const row = document.createElement('div');
-                row.className = "rounded-2xl bg-gradient-to-r from-[#131c31] via-[#0f172a] to-[#0f172a] border-2 border-amber-400/85 border-l-4 border-l-amber-400 hover:border-amber-300 hover:from-[#17233d] shadow-md shadow-amber-400/10 hover:shadow-xl hover:shadow-amber-400/20 px-4 sm:px-5 py-4 transition-all duration-200";
+                row.className = isVirtual
+                    ? "calendar-row-virtual rounded-2xl bg-gradient-to-r from-[#0e2038] via-[#0f172a] to-[#0f172a] border-2 border-sky-400/90 border-l-4 border-l-sky-400 hover:border-sky-300 hover:from-[#122947] shadow-md shadow-sky-400/15 hover:shadow-xl hover:shadow-sky-400/25 px-4 sm:px-5 py-4 transition-all duration-200"
+                    : "rounded-2xl bg-gradient-to-r from-[#131c31] via-[#0f172a] to-[#0f172a] border-2 border-amber-400/85 border-l-4 border-l-amber-400 hover:border-amber-300 hover:from-[#17233d] shadow-md shadow-amber-400/10 hover:shadow-xl hover:shadow-amber-400/20 px-4 sm:px-5 py-4 transition-all duration-200";
+                const roundBadgeClass = isVirtual
+                    ? "inline-flex items-center justify-center min-w-[44px] bg-sky-400 text-slate-950 text-xs font-black uppercase px-2.5 py-1.5 rounded-xl shadow-sm"
+                    : "inline-flex items-center justify-center min-w-[44px] bg-amber-400 text-slate-950 text-xs font-black uppercase px-2.5 py-1.5 rounded-xl shadow-sm";
+                const accentIconText = isVirtual ? "text-sky-400" : "text-amber-400";
+                const timeBadgeClass = isVirtual
+                    ? "bg-sky-400/15 text-sky-300 border border-sky-400/30"
+                    : "bg-amber-400/15 text-amber-300 border border-amber-400/30";
+
                 row.innerHTML = `
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 lg:gap-4 items-start lg:items-center">
                         <!-- Column 1: Round # (plus mobile date/time inline) -->
                         <div class="lg:col-span-1 flex items-center justify-between lg:justify-start gap-2">
-                            <span class="inline-flex items-center justify-center min-w-[44px] bg-amber-400 text-slate-950 text-xs font-black uppercase px-2.5 py-1.5 rounded-xl shadow-sm">
+                            <span class="${roundBadgeClass}">
                                 #${idx + 1}
                             </span>
                             <div class="flex lg:hidden items-center gap-2 text-xs font-bold">
-                                <span class="text-slate-200"><i class="fa-regular fa-calendar mr-1 text-amber-400"></i> ${dateText}</span>
-                                <span class="bg-amber-400/15 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-lg"><i class="fa-regular fa-clock mr-1"></i> ${startTimeText}</span>
+                                <span class="text-slate-200"><i class="fa-regular fa-calendar mr-1 ${accentIconText}"></i> ${dateText}</span>
+                                <span class="${timeBadgeClass} px-2 py-0.5 rounded-lg"><i class="fa-regular fa-clock mr-1"></i> ${startTimeText}</span>
                             </div>
                         </div>
 
                         <!-- Column 2: Date & Start Time (Desktop) -->
                         <div class="hidden lg:flex lg:col-span-2 flex-col items-start gap-1">
                             <span class="text-sm font-black text-white flex items-center gap-1.5 whitespace-nowrap">
-                                <i class="fa-regular fa-calendar text-amber-400 text-xs"></i> ${dateText}
+                                <i class="fa-regular fa-calendar ${accentIconText} text-xs"></i> ${dateText}
                             </span>
-                            <span class="inline-flex items-center gap-1 text-[11px] font-bold bg-amber-400/15 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-lg">
+                            <span class="inline-flex items-center gap-1 text-[11px] font-bold ${timeBadgeClass} px-2 py-0.5 rounded-lg">
                                 <i class="fa-regular fa-clock text-[10px]"></i> Start ${startTimeText}
                             </span>
                         </div>
 
                         <!-- Column 3: Race Name & Location -->
                         <div class="lg:col-span-4 min-w-0 space-y-1">
-                            <h4 class="text-sm sm:text-base font-black text-white leading-snug tracking-wide">${escapeHtml(c.name)}</h4>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h4 class="text-sm sm:text-base font-black text-white leading-snug tracking-wide">${escapeHtml(c.name)}</h4>
+                                ${isVirtual ? `<span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-sky-300 bg-sky-500/20 border border-sky-400/45 px-2 py-0.5 rounded-md shadow-sm shrink-0"><i class="fa-solid fa-vr-cardboard text-[9px]"></i> Virtuální závod</span>` : ''}
+                            </div>
                             <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
-                                <i class="fa-solid fa-location-dot text-amber-400 shrink-0"></i>
+                                <i class="fa-solid fa-location-dot ${accentIconText} shrink-0"></i>
                                 <span class="truncate">${escapeHtml(c.location || '-')}</span>
                             </p>
                         </div>
@@ -4505,7 +4534,7 @@
                         <div class="lg:col-span-3 flex items-center gap-2 text-xs">
                             <span class="lg:hidden text-slate-500 font-bold uppercase text-[10px]">Trať:</span>
                             <span class="inline-flex items-center gap-1.5 font-bold text-slate-200 bg-slate-800/85 border border-slate-700/80 px-3 py-1.5 rounded-xl shadow-sm">
-                                <i class="fa-solid fa-route text-amber-400/80 text-[11px] shrink-0"></i>
+                                <i class="fa-solid fa-route ${accentIconText} opacity-85 text-[11px] shrink-0"></i>
                                 <span>${escapeHtml(c.params || '-')}</span>
                             </span>
                         </div>
@@ -7303,6 +7332,44 @@
             }
         }
 
+        function setFormRaceVirtualUI(isVirtual) {
+            const flag = !!isVirtual;
+            const hiddenEl = document.getElementById('new-race-is-virtual');
+            const btnEl = document.getElementById('btn-form-race-virtual');
+            if (hiddenEl) hiddenEl.value = flag ? 'true' : 'false';
+            if (btnEl) {
+                if (flag) {
+                    btnEl.className = 'w-full px-4 py-3 rounded-xl text-xs font-black bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-400/60 shadow-sm transition flex items-center justify-center gap-2';
+                    btnEl.innerHTML = '<i class="fa-solid fa-toggle-on text-sm text-sky-400"></i><span>Virtuální závod (Aktivní)</span>';
+                } else {
+                    btnEl.className = 'w-full px-4 py-3 rounded-xl text-xs font-black bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-sky-400/50 transition flex items-center justify-center gap-2';
+                    btnEl.innerHTML = '<i class="fa-solid fa-toggle-off text-sm text-slate-500"></i><span>Klasický závod (Aktivovat virtuální)</span>';
+                }
+            }
+        }
+
+        function toggleFormRaceVirtual() {
+            const hiddenEl = document.getElementById('new-race-is-virtual');
+            const current = hiddenEl && hiddenEl.value === 'true';
+            setFormRaceVirtualUI(!current);
+        }
+
+        async function toggleRaceVirtual(raceId) {
+            const race = calendar.find(c => c.id === raceId);
+            if (!race) return;
+            const prevVal = !!race.isVirtual;
+            race.isVirtual = !prevVal;
+            renderAdminCalendarTable();
+            renderCalendar();
+            const res = await saveData();
+            if (!res.ok) {
+                race.isVirtual = prevVal;
+                renderAdminCalendarTable();
+                renderCalendar();
+                showModal("Chyba databáze Firebase", `Změna virtuálního závodu se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
         function renderAdminCalendarTable() {
             const tbody = document.getElementById('admin-calendar-tbody');
             if (!tbody) return;
@@ -7310,7 +7377,7 @@
 
             if (calendar.length === 0) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="7" class="p-6 text-center text-slate-500 italic">V kalendáři zatím nejsou žádné závody.</td>`;
+                tr.innerHTML = `<td colspan="8" class="p-6 text-center text-slate-500 italic">V kalendáři zatím nejsou žádné závody.</td>`;
                 tbody.appendChild(tr);
                 return;
             }
@@ -7319,19 +7386,31 @@
                 const safeUrl = normalizeRaceWebsiteUrl(c.website);
                 const safeYtUrl = normalizeYouTubeWatchUrl(c.youtubeUrl);
                 const hasYtVideoId = !!extractYouTubeVideoId(c.youtubeUrl);
+                const isVirtual = !!c.isVirtual;
+                const virtualBtnHtml = isVirtual
+                    ? `<button type="button" onclick="toggleRaceVirtual('${escapeHtml(c.id)}')" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-400/60 font-black text-xs shadow-sm transition whitespace-nowrap" title="Kliknutím deaktivujete virtuální závod (přepne na žlutý rámeček)">
+                            <i class="fa-solid fa-toggle-on text-sm text-sky-400"></i> Virtuální (Aktivní)
+                       </button>`
+                    : `<button type="button" onclick="toggleRaceVirtual('${escapeHtml(c.id)}')" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-sky-400/50 font-bold text-xs transition whitespace-nowrap" title="Kliknutím aktivujete virtuální závod (modrý rámeček v kalendáři)">
+                            <i class="fa-solid fa-toggle-off text-sm text-slate-500"></i> Klasický — Aktivovat
+                       </button>`;
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
                 tr.innerHTML = `
-                    <td class="p-3 font-black text-amber-400">${idx + 1}.</td>
+                    <td class="p-3 font-black ${isVirtual ? 'text-sky-400' : 'text-amber-400'}">${idx + 1}.</td>
                     <td class="p-3">
-                        <div class="font-bold text-white">${escapeHtml(c.name)}</div>
-                        <div class="text-[11px] text-slate-400 font-medium"><i class="fa-solid fa-location-dot text-amber-400 mr-1"></i>${escapeHtml(c.location)}</div>
+                        <div class="font-bold text-white flex items-center gap-2 flex-wrap">
+                            <span>${escapeHtml(c.name)}</span>
+                            ${isVirtual ? `<span class="text-[10px] font-black uppercase bg-sky-500/20 text-sky-300 border border-sky-400/40 px-1.5 py-0.5 rounded-md">Virtuální</span>` : ''}
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-medium"><i class="fa-solid fa-location-dot ${isVirtual ? 'text-sky-400' : 'text-amber-400'} mr-1"></i>${escapeHtml(c.location)}</div>
                     </td>
                     <td class="p-3 text-slate-300 font-semibold whitespace-nowrap">${escapeHtml(c.date || '-')}</td>
                     <td class="p-3 whitespace-nowrap">
                         <input type="time" value="${escapeHtml(c.startTime || '')}" onchange="updateRaceStartTime('${escapeHtml(c.id)}', this.value)" class="bg-slate-800 border border-amber-400/40 text-amber-300 text-xs rounded-lg px-2.5 py-1.5 font-black outline-none focus:border-amber-400">
                     </td>
                     <td class="p-3 text-slate-300 text-xs font-semibold">${escapeHtml(c.params || '-')}</td>
+                    <td class="p-3 text-center whitespace-nowrap">${virtualBtnHtml}</td>
                     <td class="p-3 text-xs whitespace-nowrap">
                         <div class="flex flex-wrap items-center gap-1.5">
                             ${safeUrl
@@ -7363,6 +7442,7 @@
             const paramsEl = document.getElementById('new-race-params');
             const websiteEl = document.getElementById('new-race-website');
             const youtubeEl = document.getElementById('new-race-youtube');
+            const isVirtualEl = document.getElementById('new-race-is-virtual');
 
             const editId = editIdEl ? editIdEl.value.trim() : '';
             const name = nameEl ? nameEl.value.trim() : '';
@@ -7372,6 +7452,7 @@
             const params = (paramsEl ? paramsEl.value.trim() : '') || '50 km';
             const website = normalizeRaceWebsiteUrl(websiteEl ? websiteEl.value : '');
             const youtubeUrl = normalizeYouTubeWatchUrl(youtubeEl ? youtubeEl.value : '');
+            const isVirtual = !!(isVirtualEl && isVirtualEl.value === 'true');
 
             if (!name || !location) {
                 showModal("Chyba", "Zadejte název a lokaci závodu!");
@@ -7388,6 +7469,7 @@
                     existing.params = params;
                     existing.website = website;
                     existing.youtubeUrl = youtubeUrl;
+                    existing.isVirtual = isVirtual;
                 }
                 cancelEditRace();
                 populateAdminSelects();
@@ -7403,7 +7485,7 @@
                 }
             } else {
                 const newId = 'rc_' + Date.now();
-                calendar.push({ id: newId, name, location, date, startTime, params, website, youtubeUrl });
+                calendar.push({ id: newId, name, location, date, startTime, params, website, youtubeUrl, isVirtual });
                 cancelEditRace();
                 populateAdminSelects();
                 populatePublicRaceResultsSelect();
@@ -7430,6 +7512,7 @@
             document.getElementById('new-race-params').value = race.params || '';
             document.getElementById('new-race-website').value = race.website || '';
             document.getElementById('new-race-youtube').value = race.youtubeUrl || '';
+            setFormRaceVirtualUI(!!race.isVirtual);
 
             document.getElementById('btn-save-race').textContent = 'Uložit změny závodu';
             document.getElementById('btn-cancel-edit-race').classList.remove('hidden');
@@ -7447,6 +7530,7 @@
             document.getElementById('new-race-params').value = '';
             document.getElementById('new-race-website').value = '';
             document.getElementById('new-race-youtube').value = '';
+            setFormRaceVirtualUI(false);
 
             document.getElementById('btn-save-race').textContent = 'Přidat závod do kalendáře';
             document.getElementById('btn-cancel-edit-race').classList.add('hidden');
