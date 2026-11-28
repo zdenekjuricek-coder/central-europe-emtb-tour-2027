@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     
     <!-- Firebase SDKs (Modular) & Auth Binding -->
     <script type="module">
@@ -1035,6 +1036,9 @@
                     <button onclick="switchAdminSubTab('riders')" id="admin-sub-btn-riders" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-user-plus"></i> <span data-i18n="admin_tab_riders">Správa jezdců</span>
                     </button>
+                    <button onclick="switchAdminSubTab('riders-db')" id="admin-sub-btn-riders-db" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-database"></i> <span data-i18n="admin_tab_riders_db">Databáze jezdců</span>
+                    </button>
                     <button onclick="switchAdminSubTab('categories')" id="admin-sub-btn-categories" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-layer-group"></i> <span data-i18n="admin_tab_categories">Věkové kategorie</span>
                     </button>
@@ -1080,6 +1084,7 @@
                         </div>
                         <div>
                             <label class="block text-xs uppercase font-black text-slate-400 mb-1.5" data-i18n="admin_select_rider">Jezdec</label>
+                            <input type="text" id="admin-result-rider-search" oninput="filterAdminResultRiderSelect()" class="w-full bg-slate-900/90 border border-slate-700 text-slate-200 placeholder-slate-500 rounded-xl px-3 py-2 text-xs font-semibold mb-1.5 outline-none focus:border-amber-400" placeholder="🔍 Hledat jezdce v databázi...">
                             <select id="admin-result-rider-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-bold"></select>
                         </div>
                         <div>
@@ -1221,6 +1226,154 @@
                                 </tr>
                             </thead>
                             <tbody id="admin-riders-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Admin Sub-Content: Riders Database (XLSX Import & Leaderboard Activation) -->
+                <div id="admin-sub-riders-db" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-black text-white">
+                                <i class="fa-solid fa-database mr-2 text-amber-400"></i>
+                                <span data-i18n="admin_riders_db_title">Databáze jezdců (Import XLSX do Firebase &amp; aktivace do žebříčku)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Naimportujte ze souboru Excel (.xlsx) všechny e-bikery do Firebase. Nově naimportovaní jezdci zůstávají <strong>skrytí mimo žebříček</strong> a divákům se v žebříčcích zobrazí až ve chvíli, kdy u nich zapnete aktivní tlačítko (např. po zisku bodů ze závodu).
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 shrink-0">
+                            <button type="button" onclick="downloadRidersXlsxTemplate()" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/30 font-bold rounded-xl text-xs transition flex items-center gap-2 whitespace-nowrap">
+                                <i class="fa-solid fa-file-excel text-emerald-400"></i> Stáhnout vzor (.xlsx)
+                            </button>
+                            <button type="button" onclick="exportRidersDatabaseToXlsx()" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-2 whitespace-nowrap">
+                                <i class="fa-solid fa-file-export text-sky-400"></i> Exportovat databázi (.xlsx)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KPI Summary Strip -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="bg-[#0f172a] border border-slate-800 rounded-2xl p-4">
+                            <div class="text-[11px] uppercase font-black text-slate-400">Celkem v databázi</div>
+                            <div id="riders-db-stat-total" class="text-2xl font-black text-white mt-1 tabular-nums">0</div>
+                        </div>
+                        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4">
+                            <div class="text-[11px] uppercase font-black text-emerald-300">Aktivní v žebříčku</div>
+                            <div id="riders-db-stat-active" class="text-2xl font-black text-emerald-400 mt-1 tabular-nums">0</div>
+                        </div>
+                        <div class="bg-[#0f172a] border border-slate-800 rounded-2xl p-4">
+                            <div class="text-[11px] uppercase font-black text-slate-400">Skrytí (jen v databázi)</div>
+                            <div id="riders-db-stat-inactive" class="text-2xl font-black text-slate-300 mt-1 tabular-nums">0</div>
+                        </div>
+                        <div class="bg-amber-400/10 border border-amber-400/30 rounded-2xl p-4">
+                            <div class="text-[11px] uppercase font-black text-amber-300">Mají body ze závodů</div>
+                            <div id="riders-db-stat-scored" class="text-2xl font-black text-amber-400 mt-1 tabular-nums">0</div>
+                        </div>
+                    </div>
+
+                    <!-- XLSX Upload & Import Panel -->
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                            <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-file-arrow-up"></i> Hromadný import e-bikerů z Excelu (.xlsx / .xls / .csv)
+                            </h4>
+                            <span class="text-[11px] text-slate-400">
+                                Rozpoznané sloupce: <strong class="text-slate-200">Jméno</strong> (nebo Jméno + Příjmení), Stát, Tým, Ročník, Kategorie, E-Bike, Typ E-Biku, Motor, Sponzoři
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
+                            <div class="lg:col-span-1">
+                                <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Vybrat Excel soubor (.xlsx)</label>
+                                <label class="flex items-center justify-center gap-2 w-full bg-slate-800 hover:bg-slate-700 border border-dashed border-amber-400/60 text-amber-300 rounded-xl p-3.5 text-xs font-black cursor-pointer transition">
+                                    <i class="fa-solid fa-file-excel text-emerald-400 text-base"></i>
+                                    <span>Nahrát soubor XLSX / XLS / CSV</span>
+                                    <input type="file" id="riders-db-xlsx-file" accept=".xlsx,.xls,.csv" onchange="handleRidersXlsxFileSelect(event)" class="hidden">
+                                </label>
+                            </div>
+                            <div class="lg:col-span-2">
+                                <label for="riders-db-import-mode" class="block text-xs uppercase font-black text-slate-400 mb-1.5">Režim importu při shodě jména jezdce</label>
+                                <select id="riders-db-import-mode" onchange="renderXlsxImportPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3.5 text-xs font-bold focus:border-amber-400 outline-none">
+                                    <option value="merge">Přidat nové (jako neaktivní) + aktualizovat údaje existujících (zachová body a aktivaci)</option>
+                                    <option value="add-only">Přidat pouze nové jezdce (existující jezdce v databázi přeskočit)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Parsed XLSX Preview Box (shown after file selection) -->
+                        <div id="riders-db-import-preview" class="hidden rounded-2xl border border-amber-400/40 bg-amber-400/5 p-4 space-y-4">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                <div id="riders-db-import-summary" class="text-xs text-slate-200 font-semibold"></div>
+                                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                                    <button type="button" onclick="confirmXlsxRidersImport()" class="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition flex items-center gap-2">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i> Naimportovat a uložit do Firebase
+                                    </button>
+                                    <button type="button" onclick="cancelXlsxRidersImport()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold rounded-xl text-xs transition">
+                                        Zrušit
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto rounded-xl border border-slate-800">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-900/95 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+                                            <th class="p-2.5">Akce</th>
+                                            <th class="p-2.5">Jméno</th>
+                                            <th class="p-2.5">Stát</th>
+                                            <th class="p-2.5">Tým</th>
+                                            <th class="p-2.5">Ročník / Kat.</th>
+                                            <th class="p-2.5">E-Bike &amp; Typ</th>
+                                            <th class="p-2.5">Motor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="riders-db-import-preview-tbody" class="divide-y divide-slate-800 bg-[#0b1120]"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search, Filter & Quick Bulk Activation Bar -->
+                    <div class="bg-[#0f172a] p-4 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+                            <div class="lg:col-span-5 relative">
+                                <i class="fa-solid fa-magnifying-glass text-slate-500 text-xs absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                                <input type="text" id="riders-db-search" oninput="renderAdminRidersDbTable()" class="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-400 rounded-xl pl-9 pr-3.5 py-2.5 text-xs font-bold focus:border-amber-400 outline-none" placeholder="Hledat jezdce, tým, značku e-biku, model, motor...">
+                            </div>
+                            <div class="lg:col-span-3">
+                                <select id="riders-db-filter" onchange="renderAdminRidersDbTable()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-3.5 py-2.5 text-xs font-bold focus:border-amber-400 outline-none">
+                                    <option value="all">Všichni jezdci v databázi</option>
+                                    <option value="active">Pouze aktivní v žebříčku</option>
+                                    <option value="inactive">Pouze neaktivní (skrytí)</option>
+                                    <option value="scored">Pouze jezdci s body ze závodů</option>
+                                    <option value="scored-inactive">Mají body, ale nejsou ještě aktivní</option>
+                                </select>
+                            </div>
+                            <div class="lg:col-span-4 flex flex-wrap lg:justify-end gap-2">
+                                <button type="button" onclick="activateAllScoredRiders()" class="px-3.5 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 whitespace-nowrap">
+                                    <i class="fa-solid fa-check-double"></i> Aktivovat všechny s body
+                                </button>
+                                <button type="button" onclick="deactivateAllZeroPointRiders()" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold rounded-xl text-xs transition flex items-center gap-1.5 whitespace-nowrap">
+                                    <i class="fa-solid fa-eye-slash"></i> Skrýt bez bodů
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Database Riders Table with Per-Rider Active Toggle -->
+                    <div class="overflow-x-auto rounded-2xl border border-slate-800">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
+                                    <th class="p-3">Jezdec &amp; Kategorie</th>
+                                    <th class="p-3">Tým</th>
+                                    <th class="p-3">E-Bike, Typ &amp; Motor</th>
+                                    <th class="p-3 text-center">Body ze závodů</th>
+                                    <th class="p-3 text-center">Zobrazení v žebříčku</th>
+                                    <th class="p-3 text-right">Akce</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-riders-db-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
                         </table>
                     </div>
                 </div>
@@ -3505,6 +3658,7 @@
                         return !!(container && activeEl && container.contains(activeEl) && (activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT'));
                     };
                     if (!isEditingIn('admin-riders-tbody')) renderAdminRidersTable();
+                    if (!isEditingIn('admin-sub-riders-db')) renderAdminRidersDbTable();
                     renderAdminCategoriesTable();
                     renderAdminMotorsTable();
                     if (!isEditingIn('admin-sub-brand-flags')) renderAdminBrandFlagsTable();
@@ -3749,6 +3903,7 @@
                 populateCategorySelects();
                 populateAdminSelects();
                 renderAdminRidersTable();
+                renderAdminRidersDbTable();
                 renderAdminCategoriesTable();
                 renderAdminMotorsTable();
                 renderAdminCalendarTable();
@@ -3836,7 +3991,7 @@
         function switchAdminSubTab(sub) {
             currentAdminSubTab = sub;
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'categories', 'motors', 'brand-flags', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'header', 'footer', 'background'].forEach(s => {
+            ['results', 'skills', 'riders', 'riders-db', 'categories', 'motors', 'brand-flags', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'header', 'footer', 'background'].forEach(s => {
                 const btn = document.getElementById(`admin-sub-btn-${s}`);
                 if (btn) {
                     if (s === sub) {
@@ -3849,6 +4004,7 @@
             const targetEl = document.getElementById(`admin-sub-${sub}`);
             if (targetEl) targetEl.classList.remove('hidden');
             if (sub === 'skills') loadRiderSkillsToForm();
+            if (sub === 'riders-db') renderAdminRidersDbTable();
             if (sub === 'categories') renderAdminCategoriesTable();
             if (sub === 'brand-flags') renderAdminBrandFlagsTable();
             if (sub === 'sponsors') renderAdminSponsorsSection();
@@ -3936,11 +4092,15 @@
             return stats;
         }
 
+        function isRiderActiveInLeaderboard(r) {
+            return !!(r && r.showInLeaderboard !== false);
+        }
+
         function renderPublicLeaderboards() {
             const catFilterEl = document.getElementById('rider-category-filter');
             const catFilter = catFilterEl ? catFilterEl.value : 'all';
             let statsObj = calculateRiderTotals();
-            let arr = Object.values(statsObj);
+            let arr = Object.values(statsObj).filter(item => isRiderActiveInLeaderboard(item.rider));
 
             if (catFilter !== 'all') {
                 arr = arr.filter(item => riderMatchesCategory(item.rider, catFilter));
@@ -4103,7 +4263,7 @@
                     let manualRiderObj = null;
                     teams.forEach(t => {
                         if (t.brand === bItem.brand && t.featuredRiderId) {
-                            let found = riders.find(r => r.id === t.featuredRiderId);
+                            let found = riders.find(r => r.id === t.featuredRiderId && isRiderActiveInLeaderboard(r));
                             if (found) manualRiderObj = found;
                         }
                     });
@@ -4901,9 +5061,45 @@
             }
         }
 
+        function filterAdminResultRiderSelect() {
+            const riderResSelect = document.getElementById('admin-result-rider-select');
+            if (!riderResSelect) return;
+            const searchEl = document.getElementById('admin-result-rider-search');
+            const q = normalizeImportText(searchEl ? searchEl.value : '');
+            const prevVal = riderResSelect.value;
+            riderResSelect.innerHTML = '';
+
+            const filtered = riders.filter(r => {
+                if (!q) return true;
+                const hay = normalizeImportText(`${r.name || ''} ${r.team || ''} ${r.ebike || ''} ${r.ebikeModel || ''} ${r.country || ''}`);
+                return hay.includes(q);
+            });
+
+            if (filtered.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = '-- Žádný jezdec neodpovídá hledání --';
+                riderResSelect.appendChild(opt);
+                return;
+            }
+
+            filtered.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.id;
+                const hiddenTag = isRiderActiveInLeaderboard(r) ? '' : ' [Skrytý v žebříčku]';
+                opt.textContent = `${r.name} (${r.team || 'Indiv.'})${hiddenTag}`;
+                riderResSelect.appendChild(opt);
+            });
+
+            if (prevVal && filtered.some(r => r.id === prevVal)) {
+                riderResSelect.value = prevVal;
+            }
+        }
+
         function populateAdminSelects() {
             const rSelect = document.getElementById('admin-result-race-select');
             if (rSelect) {
+                const prevRace = rSelect.value;
                 rSelect.innerHTML = '';
                 calendar.forEach(c => {
                     let opt = document.createElement('option');
@@ -4911,18 +5107,12 @@
                     opt.textContent = c.name + ' (' + c.date + ')';
                     rSelect.appendChild(opt);
                 });
+                if (prevRace && calendar.some(c => c.id === prevRace)) {
+                    rSelect.value = prevRace;
+                }
             }
 
-            const riderResSelect = document.getElementById('admin-result-rider-select');
-            if (riderResSelect) {
-                riderResSelect.innerHTML = '';
-                riders.forEach(r => {
-                    let opt = document.createElement('option');
-                    opt.value = r.id;
-                    opt.textContent = r.name + ' (' + (r.team || 'Indiv.') + ')';
-                    riderResSelect.appendChild(opt);
-                });
-            }
+            filterAdminResultRiderSelect();
 
             const riderSkillSelect = document.getElementById('admin-skill-rider-select');
             if (riderSkillSelect) {
@@ -4985,17 +5175,32 @@
             }
         }
 
-        function saveRiderResult() {
+        async function saveRiderResult() {
             const raceId = document.getElementById('admin-result-race-select').value;
             const riderId = document.getElementById('admin-result-rider-select').value;
+            if (!raceId || !riderId) {
+                showModal("Chyba", "Vyberte prosím platný závod i jezdce.");
+                return;
+            }
             const finish = parseInt(document.getElementById('admin-input-pos').value) || 0;
             const sprint = parseInt(document.getElementById('admin-input-sprint').value) || 0;
             const kom = parseInt(document.getElementById('admin-input-kom').value) || 0;
 
             if (!raceResults[raceId]) raceResults[raceId] = {};
             raceResults[raceId][riderId] = { finish, sprint, kom };
-            saveData();
-            showModal("Úspěch", "Výsledek jezdce byl úspěšně uložen!");
+            renderPublicLeaderboards();
+            renderPublicRaceResults();
+            renderAdminRidersDbTable();
+            const res = await saveData();
+            const riderObj = riders.find(r => r.id === riderId);
+            if (res.ok) {
+                const inactiveNote = (riderObj && !isRiderActiveInLeaderboard(riderObj))
+                    ? " Jezdec je zatím v sekci Databáze jezdců neaktivní — pro zobrazení v Žebříčcích u něj zapněte aktivní tlačítko."
+                    : "";
+                showModal("Úspěch", `Výsledek jezdce byl úspěšně uložen do Firebase!${inactiveNote}`);
+            } else {
+                showModal("Chyba databáze Firebase", `Výsledek jezdce se neuložil (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
         }
 
         function loadRiderSkillsToForm() {
@@ -5097,6 +5302,7 @@
                 cancelEditRider();
                 populateAdminSelects();
                 renderAdminRidersTable();
+                renderAdminRidersDbTable();
                 renderAdminCategoriesTable();
                 renderAdminTeamsGrid();
                 renderAdminSponsorsSection();
@@ -5123,6 +5329,7 @@
                 ebikeModel: ebikeModel,
                 motor: motor,
                 sponsors: sponsors,
+                showInLeaderboard: true,
                 skills: { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 }
             };
             if (birthYear && !isNaN(birthYear)) {
@@ -5138,6 +5345,7 @@
             if (sponsorsPreviewEl) sponsorsPreviewEl.innerHTML = '';
             populateAdminSelects();
             renderAdminRidersTable();
+            renderAdminRidersDbTable();
             renderAdminCategoriesTable();
             renderAdminTeamsGrid();
             renderAdminSponsorsSection();
@@ -5230,6 +5438,7 @@
             if (field === 'country') {
                 renderAdminRidersTable();
             }
+            renderAdminRidersDbTable();
             renderAdminCategoriesTable();
             renderAdminTeamsGrid();
             renderAdminSponsorsSection();
@@ -5254,6 +5463,7 @@
                 riders = riders.filter(r => r.id !== id);
                 populateAdminSelects();
                 renderAdminRidersTable();
+                renderAdminRidersDbTable();
                 renderAdminCategoriesTable();
                 renderAdminTeamsGrid();
                 renderAdminSponsorsSection();
@@ -5313,11 +5523,19 @@
                     ? `<option value="${escapeHtml(r.motor)}" selected>${escapeHtml(r.motor)}</option>`
                     : '';
 
+                const isActiveLb = isRiderActiveInLeaderboard(r);
+                const lbBadgeBtn = isActiveLb
+                    ? `<button type="button" onclick="toggleRiderLeaderboardActive('${escapeHtml(r.id)}')" title="Kliknutím skryjete jezdce z žebříčku" class="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition"><i class="fa-solid fa-toggle-on"></i> V žebříčku</button>`
+                    : `<button type="button" onclick="toggleRiderLeaderboardActive('${escapeHtml(r.id)}')" title="Kliknutím aktivujete jezdce do žebříčku" class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 hover:border-amber-400/50 hover:text-amber-300 transition"><i class="fa-solid fa-toggle-off"></i> Skrytý v DB</button>`;
+
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
                 tr.innerHTML = `
                     <td class="p-3 font-bold text-white min-w-[220px]">
-                        <div class="flex items-center gap-2 whitespace-nowrap">${getFlagIcon(r.country)} ${escapeHtml(r.name)}</div>
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 whitespace-nowrap">${getFlagIcon(r.country)} ${escapeHtml(r.name)}</div>
+                            ${lbBadgeBtn}
+                        </div>
                         ${r.birthYear ? `<div class="text-[11px] text-slate-400 font-medium">Ročník ${r.birthYear} (${2027 - r.birthYear} let)</div>` : ''}
                         <div class="mt-1.5">
                             <input type="text" value="${escapeHtml(r.sponsors || '')}" onchange="updateRiderField('${escapeHtml(r.id)}', 'sponsors', this.value.trim())" class="w-full bg-slate-900/80 border border-slate-700/80 text-sky-200 placeholder-slate-500 text-[11px] rounded-lg px-2 py-1 font-medium outline-none focus:border-amber-400" placeholder="🤝 Sponzoři jezdce (čárkou)...">
@@ -5354,6 +5572,711 @@
                     <td class="p-3 text-right space-x-2 whitespace-nowrap">
                         <button onclick="editRider('${escapeHtml(r.id)}')" class="px-3 py-1.5 bg-amber-400/20 text-amber-300 rounded-xl hover:bg-amber-400/30 transition font-bold text-xs border border-amber-400/30">Upravit</button>
                         <button onclick="deleteRider('${escapeHtml(r.id)}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ==================== RIDERS DATABASE (XLSX IMPORT & LEADERBOARD ACTIVATION) ====================
+        let pendingXlsxImportRows = [];
+        let pendingXlsxImportFilename = '';
+
+        function normalizeImportText(val) {
+            return String(val ?? '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .replace(/[_-]+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function normalizeCountryCodeFromImport(raw) {
+            const clean = normalizeImportText(raw);
+            if (!clean) return 'CZ';
+            const map = {
+                'cz': 'CZ', 'cr': 'CZ', 'cze': 'CZ', 'cesko': 'CZ', 'ceska republika': 'CZ', 'czech': 'CZ', 'czechia': 'CZ', 'czech republic': 'CZ',
+                'sk': 'SK', 'svk': 'SK', 'slovensko': 'SK', 'slovakia': 'SK', 'slovak republic': 'SK',
+                'pl': 'PL', 'pol': 'PL', 'polsko': 'PL', 'poland': 'PL',
+                'de': 'DE', 'deu': 'DE', 'ger': 'DE', 'nemecko': 'DE', 'germany': 'DE', 'deutschland': 'DE',
+                'at': 'AT', 'aut': 'AT', 'rakousko': 'AT', 'austria': 'AT', 'osterreich': 'AT',
+                'hu': 'HU', 'hun': 'HU', 'madarsko': 'HU', 'hungary': 'HU',
+                'ch': 'CH', 'che': 'CH', 'svycarsko': 'CH', 'switzerland': 'CH',
+                'it': 'IT', 'ita': 'IT', 'italie': 'IT', 'italy': 'IT',
+                'fr': 'FR', 'fra': 'FR', 'francie': 'FR', 'france': 'FR',
+                'si': 'SI', 'svn': 'SI', 'slovinsko': 'SI', 'slovenia': 'SI',
+                'hr': 'HR', 'hrv': 'HR', 'chorvatsko': 'HR', 'croatia': 'HR',
+                'gb': 'GB', 'uk': 'GB', 'usa': 'US', 'us': 'US'
+            };
+            if (map[clean]) return map[clean];
+            const rawUpper = String(raw || '').trim().toUpperCase();
+            if (/^[A-Z]{2}$/.test(rawUpper)) return rawUpper;
+            return 'CZ';
+        }
+
+        function parseBirthYearFromImport(raw) {
+            if (raw === null || raw === undefined || raw === '') return null;
+            if (typeof raw === 'number' && Number.isFinite(raw)) {
+                const n = Math.round(raw);
+                if (n >= 1930 && n <= 2020) return n;
+                // Excel serial date fallback (days since 1899-12-30)
+                if (n > 10000 && n < 60000) {
+                    const dt = new Date(Math.round((n - 25569) * 86400 * 1000));
+                    const yr = dt.getUTCFullYear();
+                    if (yr >= 1930 && yr <= 2020) return yr;
+                }
+                return null;
+            }
+            const str = String(raw).trim();
+            const match = str.match(/\b(19\d{2}|20[0-2]\d)\b/);
+            if (match) {
+                const yr = parseInt(match[1], 10);
+                if (yr >= 1930 && yr <= 2020) return yr;
+            }
+            return null;
+        }
+
+        function resolveCategoryFromImport(rawCat, birthYear) {
+            const catText = String(rawCat ?? '').trim();
+            if (catText) {
+                const direct = getCategoryByIdOrName(catText);
+                if (direct) return direct.id;
+                const norm = normalizeImportText(catText);
+                const byNorm = ageCategories.find(c =>
+                    normalizeImportText(c.id) === norm || normalizeImportText(c.name) === norm
+                );
+                if (byNorm) return byNorm.id;
+                if (['zeny', 'zena', 'women', 'woman', 'female', 'f', 'w', 'damy'].includes(norm)) {
+                    const womenCat = ageCategories.find(c => /women|zen/i.test(normalizeImportText(c.id + ' ' + c.name)));
+                    if (womenCat) return womenCat.id;
+                }
+                if (norm.includes('master')) {
+                    const masterCat = ageCategories.find(c => normalizeImportText(c.id + ' ' + c.name).includes('master'));
+                    if (masterCat) return masterCat.id;
+                }
+                if (norm.includes('elite') || norm.includes('muzi') || norm === 'm') {
+                    const eliteCat = ageCategories.find(c => normalizeImportText(c.id + ' ' + c.name).includes('elite'));
+                    if (eliteCat) return eliteCat.id;
+                }
+            }
+            if (birthYear && Number.isFinite(birthYear)) {
+                const age = 2027 - birthYear;
+                const byAge = ageCategories.find(c => {
+                    if (/women|zen/i.test(normalizeImportText(c.id + ' ' + c.name))) return false;
+                    const fromOk = c.ageFrom === null || c.ageFrom === undefined || c.ageFrom === '' || age >= Number(c.ageFrom);
+                    const toOk = c.ageTo === null || c.ageTo === undefined || c.ageTo === '' || age <= Number(c.ageTo);
+                    return fromOk && toOk;
+                });
+                if (byAge) return byAge.id;
+            }
+            return ageCategories[0] ? ageCategories[0].id : 'Elite';
+        }
+
+        function parseBooleanActiveFromImport(raw) {
+            const norm = normalizeImportText(raw);
+            return ['ano', 'yes', 'true', '1', 'aktivni', 'active', 'x'].includes(norm);
+        }
+
+        function parseXlsxRiderRows(rawRows) {
+            if (!Array.isArray(rawRows) || rawRows.length === 0) return [];
+            const headerSampleKeys = new Set();
+            rawRows.forEach(row => {
+                if (row && typeof row === 'object') {
+                    Object.keys(row).forEach(k => headerSampleKeys.add(k));
+                }
+            });
+            const normalizedKeys = Array.from(headerSampleKeys).map(k => ({ raw: k, norm: normalizeImportText(k) }));
+            const hasLastNameCol = normalizedKeys.some(k => ['prijmeni', 'surname', 'last name', 'lastname'].includes(k.norm));
+
+            const pickField = (row, aliases) => {
+                for (const keyObj of normalizedKeys) {
+                    if (aliases.includes(keyObj.norm)) {
+                        const v = row[keyObj.raw];
+                        if (v !== undefined && v !== null && String(v).trim() !== '') {
+                            return v;
+                        }
+                    }
+                }
+                return '';
+            };
+
+            const parsed = [];
+            rawRows.forEach(row => {
+                if (!row || typeof row !== 'object') return;
+                let fullName = '';
+                if (hasLastNameCol) {
+                    const first = String(pickField(row, ['jmeno', 'krestni jmeno', 'first name', 'firstname']) || '').trim();
+                    const last = String(pickField(row, ['prijmeni', 'surname', 'last name', 'lastname']) || '').trim();
+                    fullName = `${first} ${last}`.trim();
+                }
+                if (!fullName) {
+                    fullName = String(pickField(row, [
+                        'jmeno a prijmeni', 'cele jmeno', 'jmeno', 'jezdec', 'rider', 'ebiker', 'e biker', 'name', 'full name', 'fullname'
+                    ]) || '').trim();
+                }
+                if (!fullName) return;
+
+                const rawCountry = pickField(row, ['stat', 'zeme', 'narodnost', 'country', 'nat', 'flag', 'vlajka', 'kod statu']);
+                const rawTeam = String(pickField(row, ['tym', 'team', 'klub', 'club', 'staj', 'oddil']) || '').trim();
+                const rawBirth = pickField(row, ['rocnik', 'rok narozeni', 'narozeni', 'birth year', 'birthyear', 'year', 'rok']);
+                const rawCat = pickField(row, ['kategorie', 'vekova kategorie', 'cat', 'category', 'trida']);
+                const rawEbike = String(pickField(row, ['e bike', 'ebike', 'znacka', 'znacka e biku', 'znacka ebiku', 'vyrobce', 'brand', 'kolo', 'bike']) || '').trim();
+                const rawModel = String(pickField(row, ['typ e biku', 'typ ebiku', 'nazev typu ebiku', 'nazev ebiku', 'model', 'model e biku', 'model ebiku', 'typ', 'typ kola', 'ebike model', 'ebikemodel']) || '').trim();
+                const rawMotor = String(pickField(row, ['motor', 'pohon', 'motor / pohon', 'drive', 'engine', 'system']) || '').trim();
+                const rawSponsors = String(pickField(row, ['sponzori', 'partneri', 'sponzori / partneri', 'sponsors', 'partners']) || '').trim();
+                const rawActive = pickField(row, ['aktivni', 'aktivni v zebricku', 'zebricek', 'active', 'showinleaderboard']);
+
+                const birthYear = parseBirthYearFromImport(rawBirth);
+                const category = resolveCategoryFromImport(rawCat, birthYear);
+                const country = normalizeCountryCodeFromImport(rawCountry);
+                const ebike = rawEbike || (availableBrands[0] || 'Crussis');
+                const motor = rawMotor || (availableMotors[0] || 'Bosch CX Race');
+                const showInLeaderboard = parseBooleanActiveFromImport(rawActive);
+
+                parsed.push({
+                    name: fullName,
+                    country,
+                    team: rawTeam,
+                    birthYear,
+                    category,
+                    ebike,
+                    ebikeModel: rawModel,
+                    motor,
+                    sponsors: rawSponsors,
+                    showInLeaderboard
+                });
+            });
+            return parsed;
+        }
+
+        function handleRidersXlsxFileSelect(event) {
+            const file = event && event.target && event.target.files ? event.target.files[0] : null;
+            if (!file) return;
+            if (typeof XLSX === 'undefined') {
+                showModal("Chyba knihovny Excel", "Knihovna SheetJS (XLSX) se nepodařila načíst. Zkontrolujte prosím připojení k internetu a obnovte stránku.");
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    if (!firstSheetName) {
+                        showModal("Prázdný soubor", "Vybraný Excel soubor neobsahuje žádný list s daty.");
+                        event.target.value = '';
+                        return;
+                    }
+                    const sheet = workbook.Sheets[firstSheetName];
+                    const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+                    const parsed = parseXlsxRiderRows(rawRows);
+                    if (parsed.length === 0) {
+                        showModal("Žádní jezdci nenalezeni", "V souboru nebyly nalezeny žádné řádky se sloupcem „Jméno“ (nebo „Jméno“ + „Příjmení“). Stáhněte si prosím vzorovou šablonu (.xlsx) a zkuste to znovu.");
+                        event.target.value = '';
+                        return;
+                    }
+                    pendingXlsxImportRows = parsed;
+                    pendingXlsxImportFilename = file.name;
+                    renderXlsxImportPreview();
+                    event.target.value = '';
+                } catch (err) {
+                    console.error("XLSX parse error:", err);
+                    showModal("Chyba čtení XLSX", "Soubor se nepodařilo přečíst. Ujistěte se, že jde o platný soubor .xlsx, .xls nebo .csv.");
+                    event.target.value = '';
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function renderXlsxImportPreview() {
+            const box = document.getElementById('riders-db-import-preview');
+            const summaryEl = document.getElementById('riders-db-import-summary');
+            const tbody = document.getElementById('riders-db-import-preview-tbody');
+            if (!box || !summaryEl || !tbody) return;
+
+            if (!pendingXlsxImportRows.length) {
+                box.classList.add('hidden');
+                tbody.innerHTML = '';
+                return;
+            }
+
+            const mode = document.getElementById('riders-db-import-mode')?.value || 'merge';
+            const existingByName = new Map();
+            riders.forEach(r => existingByName.set(normalizeImportText(r.name), r));
+
+            let newCount = 0;
+            let updateCount = 0;
+            let skipCount = 0;
+            const seenInFile = new Set();
+            const classified = [];
+
+            pendingXlsxImportRows.forEach(item => {
+                const normName = normalizeImportText(item.name);
+                if (seenInFile.has(normName)) {
+                    skipCount++;
+                    return;
+                }
+                seenInFile.add(normName);
+                const exists = existingByName.has(normName);
+                if (exists) {
+                    if (mode === 'merge') {
+                        updateCount++;
+                        classified.push({ status: 'update', item });
+                    } else {
+                        skipCount++;
+                        classified.push({ status: 'skip', item });
+                    }
+                } else {
+                    newCount++;
+                    classified.push({ status: 'new', item });
+                }
+            });
+
+            box.classList.remove('hidden');
+            summaryEl.innerHTML = `
+                Soubor <span class="text-amber-300 font-black">${escapeHtml(pendingXlsxImportFilename)}</span>:
+                <span class="text-emerald-400 font-black ml-1">${newCount} nových jezdců</span> (uloží se jako skrytí mimo žebříček)
+                ${updateCount > 0 ? `• <span class="text-sky-400 font-black">${updateCount} k aktualizaci</span>` : ''}
+                ${skipCount > 0 ? `• <span class="text-slate-400 font-bold">${skipCount} přeskočeno</span>` : ''}
+            `;
+
+            tbody.innerHTML = '';
+            classified.slice(0, 12).forEach(({ status, item }) => {
+                const badge = status === 'new'
+                    ? '<span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-black text-[10px]">NOVÝ (skrytý)</span>'
+                    : status === 'update'
+                        ? '<span class="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 font-black text-[10px]">AKTUALIZACE</span>'
+                        : '<span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700 font-bold text-[10px]">PŘESKOČIT</span>';
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-800/70";
+                tr.innerHTML = `
+                    <td class="p-2.5 whitespace-nowrap">${badge}</td>
+                    <td class="p-2.5 font-bold text-white whitespace-nowrap">${escapeHtml(item.name)}</td>
+                    <td class="p-2.5 whitespace-nowrap">${getFlagIcon(item.country)} <span class="text-slate-300">${escapeHtml(item.country)}</span></td>
+                    <td class="p-2.5 text-slate-300">${item.team ? escapeHtml(item.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
+                    <td class="p-2.5 text-slate-300 whitespace-nowrap">${item.birthYear ? item.birthYear + ' • ' : ''}<span class="text-amber-300 font-bold">${escapeHtml(getCategoryLabelById(item.category))}</span></td>
+                    <td class="p-2.5 text-slate-200 font-semibold">${escapeHtml(item.ebike)}${item.ebikeModel ? ` <span class="text-amber-300">(${escapeHtml(item.ebikeModel)})</span>` : ''}</td>
+                    <td class="p-2.5 text-slate-400">${escapeHtml(item.motor)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (classified.length > 12) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="7" class="p-2.5 text-center text-[11px] text-slate-400 italic">... a dalších ${classified.length - 12} jezdců připravených k importu do Firebase.</td>`;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function cancelXlsxRidersImport() {
+            pendingXlsxImportRows = [];
+            pendingXlsxImportFilename = '';
+            const box = document.getElementById('riders-db-import-preview');
+            if (box) box.classList.add('hidden');
+            const tbody = document.getElementById('riders-db-import-preview-tbody');
+            if (tbody) tbody.innerHTML = '';
+        }
+
+        async function confirmXlsxRidersImport() {
+            if (!pendingXlsxImportRows.length) return;
+            const mode = document.getElementById('riders-db-import-mode')?.value || 'merge';
+
+            const prevRiders = JSON.parse(JSON.stringify(riders));
+            const prevBrands = [...availableBrands];
+            const prevMotors = [...availableMotors];
+            const prevHandicaps = { ...motorHandicaps };
+
+            const existingByName = new Map();
+            riders.forEach(r => existingByName.set(normalizeImportText(r.name), r));
+
+            let added = 0;
+            let updated = 0;
+            let skipped = 0;
+            const seenInFile = new Set();
+            const baseTs = Date.now();
+
+            pendingXlsxImportRows.forEach((item, idx) => {
+                const normName = normalizeImportText(item.name);
+                if (!normName || seenInFile.has(normName)) {
+                    skipped++;
+                    return;
+                }
+                seenInFile.add(normName);
+
+                if (item.ebike && !availableBrands.includes(item.ebike)) {
+                    availableBrands.push(item.ebike);
+                }
+                if (item.motor && !availableMotors.includes(item.motor)) {
+                    availableMotors.push(item.motor);
+                    if (motorHandicaps[item.motor] === undefined) {
+                        motorHandicaps[item.motor] = 1.0;
+                    }
+                }
+
+                const existing = existingByName.get(normName);
+                if (existing) {
+                    if (mode === 'merge') {
+                        existing.country = item.country;
+                        if (item.team !== '') existing.team = item.team;
+                        if (item.birthYear) existing.birthYear = item.birthYear;
+                        if (item.category) existing.category = item.category;
+                        if (item.ebike) existing.ebike = item.ebike;
+                        if (item.ebikeModel !== '') existing.ebikeModel = item.ebikeModel;
+                        if (item.motor) existing.motor = item.motor;
+                        if (item.sponsors !== '') existing.sponsors = item.sponsors;
+                        updated++;
+                    } else {
+                        skipped++;
+                    }
+                } else {
+                    const newRider = {
+                        id: `r_${baseTs}_${idx}`,
+                        name: item.name,
+                        country: item.country,
+                        team: item.team,
+                        category: item.category,
+                        ebike: item.ebike,
+                        ebikeModel: item.ebikeModel,
+                        motor: item.motor,
+                        sponsors: item.sponsors,
+                        showInLeaderboard: !!item.showInLeaderboard,
+                        skills: { cond: 8, tech: 8, battery: 8, sprint: 8, kom: 8 }
+                    };
+                    if (item.birthYear) newRider.birthYear = item.birthYear;
+                    riders.push(newRider);
+                    existingByName.set(normName, newRider);
+                    added++;
+                }
+            });
+
+            const estimatedBytes = JSON.stringify({ teams, riders, calendar, ageCategories, webPartners, headerConfig, footerConfig, backgroundConfig, raceResults }).length;
+            if (estimatedBytes > 920000) {
+                riders = prevRiders;
+                availableBrands = prevBrands;
+                availableMotors = prevMotors;
+                motorHandicaps = prevHandicaps;
+                showModal("Limit velikosti Firebase", "Celková velikost databáze po importu překračuje limit Firebase (1 MB). Zkuste prosím importovat menší počet jezdců nebo snížit velikost nahraných obrázků.");
+                return;
+            }
+
+            cancelXlsxRidersImport();
+            populateAdminSelects();
+            renderAdminRidersTable();
+            renderAdminRidersDbTable();
+            renderAdminCategoriesTable();
+            renderAdminMotorsTable();
+            renderAdminBrandFlagsTable();
+            renderAdminTeamsGrid();
+            renderAdminSponsorsSection();
+            renderPublicLeaderboards();
+            renderPublicRaceResults();
+            renderTeamsAndRidersView();
+
+            const res = await saveData();
+            if (res.ok) {
+                showModal(
+                    "Import do Firebase dokončen",
+                    `Úspěšně uloženo do Firebase: ${added} nových jezdců (skrytí mimo žebříček), ${updated} aktualizovaných${skipped > 0 ? `, ${skipped} přeskočeno` : ''}. Až jezdec získá body ze závodu, stačí u něj zapnout aktivní tlačítko pro zobrazení v žebříčku.`
+                );
+            } else {
+                riders = prevRiders;
+                availableBrands = prevBrands;
+                availableMotors = prevMotors;
+                motorHandicaps = prevHandicaps;
+                populateAdminSelects();
+                renderAdminRidersTable();
+                renderAdminRidersDbTable();
+                renderPublicLeaderboards();
+                renderTeamsAndRidersView();
+                showModal("Chyba databáze Firebase", `Import jezdců se neuložil do Firebase (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        function downloadRidersXlsxTemplate() {
+            if (typeof XLSX === 'undefined') {
+                showModal("Chyba knihovny Excel", "Knihovna SheetJS (XLSX) není načtena.");
+                return;
+            }
+            const sampleRows = [
+                {
+                    'Jméno': 'Jan Novák',
+                    'Stát': 'CZ',
+                    'Tým': 'Crussis Factory Racing',
+                    'Ročník': 1991,
+                    'Kategorie': 'Elite',
+                    'E-Bike': 'Crussis',
+                    'Typ E-Biku': 'e-Full PRO X',
+                    'Motor': 'DJI Avinox',
+                    'Sponzoři': 'Crussis, Maxxis'
+                },
+                {
+                    'Jméno': 'Peter Kováč',
+                    'Stát': 'SK',
+                    'Tým': 'Kellys e-MTB Squad',
+                    'Ročník': 1984,
+                    'Kategorie': 'Masters',
+                    'E-Bike': 'Kellys',
+                    'Typ E-Biku': 'Theos F100',
+                    'Motor': 'Bosch CX Gen 5',
+                    'Sponzoři': ''
+                }
+            ];
+            const ws = XLSX.utils.json_to_sheet(sampleRows);
+            ws['!cols'] = [
+                { wch: 24 }, { wch: 8 }, { wch: 26 }, { wch: 10 }, { wch: 14 },
+                { wch: 16 }, { wch: 22 }, { wch: 20 }, { wch: 24 }
+            ];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Databaze_Jezdcu');
+            XLSX.writeFile(wb, 'sablona_databaze_jezdcu_2027.xlsx');
+        }
+
+        function exportRidersDatabaseToXlsx() {
+            if (typeof XLSX === 'undefined') {
+                showModal("Chyba knihovny Excel", "Knihovna SheetJS (XLSX) není načtena.");
+                return;
+            }
+            const statsObj = calculateRiderTotals();
+            const rows = riders.map(r => {
+                const st = statsObj[r.id] || { totalYellow: 0, totalGreen: 0, totalPolka: 0, totalPink: 0 };
+                return {
+                    'Jméno': r.name || '',
+                    'Stát': r.country || 'CZ',
+                    'Tým': r.team || '',
+                    'Ročník': r.birthYear || '',
+                    'Kategorie': getCategoryLabelById(r.category),
+                    'E-Bike': r.ebike || '',
+                    'Typ E-Biku': r.ebikeModel || '',
+                    'Motor': r.motor || '',
+                    'Sponzoři': r.sponsors || '',
+                    'Body Cíl (TOP 7)': st.totalYellow || 0,
+                    'Body Sprint': st.totalGreen || 0,
+                    'Body KOM': st.totalPolka || 0,
+                    'Aktivní v žebříčku': isRiderActiveInLeaderboard(r) ? 'Ano' : 'Ne'
+                };
+            });
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Databaze_Jezdcu');
+            XLSX.writeFile(wb, 'databaze_jezdcu_emtb_2027.xlsx');
+        }
+
+        async function toggleRiderLeaderboardActive(riderId) {
+            const r = riders.find(item => item.id === riderId);
+            if (!r) return;
+            const prevState = r.showInLeaderboard;
+            r.showInLeaderboard = !isRiderActiveInLeaderboard(r);
+
+            populateAdminSelects();
+            renderAdminRidersTable();
+            renderAdminRidersDbTable();
+            renderPublicLeaderboards();
+            renderTeamsAndRidersView();
+
+            const res = await saveData();
+            if (!res.ok) {
+                r.showInLeaderboard = prevState;
+                populateAdminSelects();
+                renderAdminRidersTable();
+                renderAdminRidersDbTable();
+                renderPublicLeaderboards();
+                renderTeamsAndRidersView();
+                showModal("Chyba databáze Firebase", `Změna viditelnosti jezdce "${r.name}" se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function activateAllScoredRiders() {
+            const statsObj = calculateRiderTotals();
+            const prevSnapshot = riders.map(r => ({ id: r.id, showInLeaderboard: r.showInLeaderboard }));
+            let activatedCount = 0;
+
+            riders.forEach(r => {
+                const st = statsObj[r.id];
+                const totalPts = st ? (st.totalYellow + st.totalGreen + st.totalPolka + st.totalPink) : 0;
+                if (totalPts > 0 && !isRiderActiveInLeaderboard(r)) {
+                    r.showInLeaderboard = true;
+                    activatedCount++;
+                }
+            });
+
+            if (activatedCount === 0) {
+                showModal("Vše aktuální", "Všichni jezdci, kteří získali body ze závodů, jsou již v žebříčku aktivovaní.");
+                return;
+            }
+
+            populateAdminSelects();
+            renderAdminRidersTable();
+            renderAdminRidersDbTable();
+            renderPublicLeaderboards();
+            renderTeamsAndRidersView();
+
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Aktivováno do žebříčku", `Bylo aktivováno ${activatedCount} jezdců s body ze závodů a změna uložena do Firebase.`);
+            } else {
+                prevSnapshot.forEach(snap => {
+                    const target = riders.find(r => r.id === snap.id);
+                    if (target) target.showInLeaderboard = snap.showInLeaderboard;
+                });
+                populateAdminSelects();
+                renderAdminRidersTable();
+                renderAdminRidersDbTable();
+                renderPublicLeaderboards();
+                showModal("Chyba databáze Firebase", `Hromadná aktivace se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function deactivateAllZeroPointRiders() {
+            const statsObj = calculateRiderTotals();
+            const candidates = riders.filter(r => {
+                const st = statsObj[r.id];
+                const totalPts = st ? (st.totalYellow + st.totalGreen + st.totalPolka + st.totalPink) : 0;
+                return totalPts === 0 && isRiderActiveInLeaderboard(r);
+            });
+            if (candidates.length === 0) {
+                showModal("Nic ke skrytí", "V žebříčku momentálně není žádný aktivní jezdec s 0 body.");
+                return;
+            }
+            if (!confirm(`Opravdu chcete skrýt ${candidates.length} jezdců s 0 body z veřejného žebříčku? Zůstanou uloženi v databázi Firebase.`)) {
+                return;
+            }
+
+            const prevSnapshot = riders.map(r => ({ id: r.id, showInLeaderboard: r.showInLeaderboard }));
+            candidates.forEach(r => { r.showInLeaderboard = false; });
+
+            populateAdminSelects();
+            renderAdminRidersTable();
+            renderAdminRidersDbTable();
+            renderPublicLeaderboards();
+
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Skryto z žebříčku", `Bylo skryto ${candidates.length} jezdců bez bodů. Všichni zůstávají uloženi v Databázi jezdců ve Firebase.`);
+            } else {
+                prevSnapshot.forEach(snap => {
+                    const target = riders.find(r => r.id === snap.id);
+                    if (target) target.showInLeaderboard = snap.showInLeaderboard;
+                });
+                populateAdminSelects();
+                renderAdminRidersTable();
+                renderAdminRidersDbTable();
+                renderPublicLeaderboards();
+                showModal("Chyba databáze Firebase", `Změna se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        function editRiderFromDatabase(riderId) {
+            switchAdminSubTab('riders');
+            editRider(riderId);
+        }
+
+        function renderAdminRidersDbTable() {
+            const tbody = document.getElementById('admin-riders-db-tbody');
+            const statTotal = document.getElementById('riders-db-stat-total');
+            const statActive = document.getElementById('riders-db-stat-active');
+            const statInactive = document.getElementById('riders-db-stat-inactive');
+            const statScored = document.getElementById('riders-db-stat-scored');
+
+            const statsObj = calculateRiderTotals();
+            const getScoredTotal = (riderId) => {
+                const st = statsObj[riderId];
+                return st ? (st.totalYellow + st.totalGreen + st.totalPolka + st.totalPink) : 0;
+            };
+
+            const totalCount = riders.length;
+            let activeCount = 0;
+            let scoredCount = 0;
+            riders.forEach(r => {
+                if (isRiderActiveInLeaderboard(r)) activeCount++;
+                if (getScoredTotal(r.id) > 0) scoredCount++;
+            });
+
+            if (statTotal) statTotal.textContent = totalCount;
+            if (statActive) statActive.textContent = activeCount;
+            if (statInactive) statInactive.textContent = totalCount - activeCount;
+            if (statScored) statScored.textContent = scoredCount;
+
+            if (!tbody) return;
+            const searchQuery = normalizeImportText(document.getElementById('riders-db-search')?.value || '');
+            const filterMode = document.getElementById('riders-db-filter')?.value || 'all';
+
+            const filtered = riders.filter(r => {
+                const isActive = isRiderActiveInLeaderboard(r);
+                const hasPoints = getScoredTotal(r.id) > 0;
+                if (filterMode === 'active' && !isActive) return false;
+                if (filterMode === 'inactive' && isActive) return false;
+                if (filterMode === 'scored' && !hasPoints) return false;
+                if (filterMode === 'scored-inactive' && !(hasPoints && !isActive)) return false;
+
+                if (searchQuery) {
+                    const hay = normalizeImportText(`${r.name || ''} ${r.team || ''} ${r.country || ''} ${r.ebike || ''} ${r.ebikeModel || ''} ${r.motor || ''} ${getCategoryLabelById(r.category)}`);
+                    if (!hay.includes(searchQuery)) return false;
+                }
+                return true;
+            });
+
+            tbody.innerHTML = '';
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-xs text-slate-500 italic">V databázi nebyli nalezeni žádní jezdci odpovídající vybranému filtru.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(r => {
+                const isActive = isRiderActiveInLeaderboard(r);
+                const st = statsObj[r.id] || { totalYellow: 0, totalGreen: 0, totalPolka: 0, totalPink: 0 };
+                const totalAllPts = st.totalYellow + st.totalGreen + st.totalPolka + st.totalPink;
+                const hasPoints = totalAllPts > 0;
+
+                const pointsHtml = hasPoints
+                    ? `<div class="inline-flex flex-col items-center gap-0.5">
+                            <span class="px-2.5 py-1 rounded-xl bg-amber-400/20 border border-amber-400/40 text-amber-300 font-black text-xs tabular-nums">${st.totalYellow} b. (Cíl)</span>
+                            ${(st.totalGreen > 0 || st.totalPolka > 0) ? `<span class="text-[10px] text-slate-400 font-bold">Sp ${st.totalGreen} • KOM ${st.totalPolka}</span>` : ''}
+                       </div>`
+                    : `<span class="text-xs font-bold text-slate-500">0 b.</span>`;
+
+                const toggleBtnHtml = isActive
+                    ? `<button type="button" onclick="toggleRiderLeaderboardActive('${escapeHtml(r.id)}')" class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 font-black text-xs shadow-sm transition whitespace-nowrap">
+                            <i class="fa-solid fa-toggle-on text-sm text-emerald-400"></i> Aktivní v žebříčku
+                       </button>`
+                    : (hasPoints
+                        ? `<button type="button" onclick="toggleRiderLeaderboardActive('${escapeHtml(r.id)}')" class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/60 font-black text-xs shadow-sm transition whitespace-nowrap">
+                                <i class="fa-solid fa-toggle-off text-sm text-amber-400"></i> Má body — Aktivovat
+                           </button>`
+                        : `<button type="button" onclick="toggleRiderLeaderboardActive('${escapeHtml(r.id)}')" class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 hover:border-amber-400/50 font-bold text-xs transition whitespace-nowrap">
+                                <i class="fa-solid fa-toggle-off text-sm text-slate-500"></i> Neaktivní — Aktivovat
+                           </button>`);
+
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-slate-800/50 transition border-b border-slate-800 ${isActive ? '' : 'bg-[#0b1120]/60'}`;
+                tr.innerHTML = `
+                    <td class="p-3 min-w-[210px]">
+                        <div class="flex items-center gap-2 font-black text-white">
+                            ${getFlagIcon(r.country)}
+                            <span>${escapeHtml(r.name)}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-wrap mt-1 text-[11px]">
+                            <span class="px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 border border-slate-700 font-bold">${escapeHtml(getCategoryLabelById(r.category))}</span>
+                            ${r.birthYear ? `<span class="text-slate-400 font-semibold">Ročník ${r.birthYear}</span>` : ''}
+                        </div>
+                    </td>
+                    <td class="p-3 text-xs font-semibold text-slate-300">
+                        ${r.team ? escapeHtml(r.team) : '<span class="text-slate-500 italic">Individuální</span>'}
+                    </td>
+                    <td class="p-3 text-xs">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded-md text-[11px]">${escapeHtml(r.ebike || '-')}</span>
+                            ${r.ebikeModel ? `<span class="bg-amber-400/20 text-amber-200 border border-amber-400/30 font-bold px-2 py-0.5 rounded-md text-[11px]">${escapeHtml(r.ebikeModel)}</span>` : ''}
+                        </div>
+                        <div class="text-[11px] text-slate-400 mt-1"><i class="fa-solid fa-bolt text-amber-400/70 mr-1"></i>${escapeHtml(r.motor || '-')}</div>
+                    </td>
+                    <td class="p-3 text-center whitespace-nowrap">${pointsHtml}</td>
+                    <td class="p-3 text-center whitespace-nowrap">${toggleBtnHtml}</td>
+                    <td class="p-3 text-right space-x-1.5 whitespace-nowrap">
+                        <button type="button" onclick="editRiderFromDatabase('${escapeHtml(r.id)}')" class="px-3 py-1.5 bg-amber-400/20 text-amber-300 rounded-xl hover:bg-amber-400/30 transition font-bold text-xs border border-amber-400/30">Upravit</button>
+                        <button type="button" onclick="deleteRider('${escapeHtml(r.id)}')" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition font-bold text-xs border border-red-500/30">Smazat</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -8373,6 +9296,7 @@
                     renderAdminBrandFlagsTable();
                     renderAdminCalendarTable();
                     renderAdminRidersTable();
+                    renderAdminRidersDbTable();
                     renderAdminTeamsGrid();
                     renderAdminSponsorsSection();
                     renderAdminWebPartnersGrid();
