@@ -4460,6 +4460,79 @@
             return val;
         }
 
+        function parseCalendarRaceTimestamp(race) {
+            const rawDate = String(race && race.date || '').trim();
+            if (!rawDate) return null;
+
+            let year, month, day;
+            const isoMatch = rawDate.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+            if (isoMatch) {
+                year = parseInt(isoMatch[1], 10);
+                month = parseInt(isoMatch[2], 10) - 1;
+                day = parseInt(isoMatch[3], 10);
+            } else {
+                const czMatch = rawDate.match(/^(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})$/);
+                if (!czMatch) return null;
+                day = parseInt(czMatch[1], 10);
+                month = parseInt(czMatch[2], 10) - 1;
+                year = parseInt(czMatch[3], 10);
+            }
+
+            let hours = 0;
+            let minutes = 0;
+            const timeMatch = String(race && race.startTime || '').trim().match(/^(\d{1,2}):(\d{2})$/);
+            if (timeMatch) {
+                hours = parseInt(timeMatch[1], 10);
+                minutes = parseInt(timeMatch[2], 10);
+            }
+
+            const dayStartTs = new Date(year, month, day, 0, 0, 0, 0).getTime();
+            const fullTs = new Date(year, month, day, hours, minutes, 0, 0).getTime();
+            if (!Number.isFinite(dayStartTs) || !Number.isFinite(fullTs)) return null;
+            return { dayStartTs, fullTs };
+        }
+
+        function getSortedCalendarForPublic(races, nowRef) {
+            const now = nowRef instanceof Date ? nowRef : new Date();
+            const todayStartTs = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
+
+            const decorated = (Array.isArray(races) ? races : []).map((race, originalIndex) => {
+                const parsed = parseCalendarRaceTimestamp(race);
+                return {
+                    race,
+                    originalIndex,
+                    dayStartTs: parsed ? parsed.dayStartTs : null,
+                    fullTs: parsed ? parsed.fullTs : null
+                };
+            });
+
+            const chronological = [...decorated].sort((a, b) => {
+                if (a.fullTs === null && b.fullTs === null) return a.originalIndex - b.originalIndex;
+                if (a.fullTs === null) return 1;
+                if (b.fullTs === null) return -1;
+                if (a.fullTs !== b.fullTs) return a.fullTs - b.fullTs;
+                return a.originalIndex - b.originalIndex;
+            });
+            chronological.forEach((item, i) => {
+                item.roundNumber = i + 1;
+            });
+
+            const upcoming = [];
+            const past = [];
+            const undated = [];
+            chronological.forEach(item => {
+                if (item.dayStartTs === null) {
+                    undated.push({ ...item, isPast: false });
+                } else if (item.dayStartTs >= todayStartTs) {
+                    upcoming.push({ ...item, isPast: false });
+                } else {
+                    past.push({ ...item, isPast: true });
+                }
+            });
+
+            return [...upcoming, ...past, ...undated];
+        }
+
         function renderCalendar() {
             const grid = document.getElementById('calendar-grid');
             const countEl = document.getElementById('calendar-races-count');
@@ -4475,7 +4548,8 @@
                 return;
             }
 
-            calendar.forEach((c, idx) => {
+            const sortedEntries = getSortedCalendarForPublic(calendar);
+            sortedEntries.forEach(({ race: c, roundNumber, isPast }) => {
                 const dateText = escapeHtml(formatCalendarDateDisplay(c.date));
                 const startTimeText = c.startTime ? escapeHtml(c.startTime) : 'Upřesníme';
                 const safeUrl = normalizeRaceWebsiteUrl(c.website);
@@ -4485,8 +4559,8 @@
 
                 const row = document.createElement('div');
                 row.className = isVirtual
-                    ? "calendar-row-virtual rounded-2xl bg-gradient-to-r from-[#0e2038] via-[#0f172a] to-[#0f172a] border-2 border-sky-400/90 border-l-4 border-l-sky-400 hover:border-sky-300 hover:from-[#122947] shadow-md shadow-sky-400/15 hover:shadow-xl hover:shadow-sky-400/25 px-4 sm:px-5 py-4 transition-all duration-200"
-                    : "rounded-2xl bg-gradient-to-r from-[#131c31] via-[#0f172a] to-[#0f172a] border-2 border-amber-400/85 border-l-4 border-l-amber-400 hover:border-amber-300 hover:from-[#17233d] shadow-md shadow-amber-400/10 hover:shadow-xl hover:shadow-amber-400/20 px-4 sm:px-5 py-4 transition-all duration-200";
+                    ? `calendar-row-virtual rounded-2xl bg-gradient-to-r from-[#0e2038] via-[#0f172a] to-[#0f172a] border-2 border-sky-400/90 border-l-4 border-l-sky-400 hover:border-sky-300 hover:from-[#122947] shadow-md shadow-sky-400/15 hover:shadow-xl hover:shadow-sky-400/25 px-4 sm:px-5 py-4 transition-all duration-200${isPast ? ' opacity-75' : ''}`
+                    : `rounded-2xl bg-gradient-to-r from-[#131c31] via-[#0f172a] to-[#0f172a] border-2 border-amber-400/85 border-l-4 border-l-amber-400 hover:border-amber-300 hover:from-[#17233d] shadow-md shadow-amber-400/10 hover:shadow-xl hover:shadow-amber-400/20 px-4 sm:px-5 py-4 transition-all duration-200${isPast ? ' opacity-75' : ''}`;
                 const roundBadgeClass = isVirtual
                     ? "inline-flex items-center justify-center min-w-[44px] bg-sky-400 text-slate-950 text-xs font-black uppercase px-2.5 py-1.5 rounded-xl shadow-sm"
                     : "inline-flex items-center justify-center min-w-[44px] bg-amber-400 text-slate-950 text-xs font-black uppercase px-2.5 py-1.5 rounded-xl shadow-sm";
@@ -4500,7 +4574,7 @@
                         <!-- Column 1: Round # (plus mobile date/time inline) -->
                         <div class="lg:col-span-1 flex items-center justify-between lg:justify-start gap-2">
                             <span class="${roundBadgeClass}">
-                                #${idx + 1}
+                                #${roundNumber}
                             </span>
                             <div class="flex lg:hidden items-center gap-2 text-xs font-bold">
                                 <span class="text-slate-200"><i class="fa-regular fa-calendar mr-1 ${accentIconText}"></i> ${dateText}</span>
@@ -4523,6 +4597,7 @@
                             <div class="flex items-center gap-2 flex-wrap">
                                 <h4 class="text-sm sm:text-base font-black text-white leading-snug tracking-wide">${escapeHtml(c.name)}</h4>
                                 ${isVirtual ? `<span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-sky-300 bg-sky-500/20 border border-sky-400/45 px-2 py-0.5 rounded-md shadow-sm shrink-0"><i class="fa-solid fa-vr-cardboard text-[9px]"></i> Virtuální závod</span>` : ''}
+                                ${isPast ? `<span class="inline-flex items-center text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-md shrink-0">Proběhlo</span>` : ''}
                             </div>
                             <p class="text-xs text-slate-400 font-medium flex items-center gap-1.5">
                                 <i class="fa-solid fa-location-dot ${accentIconText} shrink-0"></i>
