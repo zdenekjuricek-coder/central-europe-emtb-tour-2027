@@ -287,6 +287,7 @@
         body.site-bg-apply-theme #public-web-partners-top-section,
         body.site-bg-apply-theme #public-web-partners-section,
         body.site-bg-apply-theme #subview-leaderboards > div:last-child,
+        body.site-bg-apply-theme #subview-virtual-leaderboards > div:last-child,
         body.site-bg-apply-theme #subview-race-results > div,
         body.site-bg-apply-theme #subview-calendar > div,
         body.site-bg-apply-theme #subview-teams > div,
@@ -447,6 +448,9 @@
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <button onclick="switchPublicSubTab('leaderboards')" id="sub-btn-leaderboards" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-black bg-amber-400 text-slate-950 transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shadow-sm shrink-0">
                     <i class="fa-solid fa-trophy text-slate-950"></i> <span data-i18n="sub_leaderboards">Žebříčky (Tours)</span>
+                </button>
+                <button onclick="switchPublicSubTab('virtual_leaderboards')" id="sub-btn-virtual-leaderboards" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap text-slate-300 shrink-0">
+                    <i class="fa-solid fa-vr-cardboard text-amber-400"></i> <span data-i18n="sub_virtual_leaderboards">Žebříčky (Virtual)</span>
                 </button>
                 <button onclick="switchPublicSubTab('race_results')" id="sub-btn-race-results" class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap text-slate-300 shrink-0">
                     <i class="fa-solid fa-list-check text-amber-400"></i> <span data-i18n="sub_race_results">Výsledky dle závodů</span>
@@ -702,6 +706,172 @@
                                 <tr id="table-header-row" class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800"></tr>
                             </thead>
                             <tbody id="public-table-body" class="divide-y divide-slate-800/60 bg-[#0f172a]"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Virtual Leaderboards Subview (ROUVY Virtual Series) -->
+            <div id="subview-virtual-leaderboards" class="hidden space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+                    <!-- Virtual Yellow Jersey -->
+                    <div onclick="switchVirtualLeaderboardTab('yellow')" class="jersey-hero-card jersey-card-yellow cursor-pointer group bg-gradient-to-br from-amber-500/20 via-[#111827] to-[#0f172a] border border-amber-500/40 hover:border-amber-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
+                        <div>
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div class="min-w-0 space-y-1">
+                                    <span class="inline-block bg-amber-400 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Žlutý dres</span>
+                                    <div class="text-[11px] font-bold text-amber-300/80 truncate">Celkové pořadí (ROUVY)</div>
+                                </div>
+                                <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(250,204,21,0.35)] transition-transform duration-300 group-hover:scale-105" aria-label="Žlutý dres Virtual">
+                                    <defs>
+                                        <linearGradient id="v-jersey-yellow-grad" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#fde047"/>
+                                            <stop offset="100%" stop-color="#eab308"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="url(#v-jersey-yellow-grad)" stroke="#fef08a" stroke-width="1.6" stroke-linejoin="round"/>
+                                    <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#854d0e" stroke-width="2.2" stroke-linecap="round"/>
+                                    <line x1="32" y1="15.5" x2="32" y2="34" stroke="#a16207" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <path d="M18 52 L46 52" stroke="#ca8a04" stroke-width="2" opacity="0.6"/>
+                                </svg>
+                            </div>
+                            <div id="virtual-hero-yellow-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                            <div id="virtual-hero-yellow-team" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">--</div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">Celkem bodů</span>
+                            <span id="virtual-hero-yellow-pts" class="text-xl font-black text-amber-400 tabular-nums whitespace-nowrap">0 b.</span>
+                        </div>
+                    </div>
+
+                    <!-- Virtual Green Jersey -->
+                    <div onclick="switchVirtualLeaderboardTab('green')" class="jersey-hero-card jersey-card-green cursor-pointer group bg-gradient-to-br from-emerald-500/20 via-[#111827] to-[#0f172a] border border-emerald-500/40 hover:border-emerald-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
+                        <div>
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div class="min-w-0 space-y-1">
+                                    <span class="inline-block bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Zelený dres</span>
+                                    <div class="text-[11px] font-bold text-emerald-300/80 truncate">Sprinty (ROUVY)</div>
+                                </div>
+                                <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(16,185,129,0.35)] transition-transform duration-300 group-hover:scale-105" aria-label="Zelený dres Virtual">
+                                    <defs>
+                                        <linearGradient id="v-jersey-green-grad" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#34d399"/>
+                                            <stop offset="100%" stop-color="#059669"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="url(#v-jersey-green-grad)" stroke="#a7f3d0" stroke-width="1.6" stroke-linejoin="round"/>
+                                    <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#064e3b" stroke-width="2.2" stroke-linecap="round"/>
+                                    <line x1="32" y1="15.5" x2="32" y2="34" stroke="#065f46" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <path d="M18 52 L46 52" stroke="#047857" stroke-width="2" opacity="0.6"/>
+                                </svg>
+                            </div>
+                            <div id="virtual-hero-green-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                            <div id="virtual-hero-green-team" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">--</div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">Sprint body</span>
+                            <span id="virtual-hero-green-pts" class="text-xl font-black text-emerald-400 tabular-nums whitespace-nowrap">0 b.</span>
+                        </div>
+                    </div>
+
+                    <!-- Virtual Mountain / Polka Dot Jersey -->
+                    <div onclick="switchVirtualLeaderboardTab('polka')" class="jersey-hero-card jersey-card-polka cursor-pointer group bg-gradient-to-br from-red-500/20 via-[#111827] to-[#0f172a] border border-red-500/40 hover:border-red-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
+                        <div>
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div class="min-w-0 space-y-1">
+                                    <span class="inline-block bg-red-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Horský dres</span>
+                                    <div class="text-[11px] font-bold text-red-300/80 truncate">Král hor / KOM (ROUVY)</div>
+                                </div>
+                                <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(239,68,68,0.4)] transition-transform duration-300 group-hover:scale-105" aria-label="Horský dres Virtual">
+                                    <defs>
+                                        <clipPath id="v-jersey-polka-clip">
+                                            <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z"/>
+                                        </clipPath>
+                                    </defs>
+                                    <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="#f8fafc"/>
+                                    <g clip-path="url(#v-jersey-polka-clip)" fill="#ef4444">
+                                        <circle cx="14" cy="20" r="3.4"/>
+                                        <circle cx="25" cy="21" r="3.4"/>
+                                        <circle cx="39" cy="21" r="3.4"/>
+                                        <circle cx="51" cy="21" r="3.4"/>
+                                        <circle cx="20" cy="31" r="3.4"/>
+                                        <circle cx="32" cy="31" r="3.4"/>
+                                        <circle cx="44" cy="31" r="3.4"/>
+                                        <circle cx="25" cy="42" r="3.4"/>
+                                        <circle cx="39" cy="42" r="3.4"/>
+                                        <circle cx="20" cy="52" r="3.4"/>
+                                        <circle cx="32" cy="52" r="3.4"/>
+                                        <circle cx="44" cy="52" r="3.4"/>
+                                    </g>
+                                    <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="none" stroke="#fca5a5" stroke-width="1.6" stroke-linejoin="round"/>
+                                    <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round"/>
+                                    <line x1="32" y1="15.5" x2="32" y2="33" stroke="#991b1b" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
+                                </svg>
+                            </div>
+                            <div id="virtual-hero-polka-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                            <div id="virtual-hero-polka-team" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">--</div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">KOM body</span>
+                            <span id="virtual-hero-polka-pts" class="text-xl font-black text-red-400 tabular-nums whitespace-nowrap">0 b.</span>
+                        </div>
+                    </div>
+
+                    <!-- Virtual Pink Jersey -->
+                    <div onclick="switchVirtualLeaderboardTab('pink')" class="jersey-hero-card jersey-card-pink cursor-pointer group bg-gradient-to-br from-pink-500/20 via-[#111827] to-[#0f172a] border border-pink-500/40 hover:border-pink-400 rounded-3xl p-5 shadow-2xl flex flex-col justify-between h-full transition hover:-translate-y-0.5">
+                        <div>
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div class="min-w-0 space-y-1">
+                                    <span class="inline-block bg-pink-500 text-white font-black text-[11px] px-3 py-1 rounded-xl uppercase tracking-wide whitespace-nowrap">Růžový dres</span>
+                                    <div class="text-[11px] font-bold text-pink-300/80 truncate">Konstruktéři (ROUVY)</div>
+                                </div>
+                                <svg viewBox="0 0 64 64" class="w-12 h-12 shrink-0 drop-shadow-[0_4px_10px_rgba(236,72,153,0.4)] transition-transform duration-300 group-hover:scale-105" aria-label="Růžový dres Virtual">
+                                    <defs>
+                                        <linearGradient id="v-jersey-pink-grad" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#f472b6"/>
+                                            <stop offset="100%" stop-color="#db2777"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M22 8 L26 13 C29 15 35 15 38 13 L42 8 L54 14 L60 28 L50 32 L46 24 L46 56 L18 56 L18 24 L14 32 L4 28 L10 14 Z" fill="url(#v-jersey-pink-grad)" stroke="#fbcfe8" stroke-width="1.6" stroke-linejoin="round"/>
+                                    <path d="M26 13 C29 16.5 35 16.5 38 13" fill="none" stroke="#831843" stroke-width="2.2" stroke-linecap="round"/>
+                                    <line x1="32" y1="15.5" x2="32" y2="34" stroke="#9d174d" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+                                    <path d="M18 52 L46 52" stroke="#be185d" stroke-width="2" opacity="0.6"/>
+                                </svg>
+                            </div>
+                            <div id="virtual-hero-pink-name" class="text-base font-black text-white flex items-center gap-2 min-h-[26px]">--</div>
+                            <div id="virtual-hero-pink-brand" class="text-xs text-slate-400 font-semibold truncate min-h-[18px] mt-0.5">--</div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800/90 flex justify-between items-baseline gap-2">
+                            <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider whitespace-nowrap">Tovární body</span>
+                            <span id="virtual-hero-pink-pts" class="text-xl font-black text-pink-400 tabular-nums whitespace-nowrap">0 b.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Virtual Leaderboards Table -->
+                <div class="bg-[#111827] border border-slate-800 p-3.5 sm:p-5 lg:p-6 rounded-2xl sm:rounded-3xl shadow-2xl space-y-3.5 sm:space-y-4">
+                    <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3 sm:gap-4">
+                        <div class="flex items-center gap-2.5 flex-wrap w-full lg:w-auto">
+                            <span class="text-xs uppercase font-black text-slate-400 whitespace-nowrap" data-i18n="filter_cat">Kategorie:</span>
+                            <select id="virtual-rider-category-filter" onchange="renderPublicVirtualLeaderboards()" class="flex-1 sm:flex-initial sm:min-w-[190px] bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-400 transition">
+                                <option value="all">Všechny kategorie</option>
+                            </select>
+                            <span id="virtual-series-rounds-badge" class="text-[11px] font-black text-sky-300 bg-sky-500/15 border border-sky-400/35 px-3 py-1.5 rounded-xl whitespace-nowrap">ROUVY Série • 0 odehraných kol</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto sm:flex-wrap pb-1 sm:pb-0 scrollbar-none">
+                            <button onclick="switchVirtualLeaderboardTab('yellow')" id="virtual-lb-tab-yellow" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0"><i class="fa-solid fa-trophy"></i> <span data-i18n="lb_yellow">Celkové pořadí</span></button>
+                            <button onclick="switchVirtualLeaderboardTab('green')" id="virtual-lb-tab-green" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0"><i class="fa-solid fa-bolt"></i> <span data-i18n="lb_green">Sprinty</span></button>
+                            <button onclick="switchVirtualLeaderboardTab('polka')" id="virtual-lb-tab-polka" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0"><i class="fa-solid fa-mountain"></i> <span data-i18n="lb_polka">Král hor</span></button>
+                            <button onclick="switchVirtualLeaderboardTab('pink')" id="virtual-lb-tab-pink" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0"><i class="fa-solid fa-industry"></i> <span data-i18n="lb_pink">Tovární</span></button>
+                            <button onclick="switchVirtualLeaderboardTab('teams')" id="virtual-lb-tab-teams" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0"><i class="fa-solid fa-shield-halved"></i> <span data-i18n="lb_teams">Týmy</span></button>
+                        </div>
+                    </div>
+                    <div class="responsive-table-wrap rounded-2xl border border-slate-800 shadow-xl">
+                        <table class="responsive-data-table w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr id="virtual-table-header-row" class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800"></tr>
+                            </thead>
+                            <tbody id="virtual-public-table-body" class="divide-y divide-slate-800/60 bg-[#0f172a]"></tbody>
                         </table>
                     </div>
                 </div>
@@ -1036,6 +1206,9 @@
                     <button onclick="switchAdminSubTab('results')" id="admin-sub-btn-results" class="px-4 py-2.5 rounded-2xl text-xs font-black bg-amber-400 text-slate-950 transition flex items-center gap-2 shadow-sm whitespace-nowrap">
                         <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="admin_tab_results">Zápis výsledků</span>
                     </button>
+                    <button onclick="switchAdminSubTab('virtual-lb')" id="admin-sub-btn-virtual-lb" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-vr-cardboard"></i> <span data-i18n="admin_tab_virtual_lb">Žebříček Virtuální</span>
+                    </button>
                     <button onclick="switchAdminSubTab('skills')" id="admin-sub-btn-skills" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-sliders"></i> <span data-i18n="admin_tab_skills">Nastavení skillů</span>
                     </button>
@@ -1110,6 +1283,172 @@
                         <button onclick="saveRiderResult()" class="w-full sm:w-auto px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
                             <span data-i18n="btn_save_result">Uložit výsledky jezdce</span>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Admin Sub-Content: Virtual Leaderboard (ROUVY Virtual Series Results & Scoring) -->
+                <div id="admin-sub-virtual-lb" class="admin-sub-content hidden bg-[#111827] p-5 sm:p-7 rounded-3xl shadow-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-black text-white">
+                                <i class="fa-solid fa-vr-cardboard mr-2 text-sky-400"></i>
+                                <span data-i18n="admin_virtual_lb_title">Žebříček Virtuální (ROUVY série – zápis výsledků a bodování)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Zapisujte výsledky pouze pro virtuální závody označené v <strong>Správě kalendáře</strong>. Body se započítávají výhradně do divácké sekce <strong>Žebříčky (Virtual)</strong> podle bodování ROUVY.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 shrink-0">
+                            <span id="admin-virtual-rounds-summary" class="text-[11px] font-black px-3 py-1.5 rounded-xl bg-sky-500/15 text-sky-300 border border-sky-400/35 whitespace-nowrap">Odehraná kola: 0</span>
+                            <span id="admin-virtual-finishers-summary" class="text-[11px] font-black px-3 py-1.5 rounded-xl bg-amber-400/15 text-amber-300 border border-amber-400/35 whitespace-nowrap">Winter Finisher (+25 b.): 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Scoring Rules Quick Reference -->
+                    <div class="bg-sky-500/5 border border-sky-400/25 rounded-2xl p-3.5 text-[11px] text-slate-300 flex flex-wrap gap-x-4 gap-y-1.5 leading-relaxed">
+                        <span><strong class="text-amber-300">Cíl:</strong> 1.=100, 2.=85, 3.=75, 4.=68, 5.=62, 6.=57, 7.=52, 8.=48, 9.=44, 10.=40, 11.–20. po −2 b., 21.+ = 15 b. (DNF = 0)</span>
+                        <span><strong class="text-emerald-300">Sprint:</strong> 1.=+10, 2.=+6, 3.=+3 b.</span>
+                        <span><strong class="text-red-300">KOM:</strong> 1.=+15, 2.=+10, 3.=+5 b.</span>
+                        <span><strong class="text-sky-300">Dojetí:</strong> +5 b.</span>
+                        <span><strong class="text-amber-400">Winter Finisher:</strong> +25 b. za všechna odjetá kola</span>
+                    </div>
+
+                    <!-- Virtual Stage Selector -->
+                    <div id="admin-virtual-no-races-alert" class="hidden bg-amber-400/10 border border-amber-400/40 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="text-xs text-amber-200 font-semibold">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1.5"></i>
+                            V kalendáři zatím nemáte žádný závod aktivovaný jako <strong>Virtuální závod</strong>. Aktivujte jej nejprve v sekci Správa kalendáře.
+                        </div>
+                        <button type="button" onclick="switchAdminSubTab('calendar')" class="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs whitespace-nowrap shrink-0">
+                            Otevřít Správu kalendáře
+                        </button>
+                    </div>
+
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                            <div class="flex-1">
+                                <label for="admin-virtual-race-select" class="block text-xs uppercase font-black text-sky-400 mb-1.5">
+                                    <i class="fa-solid fa-flag-checkered mr-1"></i> Vyberte virtuální závod / etapu ROUVY
+                                </label>
+                                <select id="admin-virtual-race-select" onchange="renderAdminVirtualStageTable()" class="w-full bg-slate-800 border border-sky-400/40 text-white rounded-xl p-3 text-sm font-black outline-none focus:border-sky-400"></select>
+                            </div>
+                            <button type="button" onclick="clearVirtualStageResults()" class="px-4 py-3 bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/35 rounded-xl text-xs font-bold transition whitespace-nowrap shrink-0">
+                                <i class="fa-solid fa-trash-can mr-1.5"></i> Vymazat výsledky této etapy
+                            </button>
+                        </div>
+
+                        <!-- Mode A: Single Rider Entry -->
+                        <div class="pt-4 border-t border-slate-800 space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <h4 class="text-xs uppercase tracking-wider font-black text-amber-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-user-check"></i> Ruční zápis výsledku jezdce do etapy
+                                </h4>
+                                <span id="admin-virtual-live-pts-preview" class="text-xs font-black text-amber-300 bg-amber-400/10 border border-amber-400/30 px-3 py-1 rounded-xl">Náhled bodů: 105 b.</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                                <div class="lg:col-span-2">
+                                    <label class="block text-xs uppercase font-black text-slate-400 mb-1.5">Jezdec (spárováno přes ROUVY profil)</label>
+                                    <input type="text" id="admin-virtual-rider-search" oninput="filterAdminVirtualRiderSelect()" class="w-full bg-slate-900/90 border border-slate-700 text-slate-200 placeholder-slate-500 rounded-xl px-3 py-2 text-xs font-semibold mb-1.5 outline-none focus:border-sky-400" placeholder="🔍 Hledat podle jména nebo ROUVY ID...">
+                                    <select id="admin-virtual-rider-select" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs font-bold outline-none focus:border-sky-400"></select>
+                                </div>
+                                <div>
+                                    <label for="admin-virtual-rank" class="block text-xs uppercase font-black text-slate-400 mb-1.5">Pořadí v cíli (rank)</label>
+                                    <input type="number" id="admin-virtual-rank" min="1" max="500" value="1" oninput="updateVirtualSinglePointsPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-sm font-black outline-none focus:border-amber-400">
+                                    <label class="inline-flex items-center gap-2 mt-2 cursor-pointer select-none text-xs font-bold text-slate-200">
+                                        <input type="checkbox" id="admin-virtual-finished" checked onchange="updateVirtualSinglePointsPreview()" class="w-4 h-4 accent-sky-400 rounded cursor-pointer">
+                                        <span>Dokončil etapu <span class="text-sky-400">(+5 b.)</span></span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label for="admin-virtual-sprint" class="block text-xs uppercase font-black text-emerald-400 mb-1.5">Sprint (sprint_rank)</label>
+                                    <select id="admin-virtual-sprint" onchange="updateVirtualSinglePointsPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs font-bold outline-none focus:border-emerald-400">
+                                        <option value="">Bez prémie (0 b.)</option>
+                                        <option value="1">1. místo (+10 b.)</option>
+                                        <option value="2">2. místo (+6 b.)</option>
+                                        <option value="3">3. místo (+3 b.)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="admin-virtual-kom" class="block text-xs uppercase font-black text-red-400 mb-1.5">KOM (kom_rank)</label>
+                                    <select id="admin-virtual-kom" onchange="updateVirtualSinglePointsPreview()" class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl p-3 text-xs font-bold outline-none focus:border-red-400">
+                                        <option value="">Bez prémie (0 b.)</option>
+                                        <option value="1">1. místo (+15 b.)</option>
+                                        <option value="2">2. místo (+10 b.)</option>
+                                        <option value="3">3. místo (+5 b.)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-3">
+                                <button type="button" onclick="saveVirtualRiderResult()" class="w-full sm:w-auto px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                                    <i class="fa-solid fa-floppy-disk mr-1.5"></i> Uložit výsledek jezdce do etapy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mode B: Bulk JSON / XLSX Stage Import (Paired by rouvy_name) -->
+                    <div class="bg-[#0f172a] p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                            <div>
+                                <h4 class="text-xs uppercase tracking-wider font-black text-sky-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-code"></i> Hromadné vložení výsledků etapy (JSON nebo Excel .xlsx přes rouvy_name)
+                                </h4>
+                                <p class="text-[11px] text-slate-400 mt-0.5">
+                                    Automaticky spáruje <code class="text-sky-300">rouvy_name</code> s polem <strong>Rouvy ID</strong> u jezdců v databázi a spočítá body za pořadí, sprint, KOM, bonus +5 b. i sériový bonus Winter Finisher +25 b.
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2 shrink-0">
+                                <button type="button" onclick="fillVirtualJsonSample()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-400/30 rounded-xl text-[11px] font-bold transition whitespace-nowrap">
+                                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Vložit vzor JSON
+                                </button>
+                                <button type="button" onclick="downloadVirtualStageXlsxTemplate()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/30 rounded-xl text-[11px] font-bold transition whitespace-nowrap">
+                                    <i class="fa-solid fa-file-excel text-emerald-400 mr-1"></i> Vzor etapy (.xlsx)
+                                </button>
+                                <label class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/35 rounded-xl text-[11px] font-bold cursor-pointer transition whitespace-nowrap inline-flex items-center gap-1.5">
+                                    <i class="fa-solid fa-file-arrow-up"></i> Nahrát etapu (.xlsx/.csv)
+                                    <input type="file" id="admin-virtual-xlsx-file" accept=".xlsx,.xls,.csv" onchange="handleVirtualStageXlsxUpload(event)" class="hidden">
+                                </label>
+                            </div>
+                        </div>
+
+                        <textarea id="admin-virtual-json-input" rows="5" class="w-full bg-slate-900/90 border border-slate-700 text-sky-100 placeholder-slate-500 rounded-xl p-3.5 font-mono text-xs outline-none focus:border-sky-400 resize-y" placeholder='[
+  { "rouvy_name": "JanNovak_CZ", "rank": 1, "finished": true, "sprint_rank": 1, "kom_rank": 2 },
+  { "rouvy_name": "Petr_MTB", "rank": 2, "finished": true, "sprint_rank": null, "kom_rank": 1 }
+]'></textarea>
+
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <span id="admin-virtual-import-feedback" class="text-xs font-semibold text-slate-400"></span>
+                            <button type="button" onclick="importVirtualStageFromJson()" class="w-full sm:w-auto px-5 py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition">
+                                <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> Spárovat JSON a uložit výsledky etapy
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stage Results Breakdown Table -->
+                    <div class="space-y-2.5">
+                        <h4 class="text-xs uppercase tracking-wider font-black text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-table-list text-amber-400"></i> Zapsané výsledky vybrané virtuální etapy
+                        </h4>
+                        <div class="overflow-x-auto rounded-2xl border border-slate-800">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-slate-900/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">
+                                        <th class="p-3 w-16">Poř.</th>
+                                        <th class="p-3">Jezdec &amp; ROUVY profil</th>
+                                        <th class="p-3 text-center">Stav</th>
+                                        <th class="p-3 text-center">Cíl b.</th>
+                                        <th class="p-3 text-center">Sprint</th>
+                                        <th class="p-3 text-center">KOM</th>
+                                        <th class="p-3 text-center">Dojetí</th>
+                                        <th class="p-3 text-right">Etapa celkem</th>
+                                        <th class="p-3 text-right">Akce</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-virtual-stage-tbody" class="divide-y divide-slate-800 bg-[#0f172a]"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -2723,7 +3062,10 @@
                 admin_tab_brand_flags: "Vlajky tovární značky",
                 admin_brand_flags_title: "Vlajky továrních značek e-biků",
                 admin_tab_background: "Pozadí webu",
-                admin_background_title: "Pozadí webu (Obrázek / URL pro zdokonalení PC designu)"
+                admin_background_title: "Pozadí webu (Obrázek / URL pro zdokonalení PC designu)",
+                sub_virtual_leaderboards: "Žebříčky (Virtual)",
+                admin_tab_virtual_lb: "Žebříček Virtuální",
+                admin_virtual_lb_title: "Žebříček Virtuální (ROUVY série – zápis výsledků a bodování)"
             },
             sk: {
                 nav_rules: "Pravidlá bodovania",
@@ -2805,7 +3147,10 @@
                 admin_tab_brand_flags: "Vlajky továrenskej značky",
                 admin_brand_flags_title: "Vlajky továrenských značiek e-bikov",
                 admin_tab_background: "Pozadie webu",
-                admin_background_title: "Pozadie webu (Obrázok / URL pre zdokonalenie PC dizajnu)"
+                admin_background_title: "Pozadie webu (Obrázok / URL pre zdokonalenie PC dizajnu)",
+                sub_virtual_leaderboards: "Rebríčky (Virtual)",
+                admin_tab_virtual_lb: "Rebríček Virtuálny",
+                admin_virtual_lb_title: "Rebríček Virtuálny (ROUVY séria – zápis výsledkov a bodovanie)"
             },
             pl: {
                 nav_rules: "Zasady punktacji",
@@ -2887,7 +3232,10 @@
                 admin_tab_brand_flags: "Flagi marek fabrycznych",
                 admin_brand_flags_title: "Flagi producentów i marek e-bike",
                 admin_tab_background: "Tło strony",
-                admin_background_title: "Tło strony (Obraz / URL dla wyglądu na PC)"
+                admin_background_title: "Tło strony (Obraz / URL dla wyglądu na PC)",
+                sub_virtual_leaderboards: "Rankingi (Virtual)",
+                admin_tab_virtual_lb: "Ranking Wirtualny",
+                admin_virtual_lb_title: "Ranking Wirtualny (Seria ROUVY – wyniki i punktacja)"
             },
             de: {
                 nav_rules: "Reglement",
@@ -2969,7 +3317,10 @@
                 admin_tab_brand_flags: "Hersteller-Flaggen",
                 admin_brand_flags_title: "Länderflaggen der E-Bike-Marken",
                 admin_tab_background: "Hintergrund",
-                admin_background_title: "Webseiten-Hintergrund (Bild / URL für PC-Design)"
+                admin_background_title: "Webseiten-Hintergrund (Bild / URL für PC-Design)",
+                sub_virtual_leaderboards: "Ranglisten (Virtual)",
+                admin_tab_virtual_lb: "Virtuelle Rangliste",
+                admin_virtual_lb_title: "Virtuelle Rangliste (ROUVY-Serie – Ergebnisse & Wertung)"
             },
             en: {
                 nav_rules: "Scoring Rules",
@@ -3051,7 +3402,10 @@
                 admin_tab_brand_flags: "Factory Brand Flags",
                 admin_brand_flags_title: "E-Bike Manufacturer Brand Flags",
                 admin_tab_background: "Site Background",
-                admin_background_title: "Website Background (Image / URL for PC Design)"
+                admin_background_title: "Website Background (Image / URL for PC Design)",
+                sub_virtual_leaderboards: "Leaderboards (Virtual)",
+                admin_tab_virtual_lb: "Virtual Leaderboard",
+                admin_virtual_lb_title: "Virtual Leaderboard (ROUVY Series – Results & Scoring)"
             }
         };
 
@@ -3341,6 +3695,7 @@
         ];
 
         let raceResults = {};
+        let virtualRaceResults = {};
         let teams = defaultTeams;
         let riders = defaultRiders;
         let calendar = defaultCalendar;
@@ -3452,6 +3807,19 @@
                     publicFilter.appendChild(opt);
                 });
                 publicFilter.value = (prev === 'all' || ageCategories.some(c => c.id === prev)) ? prev : 'all';
+            }
+
+            const virtualFilter = document.getElementById('virtual-rider-category-filter');
+            if (virtualFilter) {
+                const prev = virtualFilter.value || 'all';
+                virtualFilter.innerHTML = '<option value="all">Všechny kategorie</option>';
+                ageCategories.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = formatAgeCategoryLabel(c);
+                    virtualFilter.appendChild(opt);
+                });
+                virtualFilter.value = (prev === 'all' || ageCategories.some(c => c.id === prev)) ? prev : 'all';
             }
 
             const raceCatFilter = document.getElementById('public-race-results-category-filter');
@@ -3626,6 +3994,9 @@
                         sponsorsHideBadgesUntilHover = data.sponsorsHideBadgesUntilHover;
                     }
                     if (data.raceResults) raceResults = data.raceResults;
+                    if (data.virtualRaceResults && typeof data.virtualRaceResults === 'object') {
+                        virtualRaceResults = data.virtualRaceResults;
+                    }
                     if (data.availableBrands && Array.isArray(data.availableBrands)) availableBrands = data.availableBrands;
                     if (data.brandFlags && typeof data.brandFlags === 'object') {
                         brandFlags = { ...defaultBrandFlags, ...data.brandFlags };
@@ -3665,6 +4036,7 @@
                 populateCategorySelects();
                 populateAdminSelects();
                 renderPublicLeaderboards();
+                renderPublicVirtualLeaderboards();
                 populatePublicRaceResultsSelect();
                 renderPublicRaceResults();
                 renderCalendar();
@@ -3679,6 +4051,7 @@
                         const container = document.getElementById(containerId);
                         return !!(container && activeEl && container.contains(activeEl) && (activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT'));
                     };
+                    if (!isEditingIn('admin-sub-virtual-lb')) renderAdminVirtualStageTable();
                     if (!isEditingIn('admin-riders-tbody')) renderAdminRidersTable();
                     if (!isEditingIn('admin-sub-riders-db')) renderAdminRidersDbTable();
                     renderAdminCategoriesTable();
@@ -3715,6 +4088,7 @@
             motorHandicaps = { ...defaultMotorHandicaps };
             motorSpecs = JSON.parse(JSON.stringify(defaultMotorSpecs));
             raceResults = {};
+            virtualRaceResults = {};
             youtubeVideoId = 'dQw4w9WgXcQ';
             isHeroVideoEnabled = true;
             footerConfig = JSON.parse(JSON.stringify(defaultFooterConfig));
@@ -3725,6 +4099,7 @@
             populateCategorySelects();
             populateAdminSelects();
             renderPublicLeaderboards();
+            renderPublicVirtualLeaderboards();
             populatePublicRaceResultsSelect();
             renderPublicRaceResults();
             renderCalendar();
@@ -3753,6 +4128,7 @@
                     webPartnersShowTopSlider,
                     sponsorsHideBadgesUntilHover,
                     raceResults,
+                    virtualRaceResults,
                     availableBrands,
                     brandFlags,
                     availableMotors,
@@ -3878,6 +4254,7 @@
         let currentPublicSubTab = 'leaderboards';
         let currentAdminSubTab = 'results';
         let currentLeaderboardTab = 'yellow';
+        let currentVirtualLeaderboardTab = 'yellow';
 
         function switchMainTab(tab) {
             currentMainTab = tab;
@@ -3924,6 +4301,7 @@
                 setActiveMainBtn('btn-tab-admin');
                 populateCategorySelects();
                 populateAdminSelects();
+                renderAdminVirtualStageTable();
                 renderAdminRidersTable();
                 renderAdminRidersDbTable();
                 renderAdminCategoriesTable();
@@ -3943,12 +4321,12 @@
 
         function switchPublicSubTab(sub) {
             currentPublicSubTab = sub;
-            ['subview-leaderboards', 'subview-race-results', 'subview-calendar', 'subview-teams'].forEach(id => {
+            ['subview-leaderboards', 'subview-virtual-leaderboards', 'subview-race-results', 'subview-calendar', 'subview-teams'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
 
-            ['sub-btn-leaderboards', 'sub-btn-race-results', 'sub-btn-calendar', 'sub-btn-teams'].forEach(id => {
+            ['sub-btn-leaderboards', 'sub-btn-virtual-leaderboards', 'sub-btn-race-results', 'sub-btn-calendar', 'sub-btn-teams'].forEach(id => {
                 const btn = document.getElementById(id);
                 if (btn) {
                     btn.className = "px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap text-slate-300 shrink-0";
@@ -3977,6 +4355,12 @@
                 if (target) target.classList.remove('hidden');
                 setActivePublicSubBtn('sub-btn-leaderboards');
                 renderPublicLeaderboards();
+            } else if (sub === 'virtual_leaderboards') {
+                const target = document.getElementById('subview-virtual-leaderboards');
+                if (target) target.classList.remove('hidden');
+                setActivePublicSubBtn('sub-btn-virtual-leaderboards');
+                populateCategorySelects();
+                renderPublicVirtualLeaderboards();
             } else if (sub === 'race_results') {
                 const target = document.getElementById('subview-race-results');
                 if (target) target.classList.remove('hidden');
@@ -4001,6 +4385,7 @@
             currentLeaderboardTab = tab;
             ['yellow', 'green', 'polka', 'pink', 'teams'].forEach(t => {
                 const btn = document.getElementById(`lb-tab-${t}`);
+                if (!btn) return;
                 if (t === tab) {
                     btn.className = "px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0";
                 } else {
@@ -4010,10 +4395,24 @@
             renderPublicLeaderboards();
         }
 
+        function switchVirtualLeaderboardTab(tab) {
+            currentVirtualLeaderboardTab = tab;
+            ['yellow', 'green', 'polka', 'pink', 'teams'].forEach(t => {
+                const btn = document.getElementById(`virtual-lb-tab-${t}`);
+                if (!btn) return;
+                if (t === tab) {
+                    btn.className = "px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-black bg-amber-400 text-slate-950 shadow-lg transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0";
+                } else {
+                    btn.className = "px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0";
+                }
+            });
+            renderPublicVirtualLeaderboards();
+        }
+
         function switchAdminSubTab(sub) {
             currentAdminSubTab = sub;
             document.querySelectorAll('.admin-sub-content').forEach(el => el.classList.add('hidden'));
-            ['results', 'skills', 'riders', 'riders-db', 'categories', 'motors', 'brand-flags', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'header', 'footer', 'background'].forEach(s => {
+            ['results', 'virtual-lb', 'skills', 'riders', 'riders-db', 'categories', 'motors', 'brand-flags', 'teams', 'sponsors', 'web-partners', 'calendar', 'video', 'header', 'footer', 'background'].forEach(s => {
                 const btn = document.getElementById(`admin-sub-btn-${s}`);
                 if (btn) {
                     if (s === sub) {
@@ -4025,6 +4424,11 @@
             });
             const targetEl = document.getElementById(`admin-sub-${sub}`);
             if (targetEl) targetEl.classList.remove('hidden');
+            if (sub === 'virtual-lb') {
+                populateAdminSelects();
+                renderAdminVirtualStageTable();
+                updateVirtualSinglePointsPreview();
+            }
             if (sub === 'skills') loadRiderSkillsToForm();
             if (sub === 'riders-db') renderAdminRidersDbTable();
             if (sub === 'categories') renderAdminCategoriesTable();
@@ -4088,6 +4492,8 @@
             });
 
             for (let raceId in raceResults) {
+                const calRace = calendar.find(c => c.id === raceId);
+                if (calRace && calRace.isVirtual) continue;
                 let rRes = raceResults[raceId];
                 for (let riderId in rRes) {
                     if (!stats[riderId]) continue;
@@ -4386,6 +4792,463 @@
             }
         }
 
+        // ============================================================
+        // VIRTUAL SERIES (ROUVY) SCORING ENGINE & PUBLIC LEADERBOARDS
+        // ============================================================
+        function getVirtualRankPoints(rank, finished) {
+            if (!finished) return 0;
+            const r = parseInt(rank, 10);
+            const top10 = [100, 85, 75, 68, 62, 57, 52, 48, 44, 40];
+            if (r >= 1 && r <= 10) return top10[r - 1];
+            if (r >= 11 && r <= 20) return 40 - (r - 10) * 2;
+            return 15;
+        }
+
+        function getVirtualSprintPoints(sprintRank) {
+            const s = parseInt(sprintRank, 10);
+            if (s === 1) return 10;
+            if (s === 2) return 6;
+            if (s === 3) return 3;
+            return 0;
+        }
+
+        function getVirtualKomPoints(komRank) {
+            const k = parseInt(komRank, 10);
+            if (k === 1) return 15;
+            if (k === 2) return 10;
+            if (k === 3) return 5;
+            return 0;
+        }
+
+        function calculateVirtualStagePoints(entry) {
+            const finished = !!(entry && entry.finished === true);
+            const rank = entry ? (parseInt(entry.rank, 10) || 0) : 0;
+            const rawSprint = entry && entry.sprint_rank !== undefined && entry.sprint_rank !== null && entry.sprint_rank !== '' ? parseInt(entry.sprint_rank, 10) : null;
+            const rawKom = entry && entry.kom_rank !== undefined && entry.kom_rank !== null && entry.kom_rank !== '' ? parseInt(entry.kom_rank, 10) : null;
+            const sprintRank = (rawSprint >= 1 && rawSprint <= 3) ? rawSprint : null;
+            const komRank = (rawKom >= 1 && rawKom <= 3) ? rawKom : null;
+
+            const rankPoints = getVirtualRankPoints(rank, finished);
+            const sprintPoints = getVirtualSprintPoints(sprintRank);
+            const komPoints = getVirtualKomPoints(komRank);
+            const finishBonus = finished ? 5 : 0;
+            const stageTotal = rankPoints + sprintPoints + komPoints + finishBonus;
+
+            return {
+                rank,
+                finished,
+                sprintRank,
+                komRank,
+                rankPoints,
+                sprintPoints,
+                komPoints,
+                finishBonus,
+                stageTotal
+            };
+        }
+
+        function getVirtualCalendarRacesChronological() {
+            const virtualRaces = (Array.isArray(calendar) ? calendar : [])
+                .map((race, idx) => ({ race, idx, parsed: parseCalendarRaceTimestamp(race) }))
+                .filter(item => !!item.race.isVirtual);
+
+            virtualRaces.sort((a, b) => {
+                const tsA = a.parsed ? a.parsed.fullTs : null;
+                const tsB = b.parsed ? b.parsed.fullTs : null;
+                if (tsA === null && tsB === null) return a.idx - b.idx;
+                if (tsA === null) return 1;
+                if (tsB === null) return -1;
+                if (tsA !== tsB) return tsA - tsB;
+                return a.idx - b.idx;
+            });
+
+            return virtualRaces.map(item => item.race);
+        }
+
+        function getPlayedVirtualRaceIds() {
+            const orderedIds = [];
+            const seen = new Set();
+
+            const virtualRaces = getVirtualCalendarRacesChronological();
+            virtualRaces.forEach(race => {
+                const stageMap = virtualRaceResults && virtualRaceResults[race.id];
+                if (stageMap && typeof stageMap === 'object' && Object.keys(stageMap).length > 0) {
+                    orderedIds.push(race.id);
+                    seen.add(race.id);
+                }
+            });
+
+            if (virtualRaceResults && typeof virtualRaceResults === 'object') {
+                Object.keys(virtualRaceResults).forEach(raceId => {
+                    if (seen.has(raceId)) return;
+                    const stageMap = virtualRaceResults[raceId];
+                    if (!stageMap || typeof stageMap !== 'object' || Object.keys(stageMap).length === 0) return;
+                    const calRace = calendar.find(c => c.id === raceId);
+                    if (calRace && !calRace.isVirtual) return;
+                    orderedIds.push(raceId);
+                    seen.add(raceId);
+                });
+            }
+
+            return orderedIds;
+        }
+
+        function compareVirtualBestPlacements(countsA, countsB) {
+            const rankSet = new Set();
+            if (countsA) Object.keys(countsA).forEach(k => { const n = parseInt(k, 10); if (n >= 1) rankSet.add(n); });
+            if (countsB) Object.keys(countsB).forEach(k => { const n = parseInt(k, 10); if (n >= 1) rankSet.add(n); });
+            const sortedRanks = Array.from(rankSet).sort((x, y) => x - y);
+            for (let i = 0; i < sortedRanks.length; i++) {
+                const r = sortedRanks[i];
+                const cntA = (countsA && countsA[r]) || 0;
+                const cntB = (countsB && countsB[r]) || 0;
+                if (cntA !== cntB) return cntB - cntA;
+            }
+            return 0;
+        }
+
+        function compareVirtualStandings(a, b) {
+            if (b.totalYellow !== a.totalYellow) return b.totalYellow - a.totalYellow;
+            const placementDiff = compareVirtualBestPlacements(a.rankCounts, b.rankCounts);
+            if (placementDiff !== 0) return placementDiff;
+            const premA = a.totalGreen + a.totalPolka;
+            const premB = b.totalGreen + b.totalPolka;
+            if (premB !== premA) return premB - premA;
+            if (a.lastStageRank !== b.lastStageRank) return a.lastStageRank - b.lastStageRank;
+            return String(a.rider.name || '').localeCompare(String(b.rider.name || ''), 'cs');
+        }
+
+        function calculateVirtualRiderTotals() {
+            const playedRaceIds = getPlayedVirtualRaceIds();
+            const playedCount = playedRaceIds.length;
+            const lastPlayedRaceId = playedCount > 0 ? playedRaceIds[playedCount - 1] : null;
+
+            const stats = {};
+            riders.forEach(r => {
+                stats[r.id] = {
+                    rider: r,
+                    stagesPlayed: 0,
+                    finishedStages: 0,
+                    rankCounts: {},
+                    totalRankPts: 0,
+                    totalGreen: 0,
+                    totalPolka: 0,
+                    totalFinishBonus: 0,
+                    winterFinisherBonus: 0,
+                    totalYellow: 0,
+                    totalPink: 0,
+                    lastStageRank: Infinity,
+                    hasVirtualResult: false
+                };
+            });
+
+            playedRaceIds.forEach(raceId => {
+                const stageMap = virtualRaceResults[raceId] || {};
+                for (let riderId in stageMap) {
+                    if (!stats[riderId]) continue;
+                    const entry = stageMap[riderId];
+                    const calc = calculateVirtualStagePoints(entry);
+                    const st = stats[riderId];
+
+                    st.hasVirtualResult = true;
+                    st.stagesPlayed += 1;
+                    st.totalRankPts += calc.rankPoints;
+                    st.totalGreen += calc.sprintPoints;
+                    st.totalPolka += calc.komPoints;
+                    st.totalFinishBonus += calc.finishBonus;
+
+                    if (calc.finished) {
+                        st.finishedStages += 1;
+                        if (calc.rank >= 1) {
+                            st.rankCounts[calc.rank] = (st.rankCounts[calc.rank] || 0) + 1;
+                        }
+                        if (raceId === lastPlayedRaceId && calc.rank >= 1) {
+                            st.lastStageRank = calc.rank;
+                        }
+                    }
+                }
+            });
+
+            for (let riderId in stats) {
+                const st = stats[riderId];
+                const baseTotal = st.totalRankPts + st.totalGreen + st.totalPolka + st.totalFinishBonus;
+                st.winterFinisherBonus = (playedCount > 0 && st.finishedStages === playedCount) ? 25 : 0;
+                st.totalYellow = baseTotal + st.winterFinisherBonus;
+                const handicap = motorHandicaps[st.rider.motor] || 1.0;
+                st.totalPink = Math.round(st.totalYellow * handicap);
+            }
+
+            return { stats, playedRaceIds, playedCount, lastPlayedRaceId };
+        }
+
+        function renderPublicVirtualLeaderboards() {
+            const catFilterEl = document.getElementById('virtual-rider-category-filter');
+            const catFilter = catFilterEl ? catFilterEl.value : 'all';
+            const roundsBadge = document.getElementById('virtual-series-rounds-badge');
+
+            const { stats: statsObj, playedCount } = calculateVirtualRiderTotals();
+
+            if (roundsBadge) {
+                const roundWord = playedCount === 1 ? 'odehrané kolo' : (playedCount >= 2 && playedCount <= 4 ? 'odehraná kola' : 'odehraných kol');
+                roundsBadge.textContent = `ROUVY Série • ${playedCount} ${roundWord}`;
+            }
+
+            // Show riders who have any virtual result OR have a ROUVY profile & are active
+            let arr = Object.values(statsObj).filter(item => {
+                const hasRouvyProfile = !!String(item.rider.rouvyId || '').trim();
+                return item.hasVirtualResult || (hasRouvyProfile && isRiderActiveInLeaderboard(item.rider));
+            });
+
+            if (catFilter !== 'all') {
+                arr = arr.filter(item => riderMatchesCategory(item.rider, catFilter));
+            }
+
+            const yellowSorted = [...arr].sort(compareVirtualStandings);
+            const greenSorted = [...arr].sort((a, b) => (b.totalGreen - a.totalGreen) || compareVirtualStandings(a, b));
+            const polkaSorted = [...arr].sort((a, b) => (b.totalPolka - a.totalPolka) || compareVirtualStandings(a, b));
+            const pinkSorted = [...arr].sort((a, b) => (b.totalPink - a.totalPink) || compareVirtualStandings(a, b));
+
+            const formatHeroRiderHtml = (rider) => `<span class="shrink-0">${getFlagIcon(rider.country)}</span><span class="truncate">${escapeHtml(rider.name)}</span>`;
+
+            const setHero = (prefix, list, ptsKey, isBrandCard) => {
+                const nameEl = document.getElementById(`virtual-hero-${prefix}-name`);
+                const subEl = document.getElementById(`virtual-hero-${prefix}-${isBrandCard ? 'brand' : 'team'}`);
+                const ptsEl = document.getElementById(`virtual-hero-${prefix}-pts`);
+                if (!nameEl || !subEl || !ptsEl) return;
+                if (list.length > 0 && list[0][ptsKey] > 0) {
+                    const top = list[0];
+                    nameEl.innerHTML = formatHeroRiderHtml(top.rider);
+                    if (isBrandCard) {
+                        const model = String(top.rider.ebikeModel || '').trim();
+                        subEl.textContent = model ? `${top.rider.ebike} (${model})` : (top.rider.ebike || 'Bez značky');
+                    } else {
+                        subEl.textContent = top.rider.team || 'Bez týmu';
+                    }
+                    ptsEl.textContent = top[ptsKey] + ' b.';
+                } else if (list.length > 0) {
+                    const top = list[0];
+                    nameEl.innerHTML = formatHeroRiderHtml(top.rider);
+                    if (isBrandCard) {
+                        const model = String(top.rider.ebikeModel || '').trim();
+                        subEl.textContent = model ? `${top.rider.ebike} (${model})` : (top.rider.ebike || 'Bez značky');
+                    } else {
+                        subEl.textContent = top.rider.team || 'Bez týmu';
+                    }
+                    ptsEl.textContent = '0 b.';
+                } else {
+                    nameEl.textContent = '--';
+                    subEl.textContent = 'Zatím bez virtuálních výsledků';
+                    ptsEl.textContent = '0 b.';
+                }
+            };
+
+            setHero('yellow', yellowSorted, 'totalYellow', false);
+            setHero('green', greenSorted, 'totalGreen', false);
+            setHero('polka', polkaSorted, 'totalPolka', false);
+            setHero('pink', pinkSorted, 'totalPink', true);
+
+            const formatEbikeModelCell = (model) => {
+                const text = String(model || '').trim();
+                return text ? escapeHtml(text) : '<span class="text-slate-500 italic">—</span>';
+            };
+
+            const headerRow = document.getElementById('virtual-table-header-row');
+            const tbody = document.getElementById('virtual-public-table-body');
+            if (!headerRow || !tbody) return;
+            tbody.innerHTML = '';
+
+            if (currentVirtualLeaderboardTab === 'yellow') {
+                headerRow.innerHTML = `
+                    <th class="p-4 w-16">Poř.</th>
+                    <th class="p-4">Jezdec</th>
+                    <th class="p-4">Tým</th>
+                    <th class="p-4">E-Bike značka</th>
+                    <th class="p-4 text-center">Etapy</th>
+                    <th class="p-4 text-right">Celkem Body</th>
+                `;
+                yellowSorted.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    const sponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
+                    const wfBadge = item.winterFinisherBonus > 0
+                        ? `<span class="text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/45 px-1.5 py-0.5 rounded-md ml-1" title="Bonus +25 b. za dokončení všech kol série">Winter Finisher +25</span>`
+                        : '';
+                    const rouvyTag = String(item.rider.rouvyId || '').trim()
+                        ? `<span class="text-[10px] font-black uppercase tracking-wider text-sky-400 ml-1">ROUVY</span>`
+                        : '';
+                    tr.innerHTML = `
+                        <td class="p-4 font-black text-amber-400">${index + 1}.</td>
+                        <td class="p-4 font-bold text-white">
+                            <div class="flex items-center gap-2 flex-wrap">${getFlagIcon(item.rider.country)} <span>${escapeHtml(item.rider.name)}</span>${rouvyTag}${wfBadge}</div>
+                            ${sponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
+                        </td>
+                        <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
+                        <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
+                        <td class="p-4 text-center text-xs font-black ${item.winterFinisherBonus > 0 ? 'text-sky-300' : 'text-slate-300'} tabular-nums whitespace-nowrap">${item.finishedStages} / ${playedCount}</td>
+                        <td class="p-4 text-right font-black text-amber-400 text-base tabular-nums">${item.totalYellow} b.</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else if (currentVirtualLeaderboardTab === 'green') {
+                headerRow.innerHTML = `
+                    <th class="p-4 w-16">Poř.</th>
+                    <th class="p-4">Jezdec</th>
+                    <th class="p-4">Tým</th>
+                    <th class="p-4">E-Bike značka</th>
+                    <th class="p-4">Typ E-Biku</th>
+                    <th class="p-4 text-right">Sprint Body</th>
+                `;
+                greenSorted.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    const sponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
+                    tr.innerHTML = `
+                        <td class="p-4 font-black text-emerald-400">${index + 1}.</td>
+                        <td class="p-4 font-bold text-white">
+                            <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
+                            ${sponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
+                        </td>
+                        <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
+                        <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
+                        <td class="p-4 text-slate-300 text-xs font-semibold">${formatEbikeModelCell(item.rider.ebikeModel)}</td>
+                        <td class="p-4 text-right font-black text-emerald-400 text-base tabular-nums">${item.totalGreen} b.</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else if (currentVirtualLeaderboardTab === 'polka') {
+                headerRow.innerHTML = `
+                    <th class="p-4 w-16">Poř.</th>
+                    <th class="p-4">Jezdec</th>
+                    <th class="p-4">Tým</th>
+                    <th class="p-4">E-Bike značka</th>
+                    <th class="p-4">Typ E-Biku</th>
+                    <th class="p-4 text-right">KOM Body</th>
+                `;
+                polkaSorted.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    const sponsorBadges = renderSponsorBadges(item.rider.sponsors, { variant: 'rider', compact: true });
+                    tr.innerHTML = `
+                        <td class="p-4 font-black text-red-500">${index + 1}.</td>
+                        <td class="p-4 font-bold text-white">
+                            <div class="flex items-center gap-2">${getFlagIcon(item.rider.country)} ${escapeHtml(item.rider.name)}</div>
+                            ${sponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${sponsorBadges}</div>` : ''}
+                        </td>
+                        <td class="p-4 text-slate-300 font-medium">${item.rider.team ? escapeHtml(item.rider.team) : '<span class="text-slate-500 italic">Individuální</span>'}</td>
+                        <td class="p-4 text-slate-200 font-bold">${escapeHtml(item.rider.ebike)}</td>
+                        <td class="p-4 text-slate-300 text-xs font-semibold">${formatEbikeModelCell(item.rider.ebikeModel)}</td>
+                        <td class="p-4 text-right font-black text-red-500 text-base tabular-nums">${item.totalPolka} b.</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else if (currentVirtualLeaderboardTab === 'pink') {
+                headerRow.innerHTML = `
+                    <th class="p-4 w-16">Poř.</th>
+                    <th class="p-4">Značka E-Biku / Výrobce</th>
+                    <th class="p-4">Tovární top jezdec (Virtual)</th>
+                    <th class="p-4">Typ E-Biku</th>
+                    <th class="p-4 text-right">Konstruktérské Body</th>
+                `;
+                let brandMap = {};
+                arr.forEach(item => {
+                    let brand = item.rider.ebike;
+                    if (!brandMap[brand]) {
+                        brandMap[brand] = { brand: brand, totalPts: 0, ridersOfBrand: [] };
+                    }
+                    brandMap[brand].totalPts += item.totalPink;
+                    brandMap[brand].ridersOfBrand.push(item);
+                });
+
+                let brandArr = Object.values(brandMap).map(bItem => {
+                    bItem.ridersOfBrand.sort((x, y) => (y.totalPink - x.totalPink) || compareVirtualStandings(x, y));
+                    let topRiderName = '--';
+                    if (bItem.ridersOfBrand.length > 0) {
+                        topRiderName = escapeHtml(bItem.ridersOfBrand[0].rider.name) + ' <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded font-bold ml-1">Virtual Leader</span>';
+                    }
+                    const modelSet = new Set();
+                    bItem.ridersOfBrand.forEach(x => {
+                        const m = String(x.rider && x.rider.ebikeModel || '').trim();
+                        if (m) modelSet.add(m);
+                    });
+                    return {
+                        brand: bItem.brand,
+                        totalPts: bItem.totalPts,
+                        topRider: topRiderName,
+                        ebikeModels: Array.from(modelSet).join(', ')
+                    };
+                }).sort((a, b) => b.totalPts - a.totalPts);
+
+                brandArr.forEach((bItem, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    const brandFlagCode = getBrandFlagCode(bItem.brand);
+                    const brandFlagHtml = brandFlagCode ? `<span class="shrink-0">${getFlagIcon(brandFlagCode)}</span>` : '';
+                    tr.innerHTML = `
+                        <td class="p-4 font-black text-pink-400">${index + 1}.</td>
+                        <td class="p-4 font-bold text-white text-base">
+                            <div class="flex items-center gap-2">${brandFlagHtml}<span>${escapeHtml(bItem.brand)}</span></div>
+                        </td>
+                        <td class="p-4 text-slate-300 font-medium">${bItem.topRider}</td>
+                        <td class="p-4 text-slate-300 text-xs font-semibold">${formatEbikeModelCell(bItem.ebikeModels)}</td>
+                        <td class="p-4 text-right font-black text-pink-400 text-base tabular-nums">${bItem.totalPts} b.</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else if (currentVirtualLeaderboardTab === 'teams') {
+                headerRow.innerHTML = `
+                    <th class="p-4 w-16">Poř.</th>
+                    <th class="p-4">Tým</th>
+                    <th class="p-4">Bodující jezdci (Top 3)</th>
+                    <th class="p-4 text-right">Celkové Týmové Body</th>
+                `;
+                let teamStats = {};
+                teams.forEach(t => {
+                    teamStats[t.name] = { team: t, riderScores: [], count: 0 };
+                });
+                arr.forEach(item => {
+                    let tName = item.rider.team;
+                    if (tName && teamStats[tName]) {
+                        teamStats[tName].riderScores.push(item.totalYellow);
+                        teamStats[tName].count += 1;
+                    }
+                });
+
+                let tArr = [];
+                for (let tName in teamStats) {
+                    let tItem = teamStats[tName];
+                    tItem.riderScores.sort((a, b) => b - a);
+                    let top3Sum = tItem.riderScores.slice(0, 3).reduce((acc, val) => acc + val, 0);
+                    tArr.push({ team: tItem.team, totalPts: top3Sum, count: tItem.count });
+                }
+
+                tArr.sort((a, b) => b.totalPts - a.totalPts);
+
+                tArr.forEach((tItem, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "sponsor-reveal-row hover:bg-slate-800/50 transition border-b border-slate-800/60";
+                    const teamSponsorBadges = renderSponsorBadges(tItem.team.sponsors, { variant: 'team', compact: true });
+                    const teamFlagHtml = tItem.team.country ? `<span class="shrink-0">${getFlagIcon(tItem.team.country)}</span>` : '';
+                    tr.innerHTML = `
+                        <td class="p-4 font-black text-amber-400">${index + 1}.</td>
+                        <td class="p-4 font-bold text-white text-base">
+                            <div class="flex items-center gap-2">${teamFlagHtml}<span>${escapeHtml(tItem.team.name)}</span></div>
+                            ${teamSponsorBadges ? `<div class="sponsor-badges-reveal sponsor-reveal-compact flex flex-wrap items-center gap-1 mt-1">${teamSponsorBadges}</div>` : ''}
+                        </td>
+                        <td class="p-4 text-slate-400 font-medium">${tItem.count} celkem (Top 3 počítáno)</td>
+                        <td class="p-4 text-right font-black text-amber-400 text-base tabular-nums">${tItem.totalPts} b.</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            if (tbody.children.length === 0) {
+                const colCount = headerRow ? headerRow.querySelectorAll('th').length : 6;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="${colCount}" class="p-6 text-center text-slate-500 italic">V sekci Žebříčky (Virtual) zatím nejsou žádní jezdci ani zapsané výsledky virtuálních závodů ROUVY.</td>`;
+                tbody.appendChild(tr);
+            }
+        }
+
         function normalizeRaceWebsiteUrl(rawUrl) {
             const trimmed = String(rawUrl || '').trim();
             if (!trimmed) return '';
@@ -4643,7 +5506,7 @@
             calendar.forEach(c => {
                 let opt = document.createElement('option');
                 opt.value = c.id;
-                opt.textContent = c.name + ' (' + c.date + ')';
+                opt.textContent = (c.isVirtual ? '[VIRTUAL] ' : '') + c.name + ' (' + c.date + ')';
                 select.appendChild(opt);
             });
             if (prevVal && calendar.some(c => c.id === prevVal)) {
@@ -4708,32 +5571,53 @@
             if (!tbody) return;
             tbody.innerHTML = '';
 
-            let rRes = raceResults[raceId] || {};
+            const selectedRaceObj = calendar.find(c => c.id === raceId);
+            const isVirtualRace = !!(selectedRaceObj && selectedRaceObj.isVirtual);
+
+            let rRes = isVirtualRace ? (virtualRaceResults[raceId] || {}) : (raceResults[raceId] || {});
             let allRidersInRace = [];
 
             for (let riderId in rRes) {
                 let r = riders.find(item => item.id === riderId);
                 if (r && riderMatchesCategory(r, catFilter)) {
                     let data = rRes[riderId];
-                    let finishPos = parseInt(data.finish, 10) || 0;
-                    let sprintPos = parseInt(data.sprint, 10) || 0;
-                    let komPos = parseInt(data.kom, 10) || 0;
-                    let fPts = getFinishPoints(finishPos);
-                    let sPts = getSprintPoints(sprintPos);
-                    let kPts = getKomPoints(komPos);
-                    let total = fPts + sPts + kPts;
-                    allRidersInRace.push({
-                        rider: r,
-                        finish: finishPos > 0 ? finishPos : 999,
-                        fPts,
-                        sprintPos,
-                        sprint: sprintPos > 0 ? sprintPos : '-',
-                        sPts,
-                        komPos,
-                        kom: komPos > 0 ? komPos : '-',
-                        kPts,
-                        total
-                    });
+                    if (isVirtualRace) {
+                        const calc = calculateVirtualStagePoints(data);
+                        allRidersInRace.push({
+                            rider: r,
+                            finish: calc.finished && calc.rank > 0 ? calc.rank : 999,
+                            fPts: calc.rankPoints,
+                            sprintPos: calc.sprintRank || 0,
+                            sprint: calc.sprintRank ? calc.sprintRank : '-',
+                            sPts: calc.sprintPoints,
+                            komPos: calc.komRank || 0,
+                            kom: calc.komRank ? calc.komRank : '-',
+                            kPts: calc.komPoints,
+                            total: calc.stageTotal,
+                            isDNF: !calc.finished
+                        });
+                    } else {
+                        let finishPos = parseInt(data.finish, 10) || 0;
+                        let sprintPos = parseInt(data.sprint, 10) || 0;
+                        let komPos = parseInt(data.kom, 10) || 0;
+                        let fPts = getFinishPoints(finishPos);
+                        let sPts = getSprintPoints(sprintPos);
+                        let kPts = getKomPoints(komPos);
+                        let total = fPts + sPts + kPts;
+                        allRidersInRace.push({
+                            rider: r,
+                            finish: finishPos > 0 ? finishPos : 999,
+                            fPts,
+                            sprintPos,
+                            sprint: sprintPos > 0 ? sprintPos : '-',
+                            sPts,
+                            komPos,
+                            kom: komPos > 0 ? komPos : '-',
+                            kPts,
+                            total,
+                            isDNF: false
+                        });
+                    }
                 }
             }
 
@@ -4754,7 +5638,7 @@
                 }
             };
 
-            const finishWinners = allRidersInRace.filter(x => x.finish <= 30).sort((a, b) => a.finish - b.finish);
+            const finishWinners = allRidersInRace.filter(x => !x.isDNF && x.finish < 999).sort((a, b) => a.finish - b.finish);
             const sprintWinners = allRidersInRace.filter(x => x.sprintPos > 0).sort((a, b) => a.sprintPos - b.sprintPos || a.finish - b.finish);
             const komWinners = allRidersInRace.filter(x => x.komPos > 0).sort((a, b) => a.komPos - b.komPos || a.finish - b.finish);
 
@@ -4771,7 +5655,7 @@
                 if (pointsTh) pointsTh.textContent = 'KOM Body';
                 raceRidersList = komWinners;
             } else {
-                if (pointsTh) pointsTh.textContent = 'Celkem z kola';
+                if (pointsTh) pointsTh.textContent = isVirtualRace ? 'Celkem (ROUVY)' : 'Celkem z kola';
                 raceRidersList = [...allRidersInRace].sort((a, b) => a.finish - b.finish || b.total - a.total);
             }
 
@@ -5214,18 +6098,53 @@
             if (rSelect) {
                 const prevRace = rSelect.value;
                 rSelect.innerHTML = '';
-                calendar.forEach(c => {
+                const classicRaces = calendar.filter(c => !c.isVirtual);
+                if (classicRaces.length === 0) {
                     let opt = document.createElement('option');
-                    opt.value = c.id;
-                    opt.textContent = c.name + ' (' + c.date + ')';
+                    opt.value = '';
+                    opt.textContent = '-- Žádný klasický závod v kalendáři --';
                     rSelect.appendChild(opt);
-                });
-                if (prevRace && calendar.some(c => c.id === prevRace)) {
-                    rSelect.value = prevRace;
+                } else {
+                    classicRaces.forEach(c => {
+                        let opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = c.name + ' (' + c.date + ')';
+                        rSelect.appendChild(opt);
+                    });
+                    if (prevRace && classicRaces.some(c => c.id === prevRace)) {
+                        rSelect.value = prevRace;
+                    }
+                }
+            }
+
+            const vSelect = document.getElementById('admin-virtual-race-select');
+            const vNoRacesAlert = document.getElementById('admin-virtual-no-races-alert');
+            if (vSelect) {
+                const prevVirtual = vSelect.value;
+                vSelect.innerHTML = '';
+                const virtualRaces = getVirtualCalendarRacesChronological();
+                if (virtualRaces.length === 0) {
+                    let opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = '-- Žádný virtuální závod v kalendáři (aktivujte v Správě kalendáře) --';
+                    vSelect.appendChild(opt);
+                    if (vNoRacesAlert) vNoRacesAlert.classList.remove('hidden');
+                } else {
+                    if (vNoRacesAlert) vNoRacesAlert.classList.add('hidden');
+                    virtualRaces.forEach((c, idx) => {
+                        let opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = `#${idx + 1} ${c.name} (${c.date || 'bez data'})`;
+                        vSelect.appendChild(opt);
+                    });
+                    if (prevVirtual && virtualRaces.some(c => c.id === prevVirtual)) {
+                        vSelect.value = prevVirtual;
+                    }
                 }
             }
 
             filterAdminResultRiderSelect();
+            filterAdminVirtualRiderSelect();
 
             const riderSkillSelect = document.getElementById('admin-skill-rider-select');
             if (riderSkillSelect) {
@@ -5295,6 +6214,11 @@
                 showModal("Chyba", "Vyberte prosím platný závod i jezdce.");
                 return;
             }
+            const raceObj = calendar.find(c => c.id === raceId);
+            if (raceObj && raceObj.isVirtual) {
+                showModal("Upozornění", "Vybraný závod je virtuální. Výsledky virtuálních závodů zapisujte v sekci Žebříček Virtuální.");
+                return;
+            }
             const finish = parseInt(document.getElementById('admin-input-pos').value) || 0;
             const sprint = parseInt(document.getElementById('admin-input-sprint').value) || 0;
             const kom = parseInt(document.getElementById('admin-input-kom').value) || 0;
@@ -5314,6 +6238,495 @@
             } else {
                 showModal("Chyba databáze Firebase", `Výsledek jezdce se neuložil (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
             }
+        }
+
+        // ============================================================
+        // ADMIN VIRTUAL LEADERBOARD (ROUVY) MANAGEMENT & IMPORT
+        // ============================================================
+        function filterAdminVirtualRiderSelect() {
+            const select = document.getElementById('admin-virtual-rider-select');
+            if (!select) return;
+            const searchEl = document.getElementById('admin-virtual-rider-search');
+            const q = normalizeImportText(searchEl ? searchEl.value : '');
+            const prevVal = select.value;
+            select.innerHTML = '';
+
+            const filtered = riders.filter(r => {
+                if (!q) return true;
+                const hay = normalizeImportText(`${r.name || ''} ${r.rouvyId || ''} ${r.team || ''} ${r.ebike || ''}`);
+                return hay.includes(q);
+            });
+
+            // Sort riders with ROUVY ID first, then alphabetically
+            filtered.sort((a, b) => {
+                const hasA = !!String(a.rouvyId || '').trim();
+                const hasB = !!String(b.rouvyId || '').trim();
+                if (hasA !== hasB) return hasA ? -1 : 1;
+                return String(a.name || '').localeCompare(String(b.name || ''), 'cs');
+            });
+
+            if (filtered.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = '-- Žádný jezdec neodpovídá hledání --';
+                select.appendChild(opt);
+                return;
+            }
+
+            filtered.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.id;
+                const rouvyStr = String(r.rouvyId || '').trim();
+                const tag = rouvyStr ? `ROUVY: ${rouvyStr}` : 'bez ROUVY ID';
+                opt.textContent = `${r.name} — ${tag}`;
+                select.appendChild(opt);
+            });
+
+            if (prevVal && filtered.some(r => r.id === prevVal)) {
+                select.value = prevVal;
+            }
+        }
+
+        function updateVirtualSinglePointsPreview() {
+            const previewEl = document.getElementById('admin-virtual-live-pts-preview');
+            if (!previewEl) return;
+            const rankEl = document.getElementById('admin-virtual-rank');
+            const finEl = document.getElementById('admin-virtual-finished');
+            const spEl = document.getElementById('admin-virtual-sprint');
+            const komEl = document.getElementById('admin-virtual-kom');
+
+            const finished = finEl ? !!finEl.checked : true;
+            const rank = rankEl ? (parseInt(rankEl.value, 10) || 0) : 1;
+            const sprint_rank = spEl && spEl.value ? parseInt(spEl.value, 10) : null;
+            const kom_rank = komEl && komEl.value ? parseInt(komEl.value, 10) : null;
+
+            const calc = calculateVirtualStagePoints({ rank, finished, sprint_rank, kom_rank });
+            previewEl.textContent = `Náhled bodů: ${calc.stageTotal} b. (Cíl ${calc.rankPoints} + Sprint ${calc.sprintPoints} + KOM ${calc.komPoints} + Dojetí ${calc.finishBonus})`;
+        }
+
+        function findRiderByRouvyName(rouvyName) {
+            const raw = String(rouvyName || '').trim();
+            if (!raw) return null;
+            const lower = raw.toLowerCase();
+            // 1) Exact case-insensitive match on rider.rouvyId
+            let match = riders.find(r => String(r.rouvyId || '').trim().toLowerCase() === lower);
+            if (match) return match;
+            // 2) Normalized match (diacritics/spaces) on rider.rouvyId
+            const norm = normalizeImportText(raw);
+            if (norm) {
+                match = riders.find(r => normalizeImportText(r.rouvyId || '') === norm);
+                if (match) return match;
+                // 3) Fallback: exact normalized match on rider.name
+                match = riders.find(r => normalizeImportText(r.name || '') === norm);
+                if (match) return match;
+            }
+            return null;
+        }
+
+        function parseVirtualFinishedFlag(rawVal, rankVal) {
+            if (typeof rawVal === 'boolean') return rawVal;
+            if (typeof rawVal === 'number') return rawVal !== 0;
+            const str = normalizeImportText(String(rawVal ?? ''));
+            if (!str) return (parseInt(rankVal, 10) || 0) >= 1;
+            if (['false', '0', 'ne', 'no', 'dnf', 'nedokoncil', 'nedojel', 'dsq', 'dns'].includes(str)) return false;
+            if (['true', '1', 'ano', 'yes', 'ok', 'dokoncil', 'dojel', 'finisher', 'finished'].includes(str)) return true;
+            return (parseInt(rankVal, 10) || 0) >= 1;
+        }
+
+        function parseVirtualPremiumRank(rawVal) {
+            if (rawVal === null || rawVal === undefined || rawVal === '') return null;
+            const n = parseInt(rawVal, 10);
+            return (n >= 1 && n <= 3) ? n : null;
+        }
+
+        async function saveVirtualRiderResult() {
+            const raceEl = document.getElementById('admin-virtual-race-select');
+            const riderEl = document.getElementById('admin-virtual-rider-select');
+            const raceId = raceEl ? raceEl.value : '';
+            const riderId = riderEl ? riderEl.value : '';
+            if (!raceId) {
+                showModal("Chyba", "Nejprve aktivujte alespoň jeden virtuální závod v sekci Správa kalendáře a vyberte jej.");
+                return;
+            }
+            if (!riderId) {
+                showModal("Chyba", "Vyberte prosím jezdce.");
+                return;
+            }
+            const finished = !!(document.getElementById('admin-virtual-finished') && document.getElementById('admin-virtual-finished').checked);
+            const rankInput = parseInt(document.getElementById('admin-virtual-rank').value, 10) || 0;
+            const rank = finished ? (rankInput >= 1 ? rankInput : 1) : 0;
+            const sprint_rank = parseVirtualPremiumRank(document.getElementById('admin-virtual-sprint').value);
+            const kom_rank = parseVirtualPremiumRank(document.getElementById('admin-virtual-kom').value);
+
+            const riderObj = riders.find(r => r.id === riderId);
+            const rouvy_name = riderObj ? String(riderObj.rouvyId || '').trim() : '';
+
+            if (!virtualRaceResults[raceId]) virtualRaceResults[raceId] = {};
+            virtualRaceResults[raceId][riderId] = {
+                rank,
+                finished,
+                sprint_rank,
+                kom_rank,
+                rouvy_name
+            };
+
+            const calc = calculateVirtualStagePoints(virtualRaceResults[raceId][riderId]);
+            renderAdminVirtualStageTable();
+            renderPublicVirtualLeaderboards();
+            renderPublicRaceResults();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Úspěch", `Virtuální výsledek jezdce ${riderObj ? riderObj.name : ''} byl uložen do Firebase (${calc.stageTotal} b. za etapu)!`);
+            } else {
+                showModal("Chyba databáze Firebase", `Virtuální výsledek se neuložil (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function deleteVirtualStageRiderResult(raceId, riderId) {
+            if (!raceId || !riderId || !virtualRaceResults[raceId] || !virtualRaceResults[raceId][riderId]) return;
+            const riderObj = riders.find(r => r.id === riderId);
+            if (!confirm(`Opravdu chcete smazat virtuální výsledek jezdce "${riderObj ? riderObj.name : riderId}" z této etapy?`)) return;
+
+            delete virtualRaceResults[raceId][riderId];
+            if (Object.keys(virtualRaceResults[raceId]).length === 0) {
+                delete virtualRaceResults[raceId];
+            }
+            renderAdminVirtualStageTable();
+            renderPublicVirtualLeaderboards();
+            renderPublicRaceResults();
+            const res = await saveData();
+            if (!res.ok) {
+                showModal("Chyba databáze Firebase", `Smazání výsledku se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        async function clearVirtualStageResults() {
+            const raceEl = document.getElementById('admin-virtual-race-select');
+            const raceId = raceEl ? raceEl.value : '';
+            if (!raceId) {
+                showModal("Chyba", "Není vybrána žádná virtuální etapa.");
+                return;
+            }
+            const existingCount = virtualRaceResults[raceId] ? Object.keys(virtualRaceResults[raceId]).length : 0;
+            if (existingCount === 0) {
+                showModal("Info", "Vybraná virtuální etapa zatím neobsahuje žádné výsledky.");
+                return;
+            }
+            const raceObj = calendar.find(c => c.id === raceId);
+            if (!confirm(`Opravdu chcete vymazat všech ${existingCount} zapsaných výsledků etapy "${raceObj ? raceObj.name : raceId}"?`)) return;
+
+            delete virtualRaceResults[raceId];
+            renderAdminVirtualStageTable();
+            renderPublicVirtualLeaderboards();
+            renderPublicRaceResults();
+            const res = await saveData();
+            if (res.ok) {
+                showModal("Hotovo", "Výsledky vybrané virtuální etapy byly vymazány.");
+            } else {
+                showModal("Chyba databáze Firebase", `Vymazání se neuložilo (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+            }
+        }
+
+        function fillVirtualJsonSample() {
+            const ta = document.getElementById('admin-virtual-json-input');
+            if (!ta) return;
+            const rouvyRiders = riders.filter(r => String(r.rouvyId || '').trim());
+            const names = [
+                rouvyRiders[0] ? rouvyRiders[0].rouvyId : (riders[0] ? riders[0].name : 'JanNovak_CZ'),
+                rouvyRiders[1] ? rouvyRiders[1].rouvyId : (riders[1] ? riders[1].name : 'Petr_MTB'),
+                rouvyRiders[2] ? rouvyRiders[2].rouvyId : (riders[2] ? riders[2].name : 'Tomas_ROUVY')
+            ];
+            const sample = [
+                { rouvy_name: names[0], rank: 1, finished: true, sprint_rank: 1, kom_rank: 2 },
+                { rouvy_name: names[1], rank: 2, finished: true, sprint_rank: 2, kom_rank: 1 },
+                { rouvy_name: names[2], rank: 3, finished: true, sprint_rank: 3, kom_rank: null }
+            ];
+            ta.value = JSON.stringify(sample, null, 2);
+            const fb = document.getElementById('admin-virtual-import-feedback');
+            if (fb) fb.textContent = 'Vložen vzorový JSON — upravte pořadí a klikněte na „Spárovat JSON a uložit výsledky etapy“.';
+        }
+
+        function downloadVirtualStageXlsxTemplate() {
+            if (typeof XLSX === 'undefined') {
+                showModal("Chyba", "Knihovna SheetJS (XLSX) není načtena. Zkontrolujte prosím připojení k internetu.");
+                return;
+            }
+            const rouvyRiders = riders.filter(r => String(r.rouvyId || '').trim());
+            const sampleRows = [
+                {
+                    rouvy_name: rouvyRiders[0] ? rouvyRiders[0].rouvyId : 'JanNovak_CZ',
+                    rank: 1,
+                    finished: true,
+                    sprint_rank: 1,
+                    kom_rank: 2
+                },
+                {
+                    rouvy_name: rouvyRiders[1] ? rouvyRiders[1].rouvyId : 'Petr_MTB',
+                    rank: 2,
+                    finished: true,
+                    sprint_rank: 2,
+                    kom_rank: 1
+                },
+                {
+                    rouvy_name: rouvyRiders[2] ? rouvyRiders[2].rouvyId : 'Tomas_ROUVY',
+                    rank: 0,
+                    finished: false,
+                    sprint_rank: '',
+                    kom_rank: ''
+                }
+            ];
+            const ws = XLSX.utils.json_to_sheet(sampleRows);
+            ws['!cols'] = [{ wch: 24 }, { wch: 10 }, { wch: 12 }, { wch: 14 }, { wch: 12 }];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'ROUVY_Etapa');
+            XLSX.writeFile(wb, 'vzor_virtualni_etapa_rouvy.xlsx');
+        }
+
+        async function applyVirtualStageBulkEntries(raceId, entries) {
+            if (!raceId) {
+                showModal("Chyba", "Nejprve vyberte virtuální závod / etapu (aktivujte jej v sekci Správa kalendáře).");
+                return { matched: 0, unmatched: [] };
+            }
+            if (!Array.isArray(entries) || entries.length === 0) {
+                showModal("Chyba", "Nebyla nalezena žádná data výsledků etapy.");
+                return { matched: 0, unmatched: [] };
+            }
+
+            if (!virtualRaceResults[raceId]) virtualRaceResults[raceId] = {};
+            let matchedCount = 0;
+            const unmatchedNames = [];
+
+            entries.forEach(item => {
+                if (!item || typeof item !== 'object') return;
+                const rouvyName = String(
+                    item.rouvy_name ?? item.rouvyName ?? item.rouvy_id ?? item.rouvyId ?? item.rouvy ?? item.name ?? item.jezdec ?? ''
+                ).trim();
+                const riderIdDirect = String(item.rider_id ?? item.riderId ?? '').trim();
+
+                let riderObj = null;
+                if (riderIdDirect) {
+                    riderObj = riders.find(r => r.id === riderIdDirect) || null;
+                }
+                if (!riderObj && rouvyName) {
+                    riderObj = findRiderByRouvyName(rouvyName);
+                }
+
+                if (!riderObj) {
+                    if (rouvyName || riderIdDirect) unmatchedNames.push(rouvyName || riderIdDirect);
+                    return;
+                }
+
+                const rawRank = item.rank ?? item.poradi ?? item.finish ?? 0;
+                const finished = parseVirtualFinishedFlag(item.finished ?? item.dokoncil ?? item.stav, rawRank);
+                const rankInt = parseInt(rawRank, 10) || 0;
+                const rank = finished ? (rankInt >= 1 ? rankInt : 21) : 0;
+                const sprint_rank = parseVirtualPremiumRank(item.sprint_rank ?? item.sprintRank ?? item.sprint);
+                const kom_rank = parseVirtualPremiumRank(item.kom_rank ?? item.komRank ?? item.kom);
+
+                virtualRaceResults[raceId][riderObj.id] = {
+                    rank,
+                    finished,
+                    sprint_rank,
+                    kom_rank,
+                    rouvy_name: rouvyName || String(riderObj.rouvyId || '').trim()
+                };
+                matchedCount++;
+            });
+
+            renderAdminVirtualStageTable();
+            renderPublicVirtualLeaderboards();
+            renderPublicRaceResults();
+
+            const fb = document.getElementById('admin-virtual-import-feedback');
+            if (matchedCount > 0) {
+                const res = await saveData();
+                const unmatchedText = unmatchedNames.length > 0
+                    ? ` Nespárováno (${unmatchedNames.length}): ${unmatchedNames.slice(0, 8).join(', ')}${unmatchedNames.length > 8 ? '…' : ''}.`
+                    : '';
+                if (fb) {
+                    fb.className = unmatchedNames.length > 0 ? 'text-xs font-bold text-amber-300' : 'text-xs font-bold text-emerald-400';
+                    fb.textContent = `Spárováno a uloženo ${matchedCount} jezdců.${unmatchedText}`;
+                }
+                if (res.ok) {
+                    showModal("Import virtuální etapy dokončen", `Úspěšně spárováno a uloženo ${matchedCount} výsledků do Firebase.${unmatchedText}`);
+                } else {
+                    showModal("Chyba databáze Firebase", `Import se neuložil (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
+                }
+            } else {
+                const msg = unmatchedNames.length > 0
+                    ? `Žádný z ${unmatchedNames.length} profilů nebyl nalezen v databázi jezdců (zkontrolujte pole Rouvy ID ve Správě jezdců): ${unmatchedNames.slice(0, 6).join(', ')}.`
+                    : 'Nebyl nalezen žádný platný záznam k uložení.';
+                if (fb) {
+                    fb.className = 'text-xs font-bold text-red-400';
+                    fb.textContent = msg;
+                }
+                showModal("Nespárováno", msg);
+            }
+
+            return { matched: matchedCount, unmatched: unmatchedNames };
+        }
+
+        async function importVirtualStageFromJson() {
+            const raceEl = document.getElementById('admin-virtual-race-select');
+            const raceId = raceEl ? raceEl.value : '';
+            const ta = document.getElementById('admin-virtual-json-input');
+            const raw = ta ? ta.value.trim() : '';
+            if (!raw) {
+                showModal("Chyba", "Vložte prosím JSON pole výsledků etapy (nebo klikněte na „Vložit vzor JSON“).");
+                return;
+            }
+            let parsed;
+            try {
+                parsed = JSON.parse(raw);
+            } catch (err) {
+                showModal("Neplatný JSON", `Text nelze načíst jako platný JSON: ${err.message}`);
+                return;
+            }
+            const list = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.results) ? parsed.results : null);
+            if (!list) {
+                showModal("Chyba formátu", "JSON musí být pole objektů (např. [ { \"rouvy_name\": \"...\", \"rank\": 1, \"finished\": true, \"sprint_rank\": 1, \"kom_rank\": null } ]).");
+                return;
+            }
+            await applyVirtualStageBulkEntries(raceId, list);
+        }
+
+        function handleVirtualStageXlsxUpload(event) {
+            const file = event && event.target && event.target.files ? event.target.files[0] : null;
+            if (!file) return;
+            if (typeof XLSX === 'undefined') {
+                showModal("Chyba", "Knihovna SheetJS (XLSX) není načtena. Zkontrolujte připojení k internetu.");
+                event.target.value = '';
+                return;
+            }
+            const raceEl = document.getElementById('admin-virtual-race-select');
+            const raceId = raceEl ? raceEl.value : '';
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    if (!firstSheetName) {
+                        showModal("Chyba", "Soubor neobsahuje žádný list.");
+                        return;
+                    }
+                    const sheet = workbook.Sheets[firstSheetName];
+                    const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+                    if (!rawRows || rawRows.length === 0) {
+                        showModal("Chyba", "Tabulka v souboru je prázdná.");
+                        return;
+                    }
+
+                    const normalizedEntries = rawRows.map(row => {
+                        const keyMap = {};
+                        Object.keys(row).forEach(k => {
+                            keyMap[normalizeImportText(k)] = row[k];
+                        });
+                        const pick = (aliases) => {
+                            for (let i = 0; i < aliases.length; i++) {
+                                if (keyMap[aliases[i]] !== undefined && keyMap[aliases[i]] !== '') return keyMap[aliases[i]];
+                            }
+                            return undefined;
+                        };
+                        return {
+                            rouvy_name: pick(['rouvy name', 'rouvy_name', 'rouvy id', 'rouvyid', 'rouvy', 'profil', 'jmeno', 'jezdec', 'name']),
+                            rank: pick(['rank', 'poradi', 'misto', 'umisteni', 'cil', 'finish', 'pos']),
+                            finished: pick(['finished', 'dokoncil', 'dojel', 'stav', 'status']),
+                            sprint_rank: pick(['sprint rank', 'sprint_rank', 'sprint', 'sprinterska premie']),
+                            kom_rank: pick(['kom rank', 'kom_rank', 'kom', 'horska premie', 'vrcharska premie'])
+                        };
+                    });
+
+                    await applyVirtualStageBulkEntries(raceId, normalizedEntries);
+                } catch (err) {
+                    showModal("Chyba importu", `Soubor se nepodařilo načíst: ${err.message || err}`);
+                } finally {
+                    if (event && event.target) event.target.value = '';
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function renderAdminVirtualStageTable() {
+            const tbody = document.getElementById('admin-virtual-stage-tbody');
+            const roundsEl = document.getElementById('admin-virtual-rounds-summary');
+            const finishersEl = document.getElementById('admin-virtual-finishers-summary');
+
+            const { stats: vStats, playedCount } = calculateVirtualRiderTotals();
+            const wfCount = Object.values(vStats).filter(st => st.winterFinisherBonus > 0).length;
+            if (roundsEl) roundsEl.textContent = `Odehraná kola: ${playedCount}`;
+            if (finishersEl) finishersEl.textContent = `Winter Finisher (+25 b.): ${wfCount}`;
+
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const raceEl = document.getElementById('admin-virtual-race-select');
+            const raceId = raceEl ? raceEl.value : '';
+            if (!raceId) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500 italic">Vyberte virtuální etapu (nejprve ji aktivujte v sekci Správa kalendáře).</td></tr>`;
+                return;
+            }
+
+            const stageMap = virtualRaceResults[raceId] || {};
+            const rows = [];
+            for (let riderId in stageMap) {
+                const riderObj = riders.find(r => r.id === riderId);
+                const entry = stageMap[riderId];
+                const calc = calculateVirtualStagePoints(entry);
+                rows.push({
+                    riderId,
+                    rider: riderObj,
+                    entry,
+                    calc
+                });
+            }
+
+            rows.sort((a, b) => {
+                if (a.calc.finished !== b.calc.finished) return a.calc.finished ? -1 : 1;
+                const rA = a.calc.rank > 0 ? a.calc.rank : 9999;
+                const rB = b.calc.rank > 0 ? b.calc.rank : 9999;
+                if (rA !== rB) return rA - rB;
+                return b.calc.stageTotal - a.calc.stageTotal;
+            });
+
+            if (rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500 italic">Pro tuto virtuální etapu zatím nejsou zapsány žádné výsledky.</td></tr>`;
+                return;
+            }
+
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800";
+                const riderName = row.rider ? escapeHtml(row.rider.name) : `<span class="text-slate-400 italic">${escapeHtml(row.riderId)}</span>`;
+                const flagHtml = row.rider ? getFlagIcon(row.rider.country) : '';
+                const rouvyLabel = String((row.rider && row.rider.rouvyId) || row.entry.rouvy_name || '').trim();
+                const statusBadge = row.calc.finished
+                    ? `<span class="text-[11px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/35 px-2 py-0.5 rounded-lg">Dokončil</span>`
+                    : `<span class="text-[11px] font-black bg-red-500/20 text-red-300 border border-red-500/35 px-2 py-0.5 rounded-lg">DNF</span>`;
+                const sprintText = row.calc.sprintRank ? `${row.calc.sprintRank}. (+${row.calc.sprintPoints} b.)` : '—';
+                const komText = row.calc.komRank ? `${row.calc.komRank}. (+${row.calc.komPoints} b.)` : '—';
+
+                tr.innerHTML = `
+                    <td class="p-3 font-black ${row.calc.finished ? 'text-amber-400' : 'text-red-400'}">${row.calc.finished && row.calc.rank > 0 ? row.calc.rank + '.' : 'DNF'}</td>
+                    <td class="p-3">
+                        <div class="font-bold text-white flex items-center gap-2">${flagHtml}<span>${riderName}</span></div>
+                        ${rouvyLabel ? `<div class="text-[11px] font-bold text-sky-400">ROUVY: ${escapeHtml(rouvyLabel)}</div>` : `<div class="text-[11px] text-slate-500 italic">bez ROUVY ID</div>`}
+                    </td>
+                    <td class="p-3 text-center">${statusBadge}</td>
+                    <td class="p-3 text-center font-bold text-slate-200 tabular-nums">${row.calc.rankPoints} b.</td>
+                    <td class="p-3 text-center text-xs font-bold ${row.calc.sprintPoints > 0 ? 'text-emerald-400' : 'text-slate-500'} tabular-nums">${sprintText}</td>
+                    <td class="p-3 text-center text-xs font-bold ${row.calc.komPoints > 0 ? 'text-red-400' : 'text-slate-500'} tabular-nums">${komText}</td>
+                    <td class="p-3 text-center text-xs font-bold ${row.calc.finishBonus > 0 ? 'text-sky-300' : 'text-slate-500'} tabular-nums">+${row.calc.finishBonus} b.</td>
+                    <td class="p-3 text-right font-black text-amber-400 tabular-nums">${row.calc.stageTotal} b.</td>
+                    <td class="p-3 text-right">
+                        <button type="button" onclick="deleteVirtualStageRiderResult('${escapeHtml(raceId)}', '${escapeHtml(row.riderId)}')" class="bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition" title="Smazat výsledek z etapy">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function loadRiderSkillsToForm() {
@@ -7434,13 +8847,25 @@
             if (!race) return;
             const prevVal = !!race.isVirtual;
             race.isVirtual = !prevVal;
+            populateAdminSelects();
+            populatePublicRaceResultsSelect();
             renderAdminCalendarTable();
+            renderAdminVirtualStageTable();
             renderCalendar();
+            renderPublicLeaderboards();
+            renderPublicVirtualLeaderboards();
+            renderPublicRaceResults();
             const res = await saveData();
             if (!res.ok) {
                 race.isVirtual = prevVal;
+                populateAdminSelects();
+                populatePublicRaceResultsSelect();
                 renderAdminCalendarTable();
+                renderAdminVirtualStageTable();
                 renderCalendar();
+                renderPublicLeaderboards();
+                renderPublicVirtualLeaderboards();
+                renderPublicRaceResults();
                 showModal("Chyba databáze Firebase", `Změna virtuálního závodu se neuložila (${res.error?.code || res.error?.message || 'neznámá chyba'}).`);
             }
         }
@@ -7550,7 +8975,10 @@
                 populateAdminSelects();
                 populatePublicRaceResultsSelect();
                 renderAdminCalendarTable();
+                renderAdminVirtualStageTable();
                 renderCalendar();
+                renderPublicLeaderboards();
+                renderPublicVirtualLeaderboards();
                 renderPublicRaceResults();
                 const res = await saveData();
                 if (res.ok) {
@@ -7565,7 +8993,9 @@
                 populateAdminSelects();
                 populatePublicRaceResultsSelect();
                 renderAdminCalendarTable();
+                renderAdminVirtualStageTable();
                 renderCalendar();
+                renderPublicVirtualLeaderboards();
                 const res = await saveData();
                 if (res.ok) {
                     showModal("Úspěch", `Závod "${name}" byl přidán do kalendáře a uložen do Firebase databáze!`);
@@ -7626,8 +9056,9 @@
         async function deleteRace(id) {
             const race = calendar.find(c => c.id === id);
             if (!race) return;
-            const hasResults = raceResults[id] && Object.keys(raceResults[id]).length > 0;
-            const msg = hasResults
+            const hasClassicResults = raceResults[id] && Object.keys(raceResults[id]).length > 0;
+            const hasVirtualResults = virtualRaceResults[id] && Object.keys(virtualRaceResults[id]).length > 0;
+            const msg = (hasClassicResults || hasVirtualResults)
                 ? `Opravdu chcete smazat závod "${race.name}"? Tento závod již obsahuje zapsané výsledky jezdců.`
                 : `Opravdu chcete smazat závod "${race.name}" z kalendáře?`;
 
@@ -7636,10 +9067,14 @@
                     cancelEditRace();
                 }
                 calendar = calendar.filter(c => c.id !== id);
+                delete virtualRaceResults[id];
                 populateAdminSelects();
                 populatePublicRaceResultsSelect();
                 renderAdminCalendarTable();
+                renderAdminVirtualStageTable();
                 renderCalendar();
+                renderPublicLeaderboards();
+                renderPublicVirtualLeaderboards();
                 renderPublicRaceResults();
                 const res = await saveData();
                 if (!res.ok) {
@@ -8116,6 +9551,7 @@
         const footerInternalTargetLabels = {
             rules: 'Pravidla bodování',
             leaderboards: 'Žebříčky (Tours)',
+            virtual_leaderboards: 'Žebříčky (Virtual)',
             race_results: 'Výsledky dle závodů',
             calendar: 'Kalendář 2027',
             teams: 'Týmy a Jezdci',
@@ -8136,7 +9572,7 @@
         function handleFooterInternalLink(target) {
             if (target === 'rules') {
                 switchMainTab('rules');
-            } else if (target === 'leaderboards' || target === 'race_results' || target === 'calendar' || target === 'teams') {
+            } else if (target === 'leaderboards' || target === 'virtual_leaderboards' || target === 'race_results' || target === 'calendar' || target === 'teams') {
                 switchMainTab('public');
                 switchPublicSubTab(target);
             } else if (target === 'video') {
@@ -9410,7 +10846,7 @@
         }
 
         function exportJSONData() {
-            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, headerConfig, footerConfig, backgroundConfig, availableBrands, brandFlags, availableMotors, motorHandicaps, motorSpecs, raceResults };
+            const data = { teams, riders, calendar, ageCategories, webPartners, webPartnersHideCaptionUntilHover, webPartnersShowTopSlider, sponsorsHideBadgesUntilHover, youtubeVideoId, isHeroVideoEnabled, headerConfig, footerConfig, backgroundConfig, availableBrands, brandFlags, availableMotors, motorHandicaps, motorSpecs, raceResults, virtualRaceResults };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -9473,6 +10909,9 @@
                     if (data.motorHandicaps && typeof data.motorHandicaps === 'object') motorHandicaps = data.motorHandicaps;
                     if (data.motorSpecs && typeof data.motorSpecs === 'object') motorSpecs = data.motorSpecs;
                     if (data.raceResults) raceResults = data.raceResults;
+                    if (data.virtualRaceResults && typeof data.virtualRaceResults === 'object') {
+                        virtualRaceResults = data.virtualRaceResults;
+                    }
                     saveData();
                     updateHeroVideoPlayer();
                     updateSponsorsHoverModeUI();
@@ -9483,6 +10922,7 @@
                     renderAdminMotorsTable();
                     renderAdminBrandFlagsTable();
                     renderAdminCalendarTable();
+                    renderAdminVirtualStageTable();
                     renderAdminRidersTable();
                     renderAdminRidersDbTable();
                     renderAdminTeamsGrid();
@@ -9493,6 +10933,7 @@
                     renderAdminBackgroundEditor();
                     renderCalendar();
                     renderPublicLeaderboards();
+                    renderPublicVirtualLeaderboards();
                     renderPublicRaceResults();
                     renderTeamsAndRidersView();
                     renderWebPartnersSlider();
@@ -9530,6 +10971,7 @@
                 populateAdminSelects();
                 populateBrandFlagCountrySelect();
                 renderPublicLeaderboards();
+                renderPublicVirtualLeaderboards();
                 populatePublicRaceResultsSelect();
                 renderCalendar();
                 renderWebPartnersSlider();
@@ -9537,6 +10979,7 @@
                 renderHeader();
                 renderFooter();
                 filterMotorReferenceCatalog();
+                updateVirtualSinglePointsPreview();
             }, 300);
         };
     </script>
